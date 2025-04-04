@@ -478,6 +478,16 @@ function showResults() {
     resultsArea.classList.remove('hidden');
     document.querySelector('.activity-area').classList.add('results-view');
     
+    // Reset scroll position to top - with a slight delay to ensure DOM is updated
+    setTimeout(() => {
+        document.querySelector('.activity-area').scrollTop = 0;
+        if (document.querySelector('.lesson-main')) {
+            document.querySelector('.lesson-main').scrollTop = 0;
+        }
+        window.scrollTo(0, 0);
+        console.log("Scroll position reset");
+    }, 50);
+    
     // Display score
     const totalQuestions = questions.length;
     const scorePercent = Math.round((userScore / totalQuestions) * 100);
