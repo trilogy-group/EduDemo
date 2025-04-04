@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 1: Meet the Clock!</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Global variables
+        let currentStepIndex = 0;
+        let lessonSteps = [];
+        
+        // UI elements
+        let topBannerHeight;
+        let bottomNavHeight;
+        let centerStageHeight;
+        let progressBarSegments = 7; // Warmup, Learn (3), Try, Do, Show, Extension
+        let completedSegments = 0;
+        
+        // Character and glossary
+        let characterName = "Professor Tempo";
+        let glossary = {};
+        
+        // Clock variables
+        let clockCenterX, clockCenterY, clockRadius;
+        let hourHandLength, minuteHandLength;
+        let hourHandColor, minuteHandColor;
+        let currentHour = 3;
+        let currentMinute = 0;
+        let showClockNumbers = true;
+        let missingNumbers = [];
+        let userInputs = {};
+        let selectedInputBox = null;
+        let numpad = { visible: false, value: "", x: 0, y: 0 };
+        
+        // UI state
+        let activeSection = "warmup"; // warmup, learn1, learn2, learn3, tryit, doit, showit, extension
+        let warmupCompleted = false;
+        let learnChunksCompleted = [false, false, false];
+        let tryItScreenIndex = 0;
+        let doItProblemIndex = 0;
+        let showItQuestionIndex = 0;
+        let feedbackMessage = "";
+        let feedbackColor = "#000000";
+        let showFeedback = false;
+        
+        // Buttons
+        let prevButton, nextButton, resetButton, homeButton;
+        let navigationEnabled = true;
+        
+        // Add these global variables
+        let isHoveringPrev = false;
+        let isHoveringNext = false;
+        let isHoveringReset = false;
+        let isHoveringHome = false;
+        
+        // Initialize the lesson steps
+        function initLessonSteps() {
+            lessonSteps = [
+                // Warm-up section
+                {
+                    section: "warmup",
+                    text: "Welcome, time explorers! Let's quickly check this clock. A few numbers are missing! Can you type the correct number in each empty box?",
+                    state: { hour: 12, minute: 0, missingNumbers: [2, 5, 11] }
+                },
+                
+                // Learn It - Clock Face & Numbers
+                {
+                    section: "learn1",
+                    text: "This is a clock face! It helps us tell time. Look at the numbers. They go in order all the way around, starting from 1, then 2, 3... up to 12 at the very top.",
+                    state: { hour: 12, minute: 0, highlightNumbers: true }
+                },
+                {
+                    section: "learn1",
+                    text: "Quick check! The numbers go in order. Click the number that comes right after the number 8.",
+                    state: { hour: 12, minute: 0, checkNumber: 9 }
+                },
+                
+                // Learn It - Hands
+                {
+                    section: "learn2",
+                    text: "See these pointers? They are called hands! This short, blue hand is the Hour Hand. It tells us the hour.",
+                    state: { hour: 3, minute: 0, highlightHourHand: true }
+                },
+                {
+                    section: "learn2",
+                    text: "This long, red hand is the Minute Hand. It tells us the minutes.",
+                    state: { hour: 3, minute: 0, highlightMinuteHand: true }
+                },
+                {
+                    section: "learn2",
+                    text: "Easy way to remember: Hour hand is short, Minute hand is long!",
+                    state: { hour: 3, minute: 0, compareHands: true }
+                },
+                {
+                    section: "learn2",
+                    text: "Click on the Hour Hand (the short one).",
+                    state: { hour: 3, minute: 0, clickHourHand: true }
+                },
+                {
+                    section: "learn2",
+                    text: "Now, click on the Minute Hand (the long one).",
+                    state: { hour: 3, minute: 0, clickMinuteHand: true }
+                },
+                
+                // Learn It - Clockwise Direction
+                {
+                    section: "learn3",
+                    text: "Watch how the hands move! They always go around in the same direction, past 1, 2, 3... This special direction is called Clockwise.",
+                    state: { hour: 12, minute: 0, animateClockwise: true }
+                },
+                {
+                    section: "learn3",
+                    text: "Which arrow shows the clockwise direction?",
+                    state: { hour: 12, minute: 0, showDirectionArrows: true }
+                },
+                
+                // Try It section - first screen
+                {
+                    section: "tryit",
+                    text: "Find the Hour Hand. Remember, it's the short one. Click it!",
+                    state: { hour: 6, minute: 0, tryItScreen: 1 }
+                },
+                
+                // More steps would follow for the remaining sections...
+            ];
+        }
+        
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            angleMode(DEGREES);
+            textAlign(CENTER, CENTER);
+            
+            // Initialize UI dimensions
+            topBannerHeight = height * 0.15;
+            bottomNavHeight = height * 0.1;
+            centerStageHeight = height - topBannerHeight - bottomNavHeight;
+            
+            // Initialize clock dimensions
+            clockCenterX = width / 2;
+            clockCenterY = topBannerHeight + centerStageHeight / 2;
+            clockRadius = min(width, centerStageHeight) * 0.35;
+            hourHandLength = clockRadius * 0.5;
+            minuteHandLength = clockRadius * 0.8;
+            hourHandColor = color(0, 0, 255);   // Blue for hour hand
+            minuteHandColor = color(255, 0, 0); // Red for minute hand
+            
+            // Generate missing numbers for warm-up
+            missingNumbers = [2, 5, 11]; // Fixed for predictability
+            
+            // Initialize the lesson steps
+            initLessonSteps();
+            
+            // Set initial state
+            updateStateFromStep();
+        }
+        
+        function draw() {
+            background(240);
+            
+            // Draw the UI layout
+            drawTopBanner();
+            drawCenterStage();
+            drawBottomNav();
+            
+            // Draw feedback if active
+            if (showFeedback) {
+                drawFeedback();
+            }
+            
+            // Draw numpad if active
+            if (numpad.visible) {
+                drawNumpad();
+            }
+        }
+        
+        function drawTopBanner() {
+            fill(200, 230, 255);
+            noStroke();
+            rect(0, 0, width, topBannerHeight);
+            
+            // Draw character and current instruction
+            fill(50);
+            textSize(18);
+            text(characterName + " says:", width * 0.1, topBannerHeight * 0.3);
+            
+            textSize(22);
+            textAlign(CENTER, CENTER);
+            text(lessonSteps[currentStepIndex].text, width/2, topBannerHeight * 0.65, width * 0.8);
+        }
+        
+        function drawCenterStage() {
+            fill(255);
+            noStroke();
+            rect(0, topBannerHeight, width, centerStageHeight);
+            
+            // Draw different content based on active section
+            if (activeSection.startsWith("warmup")) {
+                drawWarmupActivity();
+            } else if (activeSection.startsWith("learn")) {
+                drawLearnActivity();
+            } else if (activeSection === "tryit") {
+                drawTryItActivity();
+            } else if (activeSection === "doit") {
+                drawDoItActivity();
+            } else if (activeSection === "showit") {
+                drawShowItActivity();
+            } else if (activeSection === "extension") {
+                drawExtensionActivity();
+            }
+        }
+        
+        function drawBottomNav() {
+            fill(220);
+            noStroke();
+            rect(0, height - bottomNavHeight, width, bottomNavHeight);
+            
+            // Draw progress bar
+            drawProgressBar();
+            
+            // Draw navigation buttons
+            drawNavigationButtons();
+        }
+        
+        function drawProgressBar() {
+            const barWidth = width * 0.6;
+            const barHeight = bottomNavHeight * 0.3;
+            const barX = (width - barWidth) / 2;
+            const barY = height - bottomNavHeight * 0.7;
+            
+            // Background bar
+            fill(180);
+            rect(barX, barY, barWidth, barHeight, barHeight/2);
+            
+            // Segments
+            const segmentWidth = barWidth / progressBarSegments;
+            for (let i = 0; i < progressBarSegments; i++) {
+                if (i < completedSegments) {
+                    fill(100, 200, 100); // Completed segments
+                } else if (i === completedSegments) {
+                    fill(100, 150, 255); // Current segment
+                } else {
+                    fill(210); // Future segments
+                }
+                rect(barX + i * segmentWidth, barY, segmentWidth, barHeight, barHeight/2);
+            }
+        }
+        
+        function drawNavigationButtons() {
+            const buttonTop = height - bottomNavHeight * 0.7;
+            const buttonHeight = bottomNavHeight * 0.4;
+            
+            // Previous button
+            fill(isHoveringPrev ? 80 : (currentStepIndex > 0 ? 100 : 180));
+            rect(width * 0.05, buttonTop, width * 0.1, buttonHeight, 5);
+            fill(255);
+            text("Previous", width * 0.1, buttonTop + buttonHeight/2);
+            
+            // Next button
+            fill(isHoveringNext ? 80 : (navigationEnabled ? 100 : 180));
+            rect(width * 0.85, buttonTop, width * 0.1, buttonHeight, 5);
+            fill(255);
+            text("Next", width * 0.9, buttonTop + buttonHeight/2);
+            
+            // Reset button
+            fill(isHoveringReset ? 80 : 100);
+            rect(width * 0.45, buttonTop, width * 0.1, buttonHeight, 5);
+            fill(255);
+            text("Reset", width * 0.5, buttonTop + buttonHeight/2);
+            
+            // Home button
+            fill(isHoveringHome ? 80 : 100);
+            rect(width * 0.25, buttonTop, width * 0.1, buttonHeight, 5);
+            fill(255);
+            text("Home", width * 0.3, buttonTop + buttonHeight/2);
+        }
+        
+        function drawClock(hour, minute) {
+            push();
+            translate(clockCenterX, clockCenterY);
+            
+            // Draw clock face
+            fill(255);
+            stroke(0);
+            strokeWeight(3);
+            circle(0, 0, clockRadius * 2);
+            
+            // Draw hour marks and numbers
+            for (let i = 1; i <= 12; i++) {
+                push();
+                rotate(i * 30);
+                stroke(0);
+                strokeWeight(2);
+                line(0, -clockRadius + 10, 0, -clockRadius + 30);
+                
+                // Draw numbers
+                if (showClockNumbers) {
+                    if (!missingNumbers.includes(i) || userInputs[i]) {
+                        noStroke();
+                        fill(0);
+                        textSize(24);
+                        textAlign(CENTER, CENTER);
+                        
+                        // Calculate position for the numbers
+                        const numX = 0;
+                        const numY = -clockRadius + 50;
+                        rotate(-i * 30); // Counter-rotate to keep numbers upright
+                        
+                        // Display either the number or user input
+                        if (userInputs[i]) {
+                            text(userInputs[i], numX, numY);
+                        } else {
+                            text(i, numX, numY);
+                        }
+                    } else {
+                        // Draw empty box for missing numbers
+                        noStroke();
+                        fill(240);
+                        rectMode(CENTER);
+                        
+                        // Counter-rotate to keep boxes upright
+                        rotate(-i * 30);
+                        
+                        // Draw the box
+                        stroke(0);
+                        strokeWeight(1);
+                        fill(selectedInputBox === i ? 220 : 255);
+                        rect(0, -clockRadius + 50, 30, 30);
+                    }
+                }
+                pop();
+            }
+            
+            // Draw clock hands based on current state
+            let currentState = lessonSteps[currentStepIndex].state;
+            
+            // Hour hand
+            push();
+            rotate(hour * 30 + minute * 0.5); // Hour hand moves slightly with minutes
+            stroke(currentState.highlightHourHand ? color(0, 0, 255, 200) : hourHandColor);
+            strokeWeight(currentState.highlightHourHand ? 8 : 6);
+            line(0, 0, 0, -hourHandLength);
+            pop();
+            
+            // Minute hand
+            push();
+            rotate(minute * 6); // Each minute is 6 degrees
+            stroke(currentState.highlightMinuteHand ? color(255, 0, 0, 200) : minuteHandColor);
+            strokeWeight(currentState.highlightMinuteHand ? 6 : 4);
+            line(0, 0, 0, -minuteHandLength);
+            pop();
+            
+            // Center dot
+            fill(0);
+            noStroke();
+            circle(0, 0, 10);
+            
+            pop();
+        }
+        
+        function drawWarmupActivity() {
+            // Draw the clock with missing numbers
+            drawClock(currentHour, currentMinute);
+            
+            // Instructions at the bottom of center stage
+            fill(0);
+            textSize(20);
+            text("Click an empty box and type the missing number", width/2, topBannerHeight + centerStageHeight * 0.85);
+        }
+        
+        function drawLearnActivity() {
+            const currentState = lessonSteps[currentStepIndex].state;
+            
+            drawClock(currentState.hour, currentState.minute);
+            
+            // Handle special learn activities
+            if (currentState.highlightNumbers) {
+                // Would animate numbers sequentially
+            } else if (currentState.checkNumber) {
+                // Would highlight number 8 and wait for click on 9
+            } else if (currentState.compareHands) {
+                // Would show a comparison of hand lengths
+            } else if (currentState.animateClockwise) {
+                // Would animate hands moving clockwise
+            } else if (currentState.showDirectionArrows) {
+                // Would show clockwise and counterclockwise arrows
+            }
+        }
+        
+        function drawTryItActivity() {
+            const currentState = lessonSteps[currentStepIndex].state;
+            drawClock(currentState.hour, currentState.minute);
+            
+            // Additional visuals based on the specific try it screen
+        }
+        
+        function drawDoItActivity() {
+            // Would contain the implementation for Do It activities
+        }
+        
+        function drawShowItActivity() {
+            // Would contain the implementation for Show It assessment
+        }
+        
+        function drawExtensionActivity() {
+            // Would contain the implementation for Extension activities
+        }
+        
+        function drawFeedback() {
+            fill(feedbackColor);
+            textSize(24);
+            text(feedbackMessage, width/2, topBannerHeight + centerStageHeight * 0.9);
+        }
+        
+        function drawNumpad() {
+            const padWidth = 200;
+            const padHeight = 250;
+            const buttonSize = 50;
+            const padding = 10;
+            
+            // Background
+            fill(240);
+            stroke(0);
+            rect(numpad.x, numpad.y, padWidth, padHeight);
+            
+            // Number display
+            fill(255);
+            rect(numpad.x + padding, numpad.y + padding, padWidth - padding*2, 40);
+            fill(0);
+            textAlign(LEFT, CENTER);
+            text(numpad.value, numpad.x + padding*2, numpad.y + padding + 20);
+            textAlign(CENTER, CENTER);
+            
+            // Number buttons
+            for (let i = 1; i <= 9; i++) {
+                const row = Math.floor((i-1) / 3);
+                const col = (i-1) % 3;
+                fill(220);
+                rect(numpad.x + padding + col * buttonSize, 
+                     numpad.y + padding*2 + 40 + row * buttonSize, 
+                     buttonSize, buttonSize);
+                fill(0);
+                text(i, numpad.x + padding + col * buttonSize + buttonSize/2, 
+                     numpad.y + padding*2 + 40 + row * buttonSize + buttonSize/2);
+            }
+            
+            // 0 button
+            fill(220);
+            rect(numpad.x + padding + buttonSize, 
+                 numpad.y + padding*2 + 40 + 3 * buttonSize, 
+                 buttonSize, buttonSize);
+            fill(0);
+            text("0", numpad.x + padding + buttonSize + buttonSize/2,
+                 numpad.y + padding*2 + 40 + 3 * buttonSize + buttonSize/2);
+            
+            // Clear button
+            fill(255, 100, 100);
+            rect(numpad.x + padding, 
+                 numpad.y + padding*2 + 40 + 3 * buttonSize, 
+                 buttonSize, buttonSize);
+            fill(0);
+            text("C", numpad.x + padding + buttonSize/2,
+                 numpad.y + padding*2 + 40 + 3 * buttonSize + buttonSize/2);
+            
+            // Enter button
+            fill(100, 255, 100);
+            rect(numpad.x + padding + buttonSize*2, 
+                 numpad.y + padding*2 + 40 + 3 * buttonSize, 
+                 buttonSize, buttonSize);
+            fill(0);
+            text("✓", numpad.x + padding + buttonSize*2 + buttonSize/2,
+                 numpad.y + padding*2 + 40 + 3 * buttonSize + buttonSize/2);
+        }
+        
+        function mousePressed() {
+            console.log("Mouse clicked at:", mouseX, mouseY); // Debug output
+            
+            // Handle numpad interaction
+            if (numpad.visible) {
+                handleNumpadClick();
+                return;
+            }
+            
+            // Check if clicking an input box in warmup
+            if (activeSection === "warmup") {
+                checkWarmupBoxClick();
+            }
+            
+            // Check if clicking the hands in learn or try it sections
+            if (activeSection.startsWith("learn") || activeSection === "tryit") {
+                checkHandClick();
+            }
+            
+            // Calculate button dimensions
+            const buttonTop = height - bottomNavHeight * 0.7;
+            const buttonHeight = bottomNavHeight * 0.4;
+            const buttonBottom = buttonTop + buttonHeight;
+            
+            // Previous button (width * 0.05 to width * 0.15)
+            if (mouseX >= width * 0.05 && mouseX <= width * 0.15 && 
+                mouseY >= buttonTop && mouseY <= buttonBottom) {
+                console.log("Previous button clicked");
+                if (currentStepIndex > 0) {
+                    currentStepIndex--;
+                    updateStateFromStep();
+                }
+            }
+            
+            // Next button (width * 0.85 to width * 0.95)
+            if (mouseX >= width * 0.85 && mouseX <= width * 0.95 && 
+                mouseY >= buttonTop && mouseY <= buttonBottom) {
+                console.log("Next button clicked");
+                if (navigationEnabled && currentStepIndex < lessonSteps.length - 1) {
+                    currentStepIndex++;
+                    updateStateFromStep();
+                }
+            }
+            
+            // Reset button (width * 0.45 to width * 0.55)
+            if (mouseX >= width * 0.45 && mouseX <= width * 0.55 && 
+                mouseY >= buttonTop && mouseY <= buttonBottom) {
+                console.log("Reset button clicked");
+                resetCurrentActivity();
+            }
+            
+            // Home button (width * 0.25 to width * 0.35)
+            if (mouseX >= width * 0.25 && mouseX <= width * 0.35 && 
+                mouseY >= buttonTop && mouseY <= buttonBottom) {
+                console.log("Home button clicked");
+                // Would navigate to home/dashboard
+            }
+        }
+        
+        function checkWarmupBoxClick() {
+            // Check if user clicked on one of the missing number boxes
+            push();
+            translate(clockCenterX, clockCenterY);
+            
+            for (let i of missingNumbers) {
+                if (!userInputs[i]) { // If this box hasn't been filled yet
+                    // Calculate the angle and position for this number
+                    let angle = i * 30;
+                    let numX = sin(angle) * (clockRadius - 50);
+                    let numY = -cos(angle) * (clockRadius - 50);
+                    
+                    // Check if the click is within the box
+                    if (dist(mouseX - clockCenterX, mouseY - clockCenterY, numX, numY) < 20) {
+                        selectedInputBox = i;
+                        numpad.visible = true;
+                        numpad.value = "";
+                        numpad.x = mouseX;
+                        numpad.y = mouseY;
+                        break;
+                    }
+                }
+            }
+            
+            pop();
+        }
+        
+        function checkHandClick() {
+            const currentState = lessonSteps[currentStepIndex].state;
+            
+            // Calculate positions of the hands' endpoints
+            let hourAngle = currentState.hour * 30 + currentState.minute * 0.5;
+            let minuteAngle = currentState.minute * 6;
+            
+            let hourHandX = clockCenterX + sin(hourAngle) * hourHandLength;
+            let hourHandY = clockCenterY - cos(hourAngle) * hourHandLength;
+            
+            let minuteHandX = clockCenterX + sin(minuteAngle) * minuteHandLength;
+            let minuteHandY = clockCenterY - cos(minuteAngle) * minuteHandLength;
+            
+            // Check if clicked on hour hand
+            if (dist(mouseX, mouseY, (clockCenterX + hourHandX)/2, (clockCenterY + hourHandY)/2) < 20) {
+                if (currentState.clickHourHand) {
+                    showFeedback = true;
+                    feedbackMessage = "Correct! That's the hour hand!";
+                    feedbackColor = color(0, 150, 0);
+                    navigationEnabled = true;
+                } else if (currentState.clickMinuteHand) {
+                    showFeedback = true;
+                    feedbackMessage = "Oops! That's the hour hand. Try again!";
+                    feedbackColor = color(200, 0, 0);
+                }
+            }
+            
+            // Check if clicked on minute hand
+            if (dist(mouseX, mouseY, (clockCenterX + minuteHandX)/2, (clockCenterY + minuteHandY)/2) < 20) {
+                if (currentState.clickMinuteHand) {
+                    showFeedback = true;
+                    feedbackMessage = "Correct! That's the minute hand!";
+                    feedbackColor = color(0, 150, 0);
+                    navigationEnabled = true;
+                } else if (currentState.clickHourHand) {
+                    showFeedback = true;
+                    feedbackMessage = "Oops! That's the minute hand. Try again!";
+                    feedbackColor = color(200, 0, 0);
+                }
+            }
+        }
+        
+        function handleNumpadClick() {
+            const padWidth = 200;
+            const padHeight = 250;
+            const buttonSize = 50;
+            const padding = 10;
+            
+            // Check if clicked outside numpad (cancel)
+            if (mouseX < numpad.x || mouseX > numpad.x + padWidth || 
+                mouseY < numpad.y || mouseY > numpad.y + padHeight) {
+                numpad.visible = false;
+                return;
+            }
+            
+            // Check for number button clicks
+            for (let i = 1; i <= 9; i++) {
+                const row = Math.floor((i-1) / 3);
+                const col = (i-1) % 3;
+                const buttonX = numpad.x + padding + col * buttonSize;
+                const buttonY = numpad.y + padding*2 + 40 + row * buttonSize;
+                
+                if (mouseX > buttonX && mouseX < buttonX + buttonSize && 
+                    mouseY > buttonY && mouseY < buttonY + buttonSize) {
+                    numpad.value += i;
+                    return;
+                }
+            }
+            
+            // Check for 0 button
+            if (mouseX > numpad.x + padding + buttonSize && 
+                mouseX < numpad.x + padding + buttonSize*2 && 
+                mouseY > numpad.y + padding*2 + 40 + 3 * buttonSize && 
+                mouseY < numpad.y + padding*2 + 40 + 4 * buttonSize) {
+                numpad.value += "0";
+                return;
+            }
+            
+            // Check for clear button
+            if (mouseX > numpad.x + padding && 
+                mouseX < numpad.x + padding + buttonSize && 
+                mouseY > numpad.y + padding*2 + 40 + 3 * buttonSize && 
+                mouseY < numpad.y + padding*2 + 40 + 4 * buttonSize) {
+                numpad.value = "";
+                return;
+            }
+            
+            // Check for enter button
+            if (mouseX > numpad.x + padding + buttonSize*2 && 
+                mouseX < numpad.x + padding + buttonSize*3 && 
+                mouseY > numpad.y + padding*2 + 40 + 3 * buttonSize && 
+                mouseY < numpad.y + padding*2 + 40 + 4 * buttonSize) {
+                
+                // Validate the value
+                if (numpad.value && !isNaN(numpad.value) && parseInt(numpad.value) === selectedInputBox) {
+                    userInputs[selectedInputBox] = numpad.value;
+                    
+                    // Check if all missing numbers are filled
+                    let allFilled = true;
+                    for (let num of missingNumbers) {
+                        if (!userInputs[num]) {
+                            allFilled = false;
+                            break;
+                        }
+                    }
+                    
+                    if (allFilled) {
+                        showFeedback = true;
+                        feedbackMessage = "Perfect! All numbers are correct!";
+                        feedbackColor = color(0, 150, 0);
+                        navigationEnabled = true;
+                        warmupCompleted = true;
+                        completedSegments = 1;
+                    } else {
+                        showFeedback = true;
+                        feedbackMessage = "Great job! Now fill in the other missing numbers.";
+                        feedbackColor = color(0, 100, 200);
+                    }
+                } else {
+                    showFeedback = true;
+                    feedbackMessage = "That's not the right number for this position. Try again!";
+                    feedbackColor = color(200, 0, 0);
+                }
+                
+                numpad.visible = false;
+                selectedInputBox = null;
+            }
+        }
+        
+        function updateStateFromStep() {
+            const currentStep = lessonSteps[currentStepIndex];
+            
+            // Update active section
+            activeSection = currentStep.section;
+            
+            // Update state variables
+            if (currentStep.state) {
+                currentHour = currentStep.state.hour || currentHour;
+                currentMinute = currentStep.state.minute || currentMinute;
+                
+                if (currentStep.state.missingNumbers) {
+                    missingNumbers = currentStep.state.missingNumbers;
+                }
+            }
+            
+            // Reset feedback
+            showFeedback = false;
+            
+            // By default, disable next button until interaction completion
+            if (activeSection === "warmup" && !warmupCompleted) {
+                navigationEnabled = false;
+            } else if (currentStep.state && 
+                     (currentStep.state.checkNumber || 
+                      currentStep.state.clickHourHand || 
+                      currentStep.state.clickMinuteHand || 
+                      currentStep.state.showDirectionArrows)) {
+                navigationEnabled = false;
+            } else {
+                navigationEnabled = true;
+            }
+        }
+        
+        function resetCurrentActivity() {
+            const currentStep = lessonSteps[currentStepIndex];
+            
+            if (activeSection === "warmup") {
+                userInputs = {};
+                selectedInputBox = null;
+                showFeedback = false;
+                navigationEnabled = false;
+            } else if (activeSection.startsWith("learn") || 
+                     activeSection === "tryit" || 
+                     activeSection === "doit" || 
+                     activeSection === "showit") {
+                showFeedback = false;
+                navigationEnabled = currentStep.state && 
+                    !(currentStep.state.checkNumber || 
+                      currentStep.state.clickHourHand || 
+                      currentStep.state.clickMinuteHand || 
+                      currentStep.state.showDirectionArrows);
+            }
+        }
+        
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            
+            // Update UI dimensions
+            topBannerHeight = height * 0.15;
+            bottomNavHeight = height * 0.1;
+            centerStageHeight = height - topBannerHeight - bottomNavHeight;
+            
+            // Update clock dimensions
+            clockCenterX = width / 2;
+            clockCenterY = topBannerHeight + centerStageHeight / 2;
+            clockRadius = min(width, centerStageHeight) * 0.35;
+            hourHandLength = clockRadius * 0.5;
+            minuteHandLength = clockRadius * 0.8;
+        }
+        
+        function mouseMoved() {
+            const buttonTop = height - bottomNavHeight * 0.7;
+            const buttonHeight = bottomNavHeight * 0.4;
+            const buttonBottom = buttonTop + buttonHeight;
+            
+            // Check if hovering over buttons
+            isHoveringPrev = mouseX >= width * 0.05 && mouseX <= width * 0.15 && 
+                              mouseY >= buttonTop && mouseY <= buttonBottom;
+                              
+            isHoveringNext = mouseX >= width * 0.85 && mouseX <= width * 0.95 && 
+                              mouseY >= buttonTop && mouseY <= buttonBottom;
+                              
+            isHoveringReset = mouseX >= width * 0.45 && mouseX <= width * 0.55 && 
+                              mouseY >= buttonTop && mouseY <= buttonBottom;
+                              
+            isHoveringHome = mouseX >= width * 0.25 && mouseX <= width * 0.35 && 
+                              mouseY >= buttonTop && mouseY <= buttonBottom;
+            
+            // Change cursor if hovering over any button
+            if (isHoveringPrev || isHoveringNext || isHoveringReset || isHoveringHome) {
+                cursor(HAND);
+            } else {
+                cursor(ARROW);
+            }
+        }
+    </script>
+</body>
+</html>
