@@ -198,17 +198,23 @@ body {
 }
 
 .btn-secondary {
-    background-color: #e0e0e0;
-    color: #555;
+    /* background-color: #cccccc; /* Darker gray for better visibility */ 
+    background-color: #ffffff; /* White background */
+    color: #6a4fed; /* Purple text */
+    border: 2px solid #6a4fed; /* Purple border */
 }
 
 .btn-secondary:hover {
-    background-color: #bdbdbd;
+    /* background-color: #bbbbbb; /* Darker hover state */
+    background-color: #f4f1ff; /* Very light purple background on hover */
+    color: #5a3fcf; /* Slightly darker purple text/border on hover */
+    border-color: #5a3fcf;
 }
 
-.btn-try-again i {
-    color: #ff5c5c; /* Red icon for retry */
-}
+/* Removed btn-try-again specific style as it's replaced by btn-prev-step */
+/* .btn-try-again i {
+    color: #ff5c5c; 
+} */
 
 .btn:active {
     transform: scale(0.98);
