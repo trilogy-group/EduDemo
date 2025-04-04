@@ -11,7 +11,7 @@ const skipButton = document.getElementById('skip-button');
 const lessonCounterElement = document.querySelector('.lesson-counter');
 
 // --- Lesson State (Globals reduced) ---
-let currentSubStep = -1; // Start at -1 before first load
+let currentSubStep = 2; // Start at -1 before first load
 let p5Instance = null; // Holds the current p5 instance
 let narrationAudio = new Audio(); // Audio object for narration
 let currentAudioFilename = null; // Store the filename for the current instruction
@@ -96,13 +96,12 @@ function setupStep2Check(stepData, instance) {
     const wrapper = document.createElement('div');
     wrapper.className = 'canvas-check-wrapper';
     
-    // Move canvas into wrapper
-    canvasContainer.parentNode.insertBefore(wrapper, canvasContainer);
+    // Using the new layout structure
+    const contentLeft = document.querySelector('.content-left');
+    contentLeft.innerHTML = ''; // Clear content-left
+    contentLeft.appendChild(wrapper);
     wrapper.appendChild(canvasContainer);
-    
-    // Move check area into wrapper
     wrapper.appendChild(checkArea);
-    // --- End Wrapper Layout --- 
     
     checkArea.innerHTML = ''; // Clear area before adding buttons
     createDirectionCheckButtons(); // Add buttons inside the checkArea (now in wrapper)
@@ -116,22 +115,19 @@ function setupStep2Check(stepData, instance) {
     nextButton.disabled = true;
 }
 
-// --- NEW Cleanup Function ---
+// --- Cleanup Function ---
 function cleanupCheckLayout() {
     const wrapper = document.querySelector('.canvas-check-wrapper');
     if (wrapper) {
         console.log("Cleaning up check layout wrapper.");
-        const parent = wrapper.parentNode; // The learn-it-content div
         
-        // Move canvas back to original parent, before the wrapper
-        parent.insertBefore(canvasContainer, wrapper);
-        
-        // Move check area back to original parent, after the canvas
-        parent.insertBefore(checkArea, wrapper.nextSibling); // Insert after canvas (original position)
-        
-        // Remove the now-empty wrapper
-        parent.removeChild(wrapper);
+        // Using the new layout structure
+        const contentLeft = document.querySelector('.content-left');
+        contentLeft.innerHTML = ''; // Clear content-left first
+        contentLeft.appendChild(canvasContainer);
+        contentLeft.appendChild(checkArea);
     }
+    // No need to reset styles that aren't being set
     checkArea.innerHTML = ''; // Ensure check area is clear after cleanup
 }
 
@@ -1163,32 +1159,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }); 
 
-// Restore createDirectionCheckButtons function <<< ADDED BACK
+// Restore createDirectionCheckButtons function with horizontal layout
 function createDirectionCheckButtons() {
     checkArea.innerHTML = ''; // Clear previous content
 
+    // Create a wrapper div for horizontal layout
+    const buttonsWrapper = document.createElement('div');
+    buttonsWrapper.className = 'direction-buttons-wrapper';
+    
+    // Create a container for each button
+    const clockwiseContainer = document.createElement('div');
+    clockwiseContainer.className = 'direction-btn-container';
+    
+    const counterClockwiseContainer = document.createElement('div');
+    counterClockwiseContainer.className = 'direction-btn-container';
+    
+    // Create the buttons with improved visuals
     const clockwiseBtn = document.createElement('button');
     clockwiseBtn.id = 'clockwise-btn';
-    clockwiseBtn.textContent = '↻';
+    clockwiseBtn.innerHTML = '<i class="fas fa-redo-alt"></i>'; // Font awesome icon for clockwise
+    clockwiseBtn.setAttribute('aria-label', 'Clockwise direction');
     clockwiseBtn.classList.add('btn', 'direction-btn');
     clockwiseBtn.addEventListener('click', () => {
-        if (currentSubStep === 2) { // Ensure this is the correct step
-             // Target value for step 2 is 'clockwise'
+        if (currentSubStep === 2) {
              handleInteractionResult(true); 
         }
     });
 
     const counterClockwiseBtn = document.createElement('button');
     counterClockwiseBtn.id = 'counter-clockwise-btn';
-    counterClockwiseBtn.textContent = '↺';
+    counterClockwiseBtn.innerHTML = '<i class="fas fa-undo-alt"></i>'; // Font awesome icon for counter-clockwise
+    counterClockwiseBtn.setAttribute('aria-label', 'Counter-clockwise direction');
     counterClockwiseBtn.classList.add('btn', 'direction-btn');
     counterClockwiseBtn.addEventListener('click', () => {
-         if (currentSubStep === 2) { 
-             // Clicking the wrong button is incorrect
+         if (currentSubStep === 2) {
              handleInteractionResult(false); 
          }
     });
 
-    checkArea.appendChild(clockwiseBtn);
-    checkArea.appendChild(counterClockwiseBtn);
+    // Add the buttons to their containers
+    clockwiseContainer.appendChild(clockwiseBtn);
+    counterClockwiseContainer.appendChild(counterClockwiseBtn);
+    
+    // Add the containers to the wrapper
+    buttonsWrapper.appendChild(clockwiseContainer);
+    buttonsWrapper.appendChild(counterClockwiseContainer);
+    
+    // Add the wrapper to the check area
+    checkArea.appendChild(buttonsWrapper);
 } 

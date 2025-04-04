@@ -1,0 +1,278 @@
+        means.
+        
+        In jurisdictions that recognize copyright laws, the author or authors
+        of this software dedicate any and all copyright interest in the
+        software to the public domain. We make this dedication for the benefit
+        of the public at large and to the detriment of our heirs and
+        successors. We intend this dedication to be an overt act of
+        relinquishment in perpetuity of all present and future rights to this
+        software under copyright law.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+        EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+        IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+        OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+        ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+        OTHER DEALINGS IN THE SOFTWARE.
+        
+        For more information, please refer to <http://unlicense.org/>
+Location: /home/vinayak/.local/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+
+2025-04-04 14:23:56,274 - app - INFO - Successfully updated yt-dlp
+2025-04-04 14:23:56,274 - app - INFO - Successfully updated yt-dlp
+2025-04-04 14:23:56,274 - app - INFO - Update output: Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: yt-dlp in /home/vinayak/.local/lib/python3.10/site-packages (2025.3.31)
+
+2025-04-04 14:23:56,274 - app - INFO - Update output: Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: yt-dlp in /home/vinayak/.local/lib/python3.10/site-packages (2025.3.31)
+
+2025-04-04 14:24:01,255 - werkzeug - INFO - 34.194.145.78 - - [04/Apr/2025 14:24:01] "POST /download HTTP/1.1" 200 -
+2025-04-04 14:38:53,519 - app - INFO - Download request received
+2025-04-04 14:38:53,519 - app - INFO - Download request received
+2025-04-04 14:38:53,519 - app - INFO - Processing download for video_id: dunWE5FdK7A
+2025-04-04 14:38:53,519 - app - INFO - Processing download for video_id: dunWE5FdK7A
+54.175.140.92
+2025-04-04 14:38:53,527 - app - INFO - Skipping update - last update was within 15 minutes
+2025-04-04 14:38:53,527 - app - INFO - Skipping update - last update was within 15 minutes
+2025-04-04 14:38:56,093 - app - ERROR - Download failed: [debug] Encodings: locale UTF-8, fs utf-8, pref UTF-8, out utf-8 (No ANSI), error utf-8 (No ANSI), screen utf-8 (No ANSI)
+[debug] yt-dlp version stable@2025.03.31 from yt-dlp/yt-dlp [5e457af57] (pip) API
+[debug] params: {'verbose': True, 'skip_download': True, 'cookiesfrombrowser': ['firefox'], 'outtmpl': '/tmp/dunWE5FdK7A.%(ext)s', 'format': 'worstvideo[ext=mp4]+worstaudio[ext=m4a]/worst', 'noplaylist': True, 'merge_output_format': 'mp4', 'postprocessors': [{'key': 'FFmpegMerger'}, {'key': 'FFmpegSubtitlesConvertor', 'format': 'srt'}], 'geo_bypass': True, 'age_verify': True, 'keepvideo': True, 'subtitleslangs': ['en'], 'writeautomaticsub': True, 'writesubtitles': True, 'compat_opts': set(), 'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.18 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-us,en;q=0.5', 'Sec-Fetch-Mode': 'navigate'}}
+[debug] Python 3.10.12 (CPython x86_64 64bit) - Linux-6.8.0-1017-aws-x86_64-with-glibc2.35 (OpenSSL 3.0.2 15 Mar 2022, glibc 2.35)
+[debug] exe versions: ffmpeg 4.4.2 (setts), ffprobe 4.4.2
+[debug] Optional libraries: Cryptodome-3.20.0, brotli-1.1.0, certifi-2020.06.20, mutagen-1.47.0, requests-2.32.3, secretstorage-3.3.1, sqlite3-3.37.2, urllib3-1.26.20, websockets-13.0.1
+[debug] Proxy map: {}
+[debug] Extracting cookies from: "/home/vinayak/snap/firefox/common/.mozilla/firefox/sitcro58.default/cookies.sqlite"
+[debug] Request Handlers: urllib, requests, websockets
+[debug] Plugin directories: none
+[debug] Loaded 1850 extractors
+[debug] [youtube] Found YouTube account cookies
+ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+
+Traceback (most recent call last):
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1653, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1788, in __extract_info
+    ie_result = ie.extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+yt_dlp.utils.ExtractorError: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 9, in <module>
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3634, in download
+    self.__download_wrapper(self.extract_info)(
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3607, in wrapper
+    res = func(*args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1642, in extract_info
+    return self.__extract_info(url, self.get_info_extractor(key), download, extra_info, process)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1671, in wrapper
+    self.report_error(str(e), e.format_traceback())
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1111, in report_error
+    self.trouble(f'{self._format_err("ERROR:", self.Styles.ERROR)} {message}', *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1050, in trouble
+    raise DownloadError(message, exc_info)
+yt_dlp.utils.DownloadError: ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+2025-04-04 14:38:56,093 - app - ERROR - Download failed: [debug] Encodings: locale UTF-8, fs utf-8, pref UTF-8, out utf-8 (No ANSI), error utf-8 (No ANSI), screen utf-8 (No ANSI)
+[debug] yt-dlp version stable@2025.03.31 from yt-dlp/yt-dlp [5e457af57] (pip) API
+[debug] params: {'verbose': True, 'skip_download': True, 'cookiesfrombrowser': ['firefox'], 'outtmpl': '/tmp/dunWE5FdK7A.%(ext)s', 'format': 'worstvideo[ext=mp4]+worstaudio[ext=m4a]/worst', 'noplaylist': True, 'merge_output_format': 'mp4', 'postprocessors': [{'key': 'FFmpegMerger'}, {'key': 'FFmpegSubtitlesConvertor', 'format': 'srt'}], 'geo_bypass': True, 'age_verify': True, 'keepvideo': True, 'subtitleslangs': ['en'], 'writeautomaticsub': True, 'writesubtitles': True, 'compat_opts': set(), 'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.18 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-us,en;q=0.5', 'Sec-Fetch-Mode': 'navigate'}}
+[debug] Python 3.10.12 (CPython x86_64 64bit) - Linux-6.8.0-1017-aws-x86_64-with-glibc2.35 (OpenSSL 3.0.2 15 Mar 2022, glibc 2.35)
+[debug] exe versions: ffmpeg 4.4.2 (setts), ffprobe 4.4.2
+[debug] Optional libraries: Cryptodome-3.20.0, brotli-1.1.0, certifi-2020.06.20, mutagen-1.47.0, requests-2.32.3, secretstorage-3.3.1, sqlite3-3.37.2, urllib3-1.26.20, websockets-13.0.1
+[debug] Proxy map: {}
+[debug] Extracting cookies from: "/home/vinayak/snap/firefox/common/.mozilla/firefox/sitcro58.default/cookies.sqlite"
+[debug] Request Handlers: urllib, requests, websockets
+[debug] Plugin directories: none
+[debug] Loaded 1850 extractors
+[debug] [youtube] Found YouTube account cookies
+ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+
+Traceback (most recent call last):
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1653, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1788, in __extract_info
+    ie_result = ie.extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+yt_dlp.utils.ExtractorError: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 9, in <module>
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3634, in download
+    self.__download_wrapper(self.extract_info)(
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3607, in wrapper
+    res = func(*args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1642, in extract_info
+    return self.__extract_info(url, self.get_info_extractor(key), download, extra_info, process)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1671, in wrapper
+    self.report_error(str(e), e.format_traceback())
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1111, in report_error
+    self.trouble(f'{self._format_err("ERROR:", self.Styles.ERROR)} {message}', *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1050, in trouble
+    raise DownloadError(message, exc_info)
+yt_dlp.utils.DownloadError: ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+2025-04-04 14:38:56,093 - app - INFO - Download failed, forcing yt-dlp update and retrying...
+2025-04-04 14:38:56,093 - app - INFO - Download failed, forcing yt-dlp update and retrying...
+2025-04-04 14:38:56,094 - app - INFO - Skipping update - last update was within 15 minutes
+2025-04-04 14:38:56,094 - app - INFO - Skipping update - last update was within 15 minutes
+2025-04-04 14:38:58,347 - app - ERROR - Retry download failed: [debug] Encodings: locale UTF-8, fs utf-8, pref UTF-8, out utf-8 (No ANSI), error utf-8 (No ANSI), screen utf-8 (No ANSI)
+[debug] yt-dlp version stable@2025.03.31 from yt-dlp/yt-dlp [5e457af57] (pip) API
+[debug] params: {'verbose': True, 'skip_download': True, 'cookiesfrombrowser': ['firefox'], 'outtmpl': '/tmp/dunWE5FdK7A.%(ext)s', 'format': 'worstvideo[ext=mp4]+worstaudio[ext=m4a]/worst', 'noplaylist': True, 'merge_output_format': 'mp4', 'postprocessors': [{'key': 'FFmpegMerger'}, {'key': 'FFmpegSubtitlesConvertor', 'format': 'srt'}], 'geo_bypass': True, 'age_verify': True, 'keepvideo': True, 'subtitleslangs': ['en'], 'writeautomaticsub': True, 'writesubtitles': True, 'compat_opts': set(), 'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-us,en;q=0.5', 'Sec-Fetch-Mode': 'navigate'}}
+[debug] Python 3.10.12 (CPython x86_64 64bit) - Linux-6.8.0-1017-aws-x86_64-with-glibc2.35 (OpenSSL 3.0.2 15 Mar 2022, glibc 2.35)
+[debug] exe versions: ffmpeg 4.4.2 (setts), ffprobe 4.4.2
+[debug] Optional libraries: Cryptodome-3.20.0, brotli-1.1.0, certifi-2020.06.20, mutagen-1.47.0, requests-2.32.3, secretstorage-3.3.1, sqlite3-3.37.2, urllib3-1.26.20, websockets-13.0.1
+[debug] Proxy map: {}
+[debug] Extracting cookies from: "/home/vinayak/snap/firefox/common/.mozilla/firefox/sitcro58.default/cookies.sqlite"
+[debug] Request Handlers: urllib, requests, websockets
+[debug] Plugin directories: none
+[debug] Loaded 1850 extractors
+[debug] [youtube] Found YouTube account cookies
+ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+
+Traceback (most recent call last):
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1653, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1788, in __extract_info
+    ie_result = ie.extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+yt_dlp.utils.ExtractorError: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 9, in <module>
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3634, in download
+    self.__download_wrapper(self.extract_info)(
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3607, in wrapper
+    res = func(*args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1642, in extract_info
+    return self.__extract_info(url, self.get_info_extractor(key), download, extra_info, process)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1671, in wrapper
+    self.report_error(str(e), e.format_traceback())
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1111, in report_error
+    self.trouble(f'{self._format_err("ERROR:", self.Styles.ERROR)} {message}', *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1050, in trouble
+    raise DownloadError(message, exc_info)
+yt_dlp.utils.DownloadError: ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+2025-04-04 14:38:58,347 - app - ERROR - Retry download failed: [debug] Encodings: locale UTF-8, fs utf-8, pref UTF-8, out utf-8 (No ANSI), error utf-8 (No ANSI), screen utf-8 (No ANSI)
+[debug] yt-dlp version stable@2025.03.31 from yt-dlp/yt-dlp [5e457af57] (pip) API
+[debug] params: {'verbose': True, 'skip_download': True, 'cookiesfrombrowser': ['firefox'], 'outtmpl': '/tmp/dunWE5FdK7A.%(ext)s', 'format': 'worstvideo[ext=mp4]+worstaudio[ext=m4a]/worst', 'noplaylist': True, 'merge_output_format': 'mp4', 'postprocessors': [{'key': 'FFmpegMerger'}, {'key': 'FFmpegSubtitlesConvertor', 'format': 'srt'}], 'geo_bypass': True, 'age_verify': True, 'keepvideo': True, 'subtitleslangs': ['en'], 'writeautomaticsub': True, 'writesubtitles': True, 'compat_opts': set(), 'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-us,en;q=0.5', 'Sec-Fetch-Mode': 'navigate'}}
+[debug] Python 3.10.12 (CPython x86_64 64bit) - Linux-6.8.0-1017-aws-x86_64-with-glibc2.35 (OpenSSL 3.0.2 15 Mar 2022, glibc 2.35)
+[debug] exe versions: ffmpeg 4.4.2 (setts), ffprobe 4.4.2
+[debug] Optional libraries: Cryptodome-3.20.0, brotli-1.1.0, certifi-2020.06.20, mutagen-1.47.0, requests-2.32.3, secretstorage-3.3.1, sqlite3-3.37.2, urllib3-1.26.20, websockets-13.0.1
+[debug] Proxy map: {}
+[debug] Extracting cookies from: "/home/vinayak/snap/firefox/common/.mozilla/firefox/sitcro58.default/cookies.sqlite"
+[debug] Request Handlers: urllib, requests, websockets
+[debug] Plugin directories: none
+[debug] Loaded 1850 extractors
+[debug] [youtube] Found YouTube account cookies
+ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+
+Traceback (most recent call last):
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1653, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1788, in __extract_info
+    ie_result = ie.extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 748, in extract
+    ie_result = self._real_extract(url)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/youtube/_video.py", line 3649, in _real_extract
+    self.raise_no_formats(reason, expected=True)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/extractor/common.py", line 1269, in raise_no_formats
+    raise ExtractorError(msg, expected=expected, video_id=video_id)
+yt_dlp.utils.ExtractorError: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 9, in <module>
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3634, in download
+    self.__download_wrapper(self.extract_info)(
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 3607, in wrapper
+    res = func(*args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1642, in extract_info
+    return self.__extract_info(url, self.get_info_extractor(key), download, extra_info, process)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1671, in wrapper
+    self.report_error(str(e), e.format_traceback())
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1111, in report_error
+    self.trouble(f'{self._format_err("ERROR:", self.Styles.ERROR)} {message}', *args, **kwargs)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/yt_dlp/YoutubeDL.py", line 1050, in trouble
+    raise DownloadError(message, exc_info)
+yt_dlp.utils.DownloadError: ERROR: [youtube] dunWE5FdK7A: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+
+2025-04-04 14:38:58,347 - app - ERROR - Exception on /download [POST]
+Traceback (most recent call last):
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/vinayak/ytdl/app.py", line 389, in download
+    result = handler(request_data, {})
+  File "/home/vinayak/ytdl/app.py", line 275, in handler
+    raise Exception("Failed to download video")
+Exception: Failed to download video
+2025-04-04 14:38:58,347 - app - ERROR - Exception on /download [POST]
+Traceback (most recent call last):
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/vinayak/.local/lib/python3.10/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/vinayak/ytdl/app.py", line 389, in download
+    result = handler(request_data, {})
+  File "/home/vinayak/ytdl/app.py", line 275, in handler
+    raise Exception("Failed to download video")
+Exception: Failed to download video
+2025-04-04 14:38:58,349 - werkzeug - 

@@ -175,47 +175,75 @@ body {
     align-items: center; 
     flex-grow: 1; /* Allow height to be flexible */
     overflow: hidden;
-    padding: 20px;
+    padding: 25px 20px; /* Increased top padding */
     /* Removed fixed height calc */
 }
 
 /* Style the content wrapper inside activity-area */
 #learn-it-content {
     width: 100%;
-    /* height: 100%; Removed fixed height */
     display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: flex-start; /* Align content to top */
-    gap: 15px; /* Space between elements */
+    flex-direction: row; /* Change to row for side-by-side layout */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    align-items: flex-start; 
+    justify-content: space-between; /* Space between left and right sides */
+    gap: 20px; /* Gap between content sections */
+    padding-top: 5px;
+}
+
+/* New content-left class for canvas container */
+.content-left {
+    flex: 1;
+    min-width: 300px; /* Minimum width for clock container */
+    order: 1; /* Appears first (left) */
+}
+
+/* New content-right class for text content */
+.content-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Left-align text */
+    text-align: left; /* Left-align text content */
+    min-width: 250px; /* Ensure text has enough space */
+    order: 2; /* Appears second (right) */
 }
 
 /* Style title and instruction */
 #learn-it-title {
-    flex-shrink: 0; /* Prevent shrinking */
-    margin-bottom: 5px; /* Adjust spacing */
-    font-size: 1.5rem; /* Consistent size */
+    flex-shrink: 0;
+    margin: 10px 0 15px 0; /* Increased bottom margin */
+    font-size: 1.3rem;
+    text-align: left; /* Left align instead of center */
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    line-height: 1.3;
 }
 
 #learn-it-instruction {
-     flex-shrink: 0; /* Prevent shrinking */
-     margin-bottom: 15px; /* Space below instruction */
-     max-width: 90%; /* Prevent text getting too wide */
-     line-height: 1.5;
+    flex-shrink: 0;
+    margin-bottom: 20px;
+    max-width: 100%; /* Full width of parent */
+    line-height: 1.5;
+    text-align: left; /* Left align instead of center */
+    padding: 0;
 }
 
-/* --- Adjust Canvas Container --- */
+/* Update canvas container */
 #canvas-container {
-    width: 100%; 
-    flex-grow: 1; /* Keep allowing canvas to take up remaining space */
-    flex-shrink: 1; /* Allow shrinking if needed */
-    min-height: 250px; /* Ensure a minimum height for the clock */
-    display: flex; 
+    width: 100%;
+    flex-grow: 0; /* Don't grow */
+    flex-shrink: 0; /* Don't shrink */
+    min-height: 250px;
+    display: flex;
     justify-content: center;
     align-items: center;
-    line-height: 0; /* Prevent extra space */
+    line-height: 0;
 }
-/* --- End Adjust --- */
 
 .placeholder-text {
     color: #aaa;
@@ -416,6 +444,22 @@ body {
     .lesson-title {
         font-size: 18px;
     }
+    
+    /* Improved title handling for small screens */
+    #learn-it-title {
+        font-size: 1.1rem;
+        margin: 8px 0;
+        padding: 0 5px;
+    }
+    
+    #learn-it-instruction {
+        font-size: 0.95rem;
+        max-width: 95%;
+    }
+    
+    .activity-area {
+        padding: 15px 10px;
+    }
 
     .btn {
         padding: 10px 15px;
@@ -431,6 +475,22 @@ body {
        flex-direction: column; /* Stack buttons on small screens */
        align-items: stretch; /* Make buttons full width */
        gap: 10px;
+    }
+}
+
+/* Medium screen adjustments */
+@media (min-width: 601px) and (max-width: 900px) {
+    #learn-it-title {
+        font-size: 1.2rem;
+        margin: 8px 0;
+    }
+    
+    .activity-area {
+        padding: 20px 15px;
+    }
+    
+    #learn-it-instruction {
+        max-width: 92%;
     }
 }
 
@@ -717,93 +777,6 @@ body {
     }
 }
 
-/* Lesson Content Layout Styles */
-.center-title {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: var(--text-primary);
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.content-layout {
-    display: flex;
-    flex-direction: row;
-    gap: 30px;
-    margin-bottom: 30px;
-}
-
-.content-column {
-    display: flex;
-    flex-direction: column;
-}
-
-.clock-column {
-    flex: 0 0 350px; /* Fixed width for clock */
-}
-
-.text-column {
-    flex: 1;
-    padding: 0 15px;
-}
-
-.text-content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: center;
-}
-
-.intro-text {
-    font-size: 18px;
-    line-height: 1.5;
-    color: var(--text-primary);
-    margin-bottom: 20px;
-}
-
-.info-box {
-    background-color: #f0f8ff;
-    border-radius: 10px;
-    padding: 20px 25px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    margin-bottom: 20px;
-}
-
-.info-list {
-    list-style-type: disc;
-    margin: 0;
-    padding-left: 25px;
-}
-
-.info-list li {
-    margin-bottom: 12px;
-    line-height: 1.5;
-    font-size: 16px;
-    color: var(--text-primary);
-}
-
-.info-list li:last-child {
-    margin-bottom: 0;
-}
-
-/* Responsive adjustments for the content layout */
-@media (max-width: 768px) {
-    .content-layout {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .clock-column,
-    .text-column {
-        width: 100%;
-        padding: 0;
-    }
-    
-    .text-content {
-        margin-top: 20px;
-    }
-}
-
 /* --- Add Style for Feedback Area --- */
 .feedback {
     min-height: 20px;
@@ -832,61 +805,169 @@ body {
 
 /* Style check area */
 #embedded-check-area {
-    /* Default styles when not inside the wrapper */
-    min-height: 40px; 
-    width: 100%; 
-    display: flex; 
-    justify-content: center;
+    width: 100%;
+    min-height: 40px;
+    display: flex;
+    justify-content: flex-start; /* Left align */
     align-items: center;
-    margin-top: 15px; /* Keep default top margin */
-    gap: 20px; /* Keep default gap */
+    margin-top: 15px;
+    gap: 20px;
 }
 
-/* --- Add Style for Wrapper --- */
+/* --- Update Style for Wrapper --- */
 .canvas-check-wrapper {
     display: flex;
     flex-direction: row;
-    align-items: center; /* Vertically center clock and buttons */
-    justify-content: center; /* Center the group */
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
-    gap: 10px; /* Space between clock and buttons */
-    flex-grow: 1; /* Allow wrapper to grow vertically */
-    min-height: 250px; /* Match canvas min-height */
+    gap: 20px;
+    flex-grow: 1;
+    min-height: 250px;
 }
 
 /* Style check area WHEN INSIDE the wrapper (for step 2 buttons) */
 .canvas-check-wrapper > #embedded-check-area {
-     display: flex; 
-     flex-direction: column; /* Stack buttons vertically */
-     justify-content: center; /* Center vertically */
-     align-items: center; /* Center horizontally */
-     gap: 15px; /* Vertical gap between buttons */
-     margin-top: 0; /* Override default top margin */
-     width: auto; /* Allow width to be determined by buttons */
-     min-height: initial; /* Reset min-height */
-     flex-shrink: 0; /* Prevent shrinking */
+    display: flex; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* Left align to match new layout */
+    gap: 15px;
+    margin-top: 0;
+    width: auto;
+    min-height: initial;
+    flex-shrink: 0;
 }
-/* --- End Add --- */
 
-/* Direction Buttons Style (Complete Rule) */
+/* Direction buttons wrapper for horizontal layout */
+.direction-buttons-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start; /* Left align */
+    align-items: center;
+    gap: 60px;
+    margin: 25px 0 0 0; /* More top margin */
+    width: 100%;
+    padding-top: 0;
+    padding-left: 20px; /* Add left margin */
+    position: relative;
+}
+
+/* Remove the "Select one:" label */
+.direction-buttons-wrapper::before {
+    content: none;
+}
+
+/* Direction Button Container */
+.direction-btn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Direction Buttons Style */
 .direction-btn {
-    font-size: 2.5rem; /* Keep icon size large */
-    width: 70px; /* Set fixed width */
-    height: 70px; /* Set fixed height (equal to width) */
-    border-radius: 50%; /* Make it circular */
-    background-color: var(--card-background);
+    width: 70px; /* Smaller buttons */
+    height: 70px;
+    border-radius: 50%;
+    background-color: #f8f5ff;
     color: var(--primary-purple);
-    border: 2px solid var(--primary-purple);
-    display: inline-flex; /* Keep inline-flex */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    line-height: 1; /* Ensure icon centering isn't affected by line-height */
-    /* Removed padding and min-width */
+    border: 2px solid var(--primary-purple); /* Thinner border */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    padding: 0;
 }
 
-/* Direction Buttons Hover Style (Complete Rule) */
+/* Style for Font Awesome icons in direction buttons */
+.direction-btn i {
+    font-size: 2rem; /* Smaller icon size */
+}
+
+/* Direction Buttons Hover Style */
 .direction-btn:hover {
-   background-color: #f4f1ff;
-   color: var(--primary-purple-hover);
-   border-color: var(--primary-purple-hover);
+   background-color: #efe8ff;
+   color: #5240c9; /* Slightly darker purple on hover */
+   border-color: #5240c9;
+   transform: scale(1.08);
+   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Direction Buttons Active Style */
+.direction-btn:active {
+   transform: scale(0.96);
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+   background-color: #e6dcff;
+}
+
+/* Specifically hide button labels */
+#clockwise-btn::after,
+#counter-clockwise-btn::after {
+    display: none;
+    content: none;
+}
+
+/* Style check area WHEN INSIDE the wrapper */
+.canvas-check-wrapper > #embedded-check-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Center the buttons horizontally */
+    gap: 15px;
+    margin-top: 0;
+    width: 100%;
+    min-height: initial;
+    flex-shrink: 0;
+}
+
+/* Responsive styles for direction buttons */
+@media (max-width: 768px) {
+    #learn-it-content {
+        flex-direction: column; /* Stack vertically on smaller screens */
+        align-items: center;
+        gap: 10px;
+    }
+
+    .content-left {
+        order: 2; /* Move clock below text on mobile */
+        width: 100%;
+    }
+
+    .content-right {
+        order: 1; /* Text appears first on mobile */
+        width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+
+    #learn-it-title, 
+    #learn-it-instruction {
+        text-align: center; /* Center text on mobile */
+    }
+
+    #embedded-check-area {
+        justify-content: center; /* Center on mobile */
+    }
+
+    .canvas-check-wrapper {
+        flex-direction: column;
+    }
+    
+    .canvas-check-wrapper > #embedded-check-area {
+        align-items: center; /* Center on mobile */
+    }
+
+    .direction-buttons-wrapper {
+        gap: 25px; /* Slightly smaller gap on mobile */
+    }
+    
+    .direction-btn {
+        width: 60px; /* Slightly smaller buttons on mobile */
+        height: 60px;
+        font-size: 2rem;
+    }
 }
