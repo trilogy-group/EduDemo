@@ -11,6 +11,62 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to fix specific issues */
+        .welcome-message {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .welcome-text {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .welcome-image {
+            order: 2; /* Move to the right side */
+            margin-bottom: 0;
+        }
+        
+        .welcome-text ul {
+            text-align: left;
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .welcome-text li {
+            margin-bottom: 0.5rem;
+            font-size: 1rem; /* Reduced from 1.1rem */
+            line-height: 1.4;
+        }
+        
+        /* Make sure the icon is well-positioned */
+        .welcome-icon {
+            font-size: 8rem;
+            color: #4a6bdf;
+            display: block;
+        }
+        
+        /* Responsive design adjustment */
+        @media (max-width: 768px) {
+            .welcome-message {
+                flex-direction: column-reverse;
+                align-items: center;
+            }
+            
+            .welcome-image {
+                margin-top: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .welcome-text {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="lesson-container">
@@ -39,19 +95,19 @@
             <div class="welcome-content">
                 <h2>Welcome to "Meet the Clock!" Lesson</h2>
                 <div class="welcome-message">
-                    <div class="welcome-image">
-                        <i class="fas fa-clock welcome-icon"></i>
-                    </div>
                     <div class="welcome-text">
                         <p>Hello, time explorer! Are you ready to learn about clocks?</p>
                         <p>In this lesson, you will:</p>
                         <ul>
-                            <li>Learn about clock faces and numbers</li>
-                            <li>Discover the hour hand and minute hand</li>
-                            <li>Understand how clocks move</li>
+                            <li>Identify the numbers 1 through 12 and their positions on a clock face</li>
+                            <li>Learn about the hour hand (short) and minute hand (long)</li>
+                            <li>Understand how clock hands move in the clockwise direction</li>
                             <li>Become a clock expert!</li>
                         </ul>
                         <p>Click "Start Lesson" when you're ready to begin!</p>
+                    </div>
+                    <div class="welcome-image">
+                        <i class="fas fa-clock welcome-icon"></i>
                     </div>
                 </div>
             </div>
