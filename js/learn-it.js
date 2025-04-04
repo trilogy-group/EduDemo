@@ -1032,132 +1032,115 @@ function distPointLine(x, y, x1, y1, x2, y2) {
 
 // --- DOMContentLoaded setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    const footerAudioButton = document.getElementById('footer-audio-button');
+    console.log("Learn It page DOM loaded.");
+
+    // --- DOM Element References ---
+    const titleElement = document.getElementById('learn-it-title');
+    const instructionElement = document.getElementById('learn-it-instruction');
+    const canvasContainer = document.getElementById('canvas-container');
+    const checkArea = document.getElementById('embedded-check-area');
+    const feedbackArea = document.getElementById('feedback-area');
+    const nextButton = document.getElementById('next-step-button');
+    const prevButton = document.querySelector('.btn-prev-step');
+    const skipButton = document.getElementById('skip-button');
+    const lessonCounterElement = document.querySelector('.lesson-counter');
+    const audioButton = document.getElementById('footer-audio-button');
+    const audioIcon = audioButton ? audioButton.querySelector('i') : null;
     const startLessonButton = document.getElementById('start-lesson-button');
-    const skipButtonActual = document.getElementById('skip-button');
-    const prevButtonActual = document.querySelector('.btn-prev-step');
-    const nextButtonActual = document.getElementById('next-step-button');
-    const professorImg = document.getElementById('professor-img');
     const learnItContent = document.getElementById('learn-it-content');
     const initialTitle = document.getElementById('initial-lesson-title');
     const initialIntro = document.getElementById('initial-lesson-intro');
+    const professorImg = document.getElementById('professor-img');
 
-    console.log("DOM Loaded.");
+    // --- State Variables ---
+    let currentSubStep = -1; // Start before the first step
+    let p5Instance = null;
+    let narrationAudio = new Audio();
+    let currentAudioFilename = null;
+    let interactionEnabled = true; // Global flag for p5 interaction
+    let blinkInterval = null;
 
-    // --- Start Button Listener ---
-    if (startLessonButton && skipButtonActual && prevButtonActual && nextButtonActual && professorImg && learnItContent && initialTitle && initialIntro) {
-        console.log("Attaching Start button listener.");
-        startLessonButton.addEventListener('click', () => {
-            console.log("Start button clicked.");
-            startLessonButton.style.display = 'none'; 
-            initialTitle.classList.add('hidden'); 
-            initialIntro.classList.add('hidden'); 
-            professorImg.classList.add('hidden');
-            learnItContent.classList.remove('hidden'); 
-            // Show actual navigation buttons
-            skipButtonActual.style.display = 'inline-flex'; 
-            prevButtonActual.style.display = 'inline-flex'; // Show Prev button
-            nextButtonActual.style.display = 'inline-flex'; // Show Next button
-            loadSubStep(0);
-        });
-        
-        // Setup navigation buttons
-        nextButtonActual.addEventListener('click', () => {
-            if (currentSubStep < subSteps.length - 1) {
-                loadSubStep(currentSubStep + 1);
-            } else {
-                // Navigate to next page when all steps are completed
-                window.location.href = 'try-it.html';
-            }
-        });
-        
-        prevButtonActual.addEventListener('click', () => {
-            if (currentSubStep > 0) {
-                loadSubStep(currentSubStep - 1);
-            } else {
-                // Navigate to previous page
-                window.location.href = 'warm-up.html';
-            }
-        });
-        
-    } else {
-        console.error("One or more required initial elements not found! Cannot attach Start button listener.", 
-            {start: startLessonButton, skip: skipButtonActual, prev: prevButtonActual, next: nextButtonActual, professor: professorImg, content: learnItContent, initialTitle, initialIntro });
+    // --- Help Modal Logic ---
+    const helpModal = document.getElementById('help-modal');
+    const helpButton = document.getElementById('help-button');
+    const closeHelpButton = document.getElementById('close-help-modal-button');
+
+    const openModal = () => {
+        if (helpModal) {
+            helpModal.classList.remove('hidden');
+        }
+    };
+
+    const closeModal = () => {
+        if (helpModal) {
+            helpModal.classList.add('hidden');
+        }
+    };
+
+    if (helpButton) {
+        helpButton.addEventListener('click', openModal);
     }
 
-    // --- Next Button Listener --- <<< MODIFIED HERE
-    if (nextButtonActual) {
-        console.log("Attaching Next button listener.");
-        nextButtonActual.addEventListener('click', () => {
-            console.log("Next button clicked. Current step:", currentSubStep);
-            if (!nextButtonActual.disabled) {
-                stopAudio(true);
-                // Check if it's the last 'Learn It' step
-                if (currentSubStep === subSteps.length - 1) {
-                    console.log("Last 'Learn It' step finished. Redirecting to Try It page.");
-                    window.location.href = 'try-it.html'; // <<< REDIRECT
-                } else {
-                    // Otherwise, load the next sub-step within 'Learn It'
-                    console.log("Loading next sub-step:", currentSubStep + 1);
-                    loadSubStep(currentSubStep + 1);
-                }
-            }
-        });
-    } else {
-        console.error("Next button not found!");
+    if (closeHelpButton) {
+        closeHelpButton.addEventListener('click', closeModal);
     }
 
-    // --- Skip Button Listener --- <<< MOVED HERE
-    if (skipButtonActual) {
-        console.log("Attaching Skip button listener.");
-         skipButtonActual.addEventListener('click', () => {
-             console.log("Skip button clicked. Current step:", currentSubStep);
-             stopAudio(true);
-             if (currentSubStep < 0 || currentSubStep >= subSteps.length || !p5Instance) return;
-             const stepData = subSteps[currentSubStep];
-             const instance = p5Instance;
-             console.log("Stopping visuals and jumping to check phase.");
-             if (currentSubStep === 0) {
-                  instance.updateHighlight(null);
-                  setupStep0Check(stepData, instance);
-              } else if (currentSubStep === 1) {
-                   setupStep1Check(stepData, instance, stepData.currentCheckIndex);
-              } else if (currentSubStep === 2) {
-                   setupStep2Check(stepData, instance);
-              }
-             nextButtonActual.disabled = true; // Use correct variable
-         });
-    } else {
-         console.error("Skip button not found!");
-    }
-
-    // --- Previous Button Listener --- <<< UPDATED
-    if (prevButtonActual) {
-        console.log("Attaching Previous button listener.");
-        prevButtonActual.addEventListener('click', () => {
-            console.log("Previous button clicked.");
-            if (!prevButtonActual.disabled) { // Check if disabled
-                 stopAudio(true); 
-                 loadSubStep(currentSubStep - 1);
+    if (helpModal) {
+        helpModal.addEventListener('click', (event) => {
+            if (event.target === helpModal) { // Close only if background is clicked
+                closeModal();
             }
         });
-    } else {
-         console.error("Previous button not found!");
     }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && helpModal && !helpModal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+    // --- End Help Modal Logic ---
+
+    // --- Existing Initial Setup & Event Listeners ---
+    // Check for required elements
+    if (!titleElement || !instructionElement || !canvasContainer || !checkArea || 
+        !feedbackArea || !nextButton || !prevButton || !skipButton || !lessonCounterElement || 
+        !audioButton || !startLessonButton || !learnItContent || !initialTitle || !initialIntro || !professorImg) {
+        console.error("Learn It Page Error: One or more required elements not found!");
+        // Optionally display an error message to the user
+        document.body.innerHTML = '<p>Error loading lesson components. Please refresh or contact support.</p>';
+        return; // Stop execution if critical elements are missing
+    }
+
+    // Start button logic
+    startLessonButton.addEventListener('click', () => {
+        console.log("Start Learning button clicked.");
+        startLessonButton.style.display = 'none'; // Hide Start button
+        initialTitle.style.display = 'none';
+        initialIntro.style.display = 'none';
+        professorImg.style.display = 'none';
+
+        learnItContent.classList.remove('hidden'); // Show the main content area
+        nextButton.style.display = 'inline-flex'; // Show Next button
+        prevButton.style.display = 'inline-flex'; // Show Prev button
+        skipButton.style.display = 'inline-flex'; // Show Skip button
+
+        loadSubStep(0); // Load the first actual step
+    });
+
+    // Navigation button listeners 
+    nextButton.addEventListener('click', handleNextClick); // Assuming handleNextClick exists
+    prevButton.addEventListener('click', handlePrevClick); // Assuming handlePrevClick exists
+    skipButton.addEventListener('click', handleSkipClick); // Assuming handleSkipClick exists
     
-    // --- Footer Audio Button Listener ---
-    if (footerAudioButton) {
-        console.log("Attaching Footer audio button listener.");
-        footerAudioButton.addEventListener('click', () => {
-            console.log("Footer audio button clicked.");
-            console.log("Current audio filename to play:", currentAudioFilename);
-            stopAudio(true);
-            playAudio(currentAudioFilename);
-        });
-    } else {
-        console.error("Footer audio button not found!");
-    }
-}); 
+    // Audio button listener
+    audioButton.addEventListener('click', toggleAudio);
+    
+    updateLessonCounter(); // Initialize counter display
+
+}); // End DOMContentLoaded
+
+// --- Rest of the learn-it.js functions (loadSubStep, clockSketch, audio functions, etc.) ---
+// ...
 
 // Restore createDirectionCheckButtons function with horizontal layout
 function createDirectionCheckButtons() {

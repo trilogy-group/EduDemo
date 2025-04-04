@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Instructions - Time Lesson</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Add specific styles for help page */
+        .help-content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .help-content h1 {
+             color: var(--primary-dark); /* Match header title */
+             text-align: center;
+             margin-bottom: 20px;
+        }
+        .help-content h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .help-content h3 {
+            color: var(--accent-color-1);
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+        .help-content ul {
+            list-style: disc;
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+         .help-content li {
+            margin-bottom: 5px;
+         }
+        .help-content img { /* Style for inline images like buttons */
+            height: 1.2em;
+            vertical-align: middle;
+            margin: 0 2px;
+        }
+        .button-container {
+             text-align: center;
+             margin-top: 30px;
+        }
+        .back-button {
+            display: inline-block;
+            margin: 0 10px; /* Spacing between buttons */
+            padding: 12px 25px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            border: none; /* Remove default border */
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .back-button:hover {
+            background-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <!-- Header -->
+        <header class="lesson-header">
+            <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-image">
+            <span class="user-name">Jimmy</span>
+            <!-- No help button needed on the help page itself -->
+        </header>
+
+        <main class="lesson-main">
+            <div class="help-content">
+                <h1>Help & Instructions</h1>
+
+                <h2>Welcome!</h2>
+                <p>Need a little help learning about clocks and time? You've come to the right place! This page explains how the lessons work.</p>
+
+                <h2>Understanding the Clock</h2>
+                <ul>
+                    <li><strong>Hour Hand:</strong> The shorter hand. It points to the hour.</li>
+                    <li><strong>Minute Hand:</strong> The longer hand. It points to the minutes.</li>
+                    <li><strong>Numbers:</strong> The numbers 1 through 12 show the hours.</li>
+                    <li><strong>Tick Marks:</strong> The small lines show the minutes (there are 60 minutes in an hour).</li>
+                </ul>
+
+                <h2>How to Use the Lessons</h2>
+                <ul>
+                    <li><strong>Navigation:</strong> Use the "Next Step" and "Previous Step" buttons (usually below the clock or activity) to move through the different parts of the lesson.</li>
+                    <li><strong>Audio Instructions:</strong> Click the <img src="img/audio_play.png" alt="Play"> button to hear the instructions read aloud. You can also use <img src="img/audio_pause.png" alt="Pause"> and <img src="img/audio_replay.png" alt="Replay">.</li>
+                    <li><strong>Interacting with the Clock:</strong> Some steps will ask you to click on parts of the clock (like the hands) or even drag the hands to set a time. Follow the audio and text instructions.</li>
+                     <li><strong>Answering Questions:</strong>
+                        <ul>
+                            <li><em>Multiple Choice:</em> Click the button with the answer you think is correct.</li>
+                            <li><em>Warm-Up Numbers:</em> Click inside a light blue circle where a number is missing, then type the correct number using your keyboard.</li>
+                       </ul>
+                    </li>
+
+                </ul>
+
+                <h2>Troubleshooting</h2>
+                <ul>
+                    <li><strong>No Sound?</strong> Check if your computer's volume is turned up and not muted. Sometimes you need to click anywhere on the page first before audio can play automatically.</li>
+                    <li><strong>Something Not Working Right?</strong> The simplest fix is often to refresh or reload the web page (usually F5 key or a refresh button in your browser). Note that this might reset your progress on the current step.</li>
+                     <li><strong>Still Stuck?</strong> Don't worry! Ask a teacher or a grown-up for help.</li>
+                </ul>
+
+                <div class="button-container">
+                    <a href="javascript:history.back()" class="back-button">Go Back to Lesson</a>
+                    <a href="index.html" class="back-button">Go to Main Menu</a>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- No footer needed here -->
+
+    </div>
+    <!-- No specific JS needed for this static help page -->
+</body>
+</html>

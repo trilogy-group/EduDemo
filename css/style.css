@@ -1715,3 +1715,81 @@ body {
     /* p5.js handles drawing, but we can define cursor */
     cursor: text; /* Indicate it's clickable for text input */
 }
+
+/* Add styles for the new Help Modal */
+.modal {
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+    display: flex; /* Use flexbox for centering */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* Auto margins for centering */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more specific */
+    max-width: 600px; /* Max width */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    position: relative; /* For positioning the close button */
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.modal-content h3 {
+    color: var(--secondary-color);
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.modal-content ul {
+    list-style: none; 
+    padding-left: 0;
+}
+
+.modal-content li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.modal-content strong {
+    color: var(--accent-color);
+}
+
+.modal-content i {
+    margin-right: 5px; /* Space next to icons */
+    color: var(--dark-gray);
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute; /* Position relative to modal-content */
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Utility class to hide elements */
+.hidden {
+    display: none !important; /* Use !important to override potential conflicts */
+}

@@ -603,128 +603,117 @@ function handleKeyboardInput(key) {
 
 // --- DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', () => {
-    const footerAudioButton = document.getElementById('footer-audio-button');
-    const startLessonButton = document.getElementById('start-lesson-button');
-    const nextButtonActual = document.getElementById('next-step-button');
-    const prevButtonActual = document.querySelector('.btn-prev-step');
-    const skipButtonActual = document.getElementById('skip-button');
-    const professorImg = document.getElementById('professor-img');
-    const warmUpContent = document.getElementById('warm-up-content');
-    const initialTitle = document.getElementById('initial-lesson-title');
-    const initialIntro = document.getElementById('initial-lesson-intro');
-    const contentRight = document.querySelector('.content-right');
-    
-    // Initialize title and instruction elements
-    titleElement = document.getElementById('warm-up-title');
-    if (!titleElement) {
-        titleElement = document.createElement('h2');
-        titleElement.id = 'warm-up-title';
-        titleElement.textContent = "Let's Take a Look at a Clock";
-    }
-    
-    instructionElement = document.getElementById('warm-up-instruction');
-    if (!instructionElement) {
-        instructionElement = document.createElement('p');
-        instructionElement.id = 'warm-up-instruction';
-        instructionElement.className = 'instruction';
-        instructionElement.textContent = "Instructions will appear here.";
-    }
-    
-    // Append to content-right if not already there and if contentRight exists
-    if (contentRight) {
-        if (!document.getElementById('warm-up-title')) {
-            contentRight.appendChild(titleElement);
+    console.log("Warm-up page loaded.");
+
+    // DOM Elements
+    const progressBar = document.querySelector('.progress-bar');
+    const nextButton = document.getElementById('next-warmup-button');
+    const prevButton = document.getElementById('prev-warmup-button');
+    const lessonCounter = document.querySelector('.lesson-counter');
+    const instructionText = document.getElementById('warm-up-instruction');
+    const canvasContainer = document.getElementById('canvas-container');
+    const audioButton = document.getElementById('footer-audio-button');
+    const audioIcon = audioButton ? audioButton.querySelector('i') : null;
+    let currentAudio = null;
+    let p5Instance = null; // To hold the p5 instance
+
+    // State
+    let currentWarmUpStep = 0;
+    const warmUpSteps = [
+        {
+            instruction: "Let's warm up! Some numbers are missing from the clock. Click a circle and type the correct number.",
+            missingNumbers: [1, 4, 8],
+            showClockHands: true, // Display static hands
+            time: '1:00', // Example time for static display
+            audio: 'voice/warmup_intro.mp3' 
+        },
+        // Add more warm-up steps here if needed
+    ];
+
+    // --- Help Modal Logic ---
+    const helpModal = document.getElementById('help-modal');
+    const helpButton = document.getElementById('help-button');
+    const closeHelpButton = document.getElementById('close-help-modal-button');
+
+    const openModal = () => {
+        if (helpModal) {
+            helpModal.classList.remove('hidden');
         }
-        if (!document.getElementById('warm-up-instruction')) {
-            contentRight.appendChild(instructionElement);
+    };
+
+    const closeModal = () => {
+        if (helpModal) {
+            helpModal.classList.add('hidden');
         }
+    };
+
+    if (helpButton) {
+        helpButton.addEventListener('click', openModal);
     }
 
-    console.log("DOM Loaded for Warm-up.");
-    
-    // Initialize keyboard event listener for number input
+    if (closeHelpButton) {
+        closeHelpButton.addEventListener('click', closeModal);
+    }
+
+    if (helpModal) {
+        helpModal.addEventListener('click', (event) => {
+            if (event.target === helpModal) {
+                closeModal();
+            }
+        });
+    }
+
     document.addEventListener('keydown', (event) => {
-        // Only handle digit keys (0-9) for input
-        if (/^[0-9]$/.test(event.key)) {
-            handleKeyboardInput(event.key);
+        if (event.key === 'Escape' && helpModal && !helpModal.classList.contains('hidden')) {
+            closeModal();
         }
     });
-    
-    // --- Adjust Start Button Logic ---
-    if (startLessonButton && skipButtonActual && prevButtonActual && nextButtonActual && professorImg && 
-        warmUpContent && initialTitle && initialIntro) {
-        
-        console.log("All required initial elements found.");
-        
-        startLessonButton.addEventListener('click', () => {
-            console.log("Start button clicked.");
-            startLessonButton.style.display = 'none'; 
-            
-            // --- Hide Initial Text & Image, Show Content --- 
-            initialTitle.classList.add('hidden'); 
-            initialIntro.classList.add('hidden'); 
-            professorImg.classList.add('hidden');
-            warmUpContent.classList.remove('hidden'); 
-            
-            // Show the actual navigation buttons
-            skipButtonActual.style.display = 'inline-flex'; 
-            prevButtonActual.style.display = 'inline-flex'; 
-            nextButtonActual.style.display = 'inline-flex'; 
+    // --- End Help Modal Logic ---
 
-            // Make sure content containers are ready
-            const contentLeft = document.querySelector('.content-left');
-            const contentRight = document.querySelector('.content-right');
-            
-            // Make sure canvasContainer and checkArea are in contentLeft
-            if (contentLeft && canvasContainer.parentNode !== contentLeft) {
-                contentLeft.appendChild(canvasContainer);
-                contentLeft.appendChild(checkArea);
-            }
-            
-            // Make sure title and instruction are in contentRight
-            if (contentRight) {
-                if (titleElement.parentNode !== contentRight) {
-                    contentRight.appendChild(titleElement);
-                }
-                if (instructionElement.parentNode !== contentRight) {
-                    contentRight.appendChild(instructionElement);
-                }
-            }
+    // --- Existing Initialization & Event Listeners ---
+    loadWarmUpStep(currentWarmUpStep);
+    updateNavigationButtons();
+    updateProgressBar();
+    updateLessonCounter();
+    playCurrentAudio();
 
-            // --- Load the FIRST sub-step ---
-            loadSubStep(0); // We're now loading index 0 which is the missing numbers activity
-        });
-        
-        // Setup navigation buttons
-        nextButtonActual.addEventListener('click', () => {
-            if (currentSubStep < subSteps.length - 1) {
-                // If moving from missing numbers to next step
-                loadSubStep(currentSubStep + 1);
-            } else {
-                // Navigate to next page
-                window.location.href = 'learn-it.html';
+    if (nextButton) {
+        nextButton.addEventListener('click', () => {
+            if (currentWarmUpStep < warmUpSteps.length - 1) {
+                currentWarmUpStep++;
+                loadWarmUpStep(currentWarmUpStep);
+                updateNavigationButtons();
+                updateProgressBar();
+                updateLessonCounter();
+                playCurrentAudio();
             }
         });
-        
-        prevButtonActual.addEventListener('click', () => {
-            if (currentSubStep > 0) {
-                loadSubStep(currentSubStep - 1);
-            } else {
-                // Navigate to previous page
-                window.location.href = 'index.html';
-            }
-        });
-        
-    } else {
-        console.error("One or more required elements not found!",
-            {start: startLessonButton, skip: skipButtonActual, prev: prevButtonActual, 
-             next: nextButtonActual, professor: professorImg, content: warmUpContent, 
-             initialTitle, initialIntro});
     }
 
-    if (footerAudioButton) {
+    if (prevButton) {
+        prevButton.addEventListener('click', () => {
+            if (currentWarmUpStep > 0) {
+                currentWarmUpStep--;
+                loadWarmUpStep(currentWarmUpStep);
+                updateNavigationButtons();
+                updateProgressBar();
+                updateLessonCounter();
+                playCurrentAudio();
+            }
+        });
+    }
+    
+    // Keyboard listener for input
+    document.addEventListener('keydown', (event) => {
+        if (/^[0-9]$/.test(event.key) && selectedInputBox !== null) {
+            handleKeyboardInput(event.key); // Ensure selectedInputBox is checked here too
+        }
+    });
+
+    // Audio button listener
+    if (audioButton) {
         console.log("Footer audio button found.");
-        footerAudioButton.addEventListener('click', () => {
+        audioButton.addEventListener('click', () => {
             console.log("Footer audio button clicked.");
             console.log("Current audio filename to play:", currentAudioFilename);
             stopAudio(true); // Stop current and clear pending callback
@@ -733,4 +722,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("Footer audio button not found!");
     }
+
+    console.log("Warm-up page fully initialized.");
 }); 

@@ -98,7 +98,7 @@
             <div class="footer-controls">
                 <button id="footer-audio-button" class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
-                <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
+                <button id="help-button" class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
                 <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
             </div>
         </footer>
@@ -109,5 +109,36 @@
     
     <!-- Link to JavaScript files -->
     <script src="js/try-it.js"></script>
+
+    <!-- Help Modal Structure -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="close-help-modal-button">&times;</span>
+            <h2>How to Use This Lesson</h2>
+            <p>Welcome to learning about time! Follow the steps from Warm-up to Show It.</p>
+            
+            <h3>Interaction</h3>
+            <ul>
+                <li><strong>Clock:</strong> Click on parts like the hands or numbers when asked by the instructions.</li>
+                <li><strong>Input:</strong> Click empty circles or boxes to type in missing numbers using your keyboard.</li>
+                <li><strong>Buttons:</strong> Use the buttons below the clock or text (like multiple choice options or direction arrows) to answer questions.</li>
+            </ul>
+
+            <h3>Navigation</h3>
+            <ul>
+                <li>Use the <strong>Next Step</strong> and <strong>Previous Step</strong> buttons to move through activities within a section.</li>
+                <li>Use the <strong>Step Indicators</strong> at the bottom (Warm-up, Learn It, etc.) to see your progress or jump back to completed sections.</li>
+            </ul>
+
+            <h3>Controls (Bottom Right)</h3>
+            <ul>
+                <li><i class="fas fa-volume-up"></i>: Toggle voice narration on/off.</li>
+                <li><i class="fas fa-closed-captioning"></i>: Show text captions (feature coming soon!).</li>
+                <li><i class="fas fa-question"></i>: Show this help screen.</li>
+                <li><i class="fas fa-cog"></i>: Adjust settings (feature coming soon!).</li>
+            </ul>
+            <p>Click the 'X' or anywhere outside this box to close this help window.</p>
+        </div>
+    </div>
 </body>
 </html> 
