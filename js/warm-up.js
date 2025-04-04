@@ -38,38 +38,43 @@ const minuteHandWidth = 8;
 
 // --- Audio Filename Map ---
 const audioFilenameMap = {
-    '0-instruction': 'this_is_how_a_clock_looks_like.mp3',
-    '1-instruction': 'welcome_time_explorers_lets_quickly.mp3',
-    '1-feedback-correct': 'correct.mp3',
-    '1-feedback-incorrect': 'try_again.mp3',
-    '1-complete': 'perfect.mp3'
+    // Audio for introduction step (now skipped)
+    // '0-instruction': 'this_is_how_a_clock_looks_like.mp3',
+    
+    // Updated indices for missing numbers activity (now at index 0)
+    '0-instruction': 'welcome_time_explorers_lets_quickly.mp3',
+    '0-feedback-correct': 'correct.mp3',
+    '0-feedback-incorrect': 'try_again.mp3',
+    '0-complete': 'perfect.mp3'
 };
 
 // --- Lesson Data (Defined as substeps) ---
 const subSteps = [
-    { // 0: Introduction to Clock
-        title: "Let's Take a Look at a Clock",
-        instruction: "This is how a clock looks like. A clock has numbers from 1 to 12 arranged in a circle. It also has two hands that tell us the time.",
-        p5config: {
-            stepIndex: 0,
-            showAllNumbers: true,
-            showHands: true,
-            initialTime: { h: 1, m: 0 },
-            animateHands: false,
-            showMissingNumbers: false
-        },
-        setup: (instance) => {
-            console.log("Running setup for Step 0");
-            const stepData = subSteps[0];
-            instructionElement.innerHTML = stepData.instruction;
-            const instructionAudioFile = getAudioFilename(0, 'instruction');
-            currentAudioFilename = instructionAudioFile;
+    // Step 0 is already commented out - we're skipping the introduction and going straight to
+    // the missing numbers activity as requested
+    // { // 0: Introduction to Clock
+    //     title: "Let's Take a Look at a Clock",
+    //     instruction: "This is how a clock looks like. A clock has numbers from 1 to 12 arranged in a circle. It also has two hands that tell us the time.",
+    //     p5config: {
+    //         stepIndex: 0,
+    //         showAllNumbers: true,
+    //         showHands: true,
+    //         initialTime: { h: 1, m: 0 },
+    //         animateHands: false,
+    //         showMissingNumbers: false
+    //     },
+    //     setup: (instance) => {
+    //         console.log("Running setup for Step 0");
+    //         const stepData = subSteps[0];
+    //         instructionElement.innerHTML = stepData.instruction;
+    //         const instructionAudioFile = getAudioFilename(0, 'instruction');
+    //         currentAudioFilename = instructionAudioFile;
             
-            playAudio(instructionAudioFile);
-            // Enable next button for this step
-            nextButton.disabled = false;
-        }
-    },
+    //         playAudio(instructionAudioFile);
+    //         // Enable next button for this step
+    //         nextButton.disabled = false;
+    //     }
+    // },
     { // 1: Missing Numbers Activity
         title: "Fix the Missing Numbers",
         instruction: "Oh no! Some numbers are missing from our clock! Can you help fix the clock by filling in the missing numbers? Click on each empty box and type the correct number on your keyboard.",
@@ -85,10 +90,10 @@ const subSteps = [
         },
         setup: (instance) => {
             console.log("Running setup for Step 1");
-            const stepData = subSteps[1];
+            const stepData = subSteps[0]; // Updated index since this is now the first step
             instructionElement.innerHTML = stepData.instruction;
             
-            const instructionAudioFile = getAudioFilename(1, 'instruction');
+            const instructionAudioFile = getAudioFilename(0, 'instruction'); // Updated to use index 0
             currentAudioFilename = instructionAudioFile;
             playAudio(instructionAudioFile);
             
@@ -287,7 +292,7 @@ function loadSubStep(stepIndex) {
 
 // --- Handle Interaction Result (for input validation) ---
 function handleInteractionResult(boxNumber, inputValue, isCorrect) {
-    if (!p5Instance || currentSubStep !== 1) return; // Only relevant for step 1
+    if (!p5Instance || currentSubStep !== 0) return; // Updated index check since step 1 is now index 0
     
     const step = subSteps[currentSubStep];
     
@@ -575,7 +580,7 @@ function drawNumbersAndInputBoxes(p, missingNumbers) {
 
 // --- Keyboard Input Handler ---
 function handleKeyboardInput(key) {
-    if (currentSubStep !== 1 || selectedInputBox === null) return;
+    if (currentSubStep !== 0 || selectedInputBox === null) return; // Updated index check
     
     if (/^[0-9]$/.test(key)) {
         // Use p5 instance to handle the input
@@ -677,29 +682,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // --- Load the FIRST sub-step ---
-            loadSubStep(0);
+            loadSubStep(0); // We're now loading index 0 which is the missing numbers activity
         });
         
         // Setup navigation buttons
         nextButtonActual.addEventListener('click', () => {
             if (currentSubStep < subSteps.length - 1) {
-                // If moving from step 0 to step 1, show a transition message
-                if (currentSubStep === 0) {
-                    // Temporarily disable the button to prevent double clicks
-                    nextButtonActual.disabled = true;
-                    
-                    // Show transition message
-                    feedbackArea.textContent = "Now let's see if you can help fix a clock with some missing numbers!";
-                    feedbackArea.className = 'feedback';
-                    
-                    // Load the next step after a short delay to let user read the message
-                    setTimeout(() => {
-                        loadSubStep(currentSubStep + 1);
-                        nextButtonActual.disabled = false;
-                    }, 2000);
-                } else {
-                    loadSubStep(currentSubStep + 1);
-                }
+                // If moving from missing numbers to next step
+                loadSubStep(currentSubStep + 1);
             } else {
                 // Navigate to next page
                 window.location.href = 'learn-it.html';
