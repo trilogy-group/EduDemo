@@ -39,24 +39,24 @@ const minuteHandWidth = 8;
 // --- Audio Filename Map ---
 const audioFilenameMap = {
     // Try It Step 0 (Hour Hand)
-    '0-instruction': 'find_the_hour_hand_remember.mp3',
+    '0-instruction': 'find_the_hour_hand_remember_its.mp3',
     '0-feedback-correct': 'you_got_it_thats_the_short.mp3',
-    '0-feedback-incorrect': 'hmm_thats_the_long_hand.mp3',
+    '0-feedback-incorrect': 'hmm_thats_the_long_hand_the.mp3',
     
     // Try It Step 1 (Minute Hand)
-    '1-instruction': 'now_find_the_minute_hand.mp3',
-    '1-feedback-correct': 'excellent_thats_the_long_minute.mp3',
-    '1-feedback-incorrect': 'careful_the_minute_hand_is.mp3',
+    '1-instruction': 'now_find_the_minute_hand_its.mp3',
+    '1-feedback-correct': 'click_the_minute_hand.mp3',
+    '1-feedback-incorrect': 'careful_the_minute_hand_is_the.mp3',
     
     // Try It Step 2 (Clockwise Motion)
-    '2-instruction': 'are_they_moving_clockwise_click.mp3',
+    '2-instruction': 'are_they_moving_clockwise_click_yes.mp3',
     '2-feedback-correct': 'correct_they_are_moving_clockwise.mp3',
-    '2-feedback-incorrect': 'look_closely_they_are_following.mp3',
+    '2-feedback-incorrect': 'look_closely_they_are_following_the.mp3',
     
     // Try It Step 3 (Drag Arrow)
-    '3-instruction': 'which_way_is_clockwise_drag.mp3',
+    '3-instruction': 'which_way_is_clockwise_drag_the.mp3',
     '3-feedback-correct': 'perfect_thats_clockwise.mp3',
-    '3-feedback-incorrect': 'not_quite_remember_clockwise_follows.mp3'
+    '3-feedback-incorrect': 'not_quite_remember_clockwise_follows_the.mp3'
 };
 
 // --- Lesson Content: Define SubSteps ---
