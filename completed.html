@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congratulations! You've Completed "Meet the Clock!"</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Using Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Using Google Fonts for child-friendly typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="lesson-container">
+        <header class="lesson-header">
+            <div class="header-left">
+                <i class="fas fa-graduation-cap header-icon"></i>
+                <span class="header-title">EduSpark</span>
+            </div>
+            <div class="header-right">
+                <span class="user-name">Jimmy</span>
+                <div class="avatar-initial">J</div>
+            </div>
+        </header>
+
+        <div class="lesson-progress-area">
+             <div class="lesson-info">
+                 <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
+                 <span class="lesson-counter">Lesson Completed</span>
+             </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%;"></div>
+            </div>
+        </div>
+
+        <main class="lesson-main completed-screen">
+            <div class="completion-content">
+                <div class="completion-header">
+                    <h2>Congratulations! You Did It!</h2>
+                    <div class="confetti-animation">
+                        <i class="fas fa-award completion-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="certificate-container">
+                    <div class="certificate">
+                        <div class="certificate-header">Certificate of Achievement</div>
+                        <div class="certificate-title">This certifies that</div>
+                        <div class="certificate-name">Jimmy</div>
+                        <div class="certificate-description">has successfully completed</div>
+                        <div class="certificate-course">Time - Lesson 1: Meet the Clock!</div>
+                        <div class="certificate-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="completion-summary">
+                    <h3>You've Learned:</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> The numbers and their positions on a clock face</li>
+                        <li><i class="fas fa-check"></i> The hour hand (the short one) on the clock</li>
+                        <li><i class="fas fa-check"></i> The minute hand (the long one) on the clock</li>
+                        <li><i class="fas fa-check"></i> That clocks move in a clockwise direction</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="navigation-buttons completion-buttons">
+                <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+                    <i class="fas fa-home"></i> Back to Home
+                </button>
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">
+                    <i class="fas fa-graduation-cap"></i> Next Lesson
+                </button>
+            </div>
+        </main>
+
+        <footer class="lesson-footer">
+            <div class="step-indicators">
+                <!-- No step indicators shown on completion page -->
+            </div>
+
+            <div class="footer-controls">
+                <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
+                <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
+                <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Link to JavaScript files -->
+    <script src="js/stepNavigation.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+</body>
+</html> 

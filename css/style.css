@@ -378,3 +378,259 @@ body {
        gap: 10px;
     }
 }
+
+/* Welcome Page Styles */
+.welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.welcome-content {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .welcome-message {
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+.welcome-image {
+    margin-bottom: 1.5rem;
+}
+
+.welcome-icon {
+    font-size: 8rem;
+    color: #4a6bdf;
+    margin-right: 2rem;
+}
+
+.welcome-text {
+    flex: 1;
+}
+
+.welcome-text ul {
+    text-align: left;
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.welcome-text li {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.welcome-buttons {
+    margin-top: 2rem;
+}
+
+.btn-start-lesson {
+    font-size: 1.2rem;
+    padding: 0.75rem 2rem;
+    background-color: #4a6bdf;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+}
+
+.btn-start-lesson:hover {
+    transform: scale(1.05);
+    background-color: #3450b2;
+}
+
+/* Completion Page Styles */
+.completed-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.completion-content {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.completion-header {
+    margin-bottom: 2rem;
+}
+
+.completion-header h2 {
+    font-size: 2.5rem;
+    color: var(--secondary-teal);
+    margin-bottom: 1rem;
+}
+
+.confetti-animation {
+    margin: 1rem 0;
+}
+
+.completion-icon {
+    font-size: 6rem;
+    color: #FFD700; /* Gold color */
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.certificate-container {
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.certificate {
+    background-color: #fffdf5;
+    border: 5px solid #f0c75e;
+    border-radius: 10px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.certificate:before, 
+.certificate:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #e6d9b8;
+    left: -10px;
+    top: -10px;
+    border-radius: 10px;
+    z-index: -1;
+}
+
+.certificate:after {
+    left: 10px;
+    top: 10px;
+}
+
+.certificate-header {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #8d6e31;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.certificate-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.certificate-name {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: var(--primary-purple);
+    margin: 1rem 0;
+    font-family: 'Nunito', cursive;
+    position: relative;
+}
+
+.certificate-name:after {
+    content: '';
+    display: block;
+    width: 200px;
+    height: 2px;
+    background-color: #8d6e31;
+    margin: 0.5rem auto;
+}
+
+.certificate-description {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.certificate-course {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin: 1rem 0;
+}
+
+.certificate-stars {
+    margin: 1.5rem 0;
+}
+
+.certificate-stars i {
+    color: #FFD700;
+    font-size: 1.5rem;
+    margin: 0 0.3rem;
+}
+
+.completion-summary {
+    margin-top: 2rem;
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.completion-summary h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.completion-summary ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.completion-summary li {
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+}
+
+.completion-summary li i {
+    color: var(--success);
+    margin-right: 0.8rem;
+}
+
+.completion-buttons {
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+@media (max-width: 600px) {
+    .certificate {
+        padding: 1.5rem;
+    }
+    
+    .certificate-header {
+        font-size: 1.5rem;
+    }
+    
+    .certificate-name {
+        font-size: 1.8rem;
+    }
+    
+    .completion-icon {
+        font-size: 4rem;
+    }
+}
