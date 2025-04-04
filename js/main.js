@@ -31,20 +31,24 @@ function updateProgressBar() {
     const currentPath = window.location.pathname;
     const pageTitle = document.title;
     
-    if (currentPath.includes('index.html') || currentPath.endsWith('/')) {
-        // Warm-up page (first page)
-        progressPercentage = 20;
+    if (currentPath.endsWith('index.html') || currentPath.endsWith('/')) {
+        // Welcome page
+        progressPercentage = 0;
+    } else if (currentPath.includes('warm-up.html')) {
+        progressPercentage = 0;
     } else if (currentPath.includes('learn-it.html') || pageTitle.includes('Learn It')) {
-        progressPercentage = 40;
+        progressPercentage = 20;
     } else if (currentPath.includes('try-it.html') || pageTitle.includes('Try It')) {
-        progressPercentage = 60;
+        progressPercentage = 40;
     } else if (currentPath.includes('do-it.html') || pageTitle.includes('Do It')) {
-        progressPercentage = 80;
+        progressPercentage = 60;
     } else if (currentPath.includes('show-it.html') || pageTitle.includes('Show It')) {
+        progressPercentage = 80;
+    } else if (currentPath.includes('completed.html') || pageTitle.includes('Congratulations')) {
         progressPercentage = 100;
     }
     
-    if (progressBar) {
+    if (progressBar && !progressBar.style.width) {
         progressBar.style.width = `${progressPercentage}%`;
         console.log(`Progress updated: ${progressPercentage}%`);
     }
