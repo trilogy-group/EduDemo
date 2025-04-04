@@ -434,7 +434,21 @@ body {
 
 .welcome-text li {
     margin-bottom: 0.5rem;
-    font-size: 1.1rem;
+    font-size: 1rem; /* Using the 1rem size from index.html */
+    line-height: 1.4;
+}
+
+/* Bullet point styling for other pages (matching welcome page style) */
+.simple-list {
+    text-align: left;
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.simple-list li {
+    margin-bottom: 0.5rem;
+    font-size: 1rem; /* Match welcome page style */
+    line-height: 1.4;
 }
 
 .welcome-buttons {
