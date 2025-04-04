@@ -44,16 +44,23 @@
                 <img id="professor-img" src="img/professor_tempo.png" alt="Professor Tempo" style="max-width: 200px; margin-bottom: 20px;">
                 
                 <!-- Content wrapper - initially hidden with class -->
-                <div id="warm-up-content" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <!-- This title will be updated by JS for sub-steps -->
-                    <h2 id="warm-up-title">Let's Take a Look at a Clock</h2> 
-                    <!-- Subtitle/Instruction text goes here -->
-                    <p class="instruction" id="warm-up-instruction">Instructions will appear here.</p>
-                    <div id="canvas-container" class="clock-container">
-                        <!-- p5.js canvas will be inserted here by script -->
+                <div id="warm-up-content" class="hidden">
+                    <!-- Right side content (text) -->
+                    <div class="content-right">
+                        <!-- This title will be updated by JS for sub-steps -->
+                        <h2 id="warm-up-title">Let's Take a Look at a Clock</h2> 
+                        <!-- Subtitle/Instruction text goes here -->
+                        <p class="instruction" id="warm-up-instruction">Instructions will appear here.</p>
                     </div>
-                    <div id="embedded-check-area">
-                        <!-- Content dynamically added by JS -->
+                    
+                    <!-- Left side content (clock) -->
+                    <div class="content-left">
+                        <div id="canvas-container" class="clock-container">
+                            <!-- p5.js canvas will be inserted here by script -->
+                        </div>
+                        <div id="embedded-check-area">
+                            <!-- Content dynamically added by JS -->
+                        </div>
                     </div>
                 </div>
             </div>

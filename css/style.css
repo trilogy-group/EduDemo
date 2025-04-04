@@ -180,10 +180,11 @@ body {
 }
 
 /* Style the content wrapper inside activity-area */
-#learn-it-content {
+#learn-it-content, 
+#warm-up-content {
     width: 100%;
     display: flex; 
-    flex-direction: row; /* Change to row for side-by-side layout */
+    flex-direction: row; /* Side-by-side layout */
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
     align-items: flex-start; 
     justify-content: space-between; /* Space between left and right sides */
@@ -191,14 +192,17 @@ body {
     padding-top: 5px;
 }
 
-/* New content-left class for canvas container */
+/* Content left (clock container) */
 .content-left {
     flex: 1;
     min-width: 300px; /* Minimum width for clock container */
     order: 1; /* Appears first (left) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* New content-right class for text content */
+/* Content right (text content) */
 .content-right {
     flex: 1;
     display: flex;
@@ -210,7 +214,8 @@ body {
 }
 
 /* Style title and instruction */
-#learn-it-title {
+#learn-it-title,
+#warm-up-title {
     flex-shrink: 0;
     margin: 10px 0 15px 0; /* Increased bottom margin */
     font-size: 1.3rem;
@@ -224,7 +229,8 @@ body {
     line-height: 1.3;
 }
 
-#learn-it-instruction {
+#learn-it-instruction,
+#warm-up-instruction {
     flex-shrink: 0;
     margin-bottom: 20px;
     max-width: 100%; /* Full width of parent */
@@ -446,13 +452,15 @@ body {
     }
     
     /* Improved title handling for small screens */
-    #learn-it-title {
+    #learn-it-title,
+    #warm-up-title {
         font-size: 1.1rem;
         margin: 8px 0;
         padding: 0 5px;
     }
     
-    #learn-it-instruction {
+    #learn-it-instruction,
+    #warm-up-instruction {
         font-size: 0.95rem;
         max-width: 95%;
     }
@@ -480,7 +488,8 @@ body {
 
 /* Medium screen adjustments */
 @media (min-width: 601px) and (max-width: 900px) {
-    #learn-it-title {
+    #learn-it-title,
+    #warm-up-title {
         font-size: 1.2rem;
         margin: 8px 0;
     }
@@ -489,7 +498,8 @@ body {
         padding: 20px 15px;
     }
     
-    #learn-it-instruction {
+    #learn-it-instruction,
+    #warm-up-instruction {
         max-width: 92%;
     }
 }
@@ -926,7 +936,8 @@ body {
 
 /* Responsive styles for direction buttons */
 @media (max-width: 768px) {
-    #learn-it-content {
+    #learn-it-content,
+    #warm-up-content {
         flex-direction: column; /* Stack vertically on smaller screens */
         align-items: center;
         gap: 10px;
@@ -945,7 +956,9 @@ body {
     }
 
     #learn-it-title, 
-    #learn-it-instruction {
+    #learn-it-instruction,
+    #warm-up-title,
+    #warm-up-instruction {
         text-align: center; /* Center text on mobile */
     }
 
