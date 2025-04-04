@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learn It: Clock Parts Explorer</title>
+    <title>Learn It: Clock Parts</title>
     <link rel="stylesheet" href="css/style.css">
     <!-- Using Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -16,6 +16,7 @@
     <div class="lesson-container">
         <header class="lesson-header">
             <div class="header-left">
+                <img src="img/professor_tempo.png" alt="Professor Tempo Guide" class="character-guide-img">
                 <i class="fas fa-graduation-cap header-icon"></i>
                 <span class="header-title">EduSpark</span>
             </div>
@@ -28,46 +29,67 @@
         <div class="lesson-progress-area">
              <div class="lesson-info">
                  <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
+                 <!-- JS will update this span -->
                  <span class="lesson-counter">Step 2 of 5: Learn It</span>
              </div>
             <div class="progress-bar-container">
-                <div class="progress-bar"></div>
+                <!-- JS might update progress -->
+                <div class="progress-bar" style="width: 20%;"></div>
             </div>
         </div>
 
         <main class="lesson-main">
             <div class="activity-area">
-                <h2>Learn It: Clock Parts Explorer</h2>
-                <p class="instruction">This is a <strong>clock face</strong>! It helps us tell time. Look at the numbers. They go in order all the way around, starting from 1, then 2, 3... up to 12 at the very top.</p>
-                <div class="clock-container">
-                    <!-- Placeholder for interactive clock content -->
-                    <p class="placeholder-text">Interactive Clock With Highlighted Parts</p>
+                <!-- Add Professor image initially -->
+                <img id="professor-intro-img" class="instruction-character-img" src="img/professor_tempo.png" alt="Professor Tempo Intro">
+                
+                <!-- Content wrapper - initially hidden with class -->
+                <div id="learn-it-content" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <h2 id="learn-it-title">Learn It: The Clock Face</h2>
+                    <!-- Remove character image -->
+                    <!-- <img id="learn-it-character" class="instruction-character-img" src="img/professor_tempo.png" alt="Professor Tempo giving instructions" style="display: none;"> -->
+                    <!-- Add back instruction paragraph -->
+                    <p class="instruction" id="learn-it-instruction">Instructions will appear here.</p>
+                    <div id="canvas-container" class="clock-container">
+                        <!-- p5.js canvas will be inserted here by script -->
+                    </div>
+                    <div id="embedded-check-area">
+                        <!-- Content dynamically added by JS -->
+                    </div>
+                    <div id="feedback-area" class="feedback"></div>
                 </div>
             </div>
 
-            <div class="instruction-box">
-                <p class="instruction-title">Clock Parts</p> 
-                <p class="instruction-detail"><i class="fas fa-star star-icon"></i> Learn about the clock face, hour hand, minute hand, and clockwise direction.</p> 
+            <!-- Optional side instruction box if needed, content via JS -->
+            <div class="instruction-box" id="side-instruction-box" style="display: none;">
+                 <p class="instruction-title" id="side-instruction-title"></p>
+                 <p class="instruction-detail" id="side-instruction-detail"></p>
             </div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Previous Step</button>
-                <button class="btn btn-skip"><i class="fas fa-forward"></i> Skip</button>
-                <button class="btn btn-primary btn-next-step" onclick="window.location.href='try-it.html'"><i class="fas fa-arrow-right"></i> Next Step</button>
+                <button class="btn btn-prev-step" onclick="window.location.href='index.html'" style="display: none;"><i class="fas fa-arrow-left"></i> Previous Step</button>
+                
+                <!-- Start button initially in place of Skip -->
+                <button id="start-lesson-button" class="btn btn-secondary"><i class="fas fa-play"></i> Start Learning!</button> 
+                
+                <!-- Actual Skip button, initially hidden -->
+                <button class="btn btn-skip" id="skip-button" style="display: none;"><i class="fas fa-forward"></i> Skip</button>
+                
+                <button class="btn btn-primary btn-next-step" id="next-step-button" disabled style="display: none;"><i class="fas fa-arrow-right"></i> Next Step</button>
             </div>
         </main>
 
         <footer class="lesson-footer">
             <div class="step-indicators">
-                <button class="step-indicator completed" onclick="window.location.href='index.html'"><i class="fas fa-check"></i> Warm-up</button>
-                <button class="step-indicator active"><i class="fas fa-play"></i> Learn It</button>
+                <button class="step-indicator done" onclick="window.location.href='index.html'"><i class="fas fa-check"></i> Warm-up</button>
+                <button class="step-indicator active"><i class="fas fa-book-open"></i> Learn It</button>
                 <button class="step-indicator locked"><i class="fas fa-lock"></i> Try It</button>
                 <button class="step-indicator locked"><i class="fas fa-lock"></i> Do It</button>
                 <button class="step-indicator locked"><i class="fas fa-lock"></i> Show It</button>
             </div>
 
             <div class="footer-controls">
-                <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
+                <button id="footer-audio-button" class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
                 <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
                 <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
@@ -75,11 +97,10 @@
         </footer>
     </div>
 
-    <!-- Link to p5.js library for interactive elements -->
+    <!-- Link to p5.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    
-    <!-- Link to JavaScript files -->
-    <script src="js/stepNavigation.js" type="module"></script>
-    <script src="js/main.js" type="module"></script>
+
+    <!-- Link to the specific JavaScript for this page -->
+    <script src="js/learn-it.js"></script>
 </body>
 </html> 

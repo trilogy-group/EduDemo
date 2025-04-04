@@ -50,6 +50,7 @@ body {
     overflow: hidden; /* Ensure child elements conform to rounded corners */
     display: flex;
     flex-direction: column;
+    height: 95vh; /* Force container to fit viewport height */
 }
 
 /* Header */
@@ -66,6 +67,14 @@ body {
     display: flex;
     align-items: center;
 }
+
+/* --- Add Character Guide Style --- */
+.character-guide-img {
+    height: 40px; /* Adjust size as needed */
+    width: auto;
+    margin-right: 15px; /* Space between image and icon */
+}
+/* --- End Add --- */
 
 .header-icon {
     font-size: 24px;
@@ -149,21 +158,37 @@ body {
 /* Main Content */
 .lesson-main {
     padding: 25px;
-    background-color: #f9faff; /* Slightly off-white bg for main area */
-    flex-grow: 1; /* Allow main to fill available space */
+    background-color: #f9faff; 
+    flex-grow: 1; 
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Space between elements */
+    gap: 20px; 
+    overflow: hidden; 
 }
 
 .activity-area {
     background-color: var(--card-background);
     border-radius: 15px;
-    padding: 50px 40px; /* Increased padding from 40px 30px */
     text-align: center;
-    min-height: 300px; /* Increased from 250px */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    height: calc(95vh - 280px);
+    overflow: hidden;
 }
+
+/* --- Adjust Canvas Container --- */
+#canvas-container {
+    width: 100%; 
+    height: 100%;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    line-height: 0; /* Prevent extra space before canvas loads */
+}
+/* --- End Adjust --- */
 
 .placeholder-text {
     color: #aaa;
@@ -198,8 +223,10 @@ body {
 /* Buttons */
 .navigation-buttons {
     display: flex;
-    justify-content: space-between; /* Space out main action buttons */
+    justify-content: space-between; 
     align-items: center;
+    flex-shrink: 0;
+    padding-top: 10px;
 }
 
 .btn {
@@ -290,6 +317,7 @@ body {
     padding: 15px 25px;
     background-color: var(--card-background);
     border-top: 1px solid var(--border-light);
+    flex-shrink: 0;
 }
 
 .step-indicators {
@@ -378,3 +406,16 @@ body {
        gap: 10px;
     }
 }
+
+/* --- Utility Classes --- */
+.hidden {
+    display: none !important; /* Use important to override potential inline styles if needed */
+}
+/* --- End Utility Classes --- */
+
+/* --- Adjust Style for Initial Character --- */
+#professor-intro-img.instruction-character-img {
+    height: 200px; /* Make initial image larger */
+    margin-bottom: 20px; 
+}
+/* --- End Adjust --- */
