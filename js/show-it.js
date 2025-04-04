@@ -511,30 +511,58 @@ function showResults() {
                 ${passed ? '' : '<p class="review-hint">Review these questions to improve your understanding</p>'}
             </div>
             
-            <div class="question-grid">
-                ${userAnswers.map((answer, index) => {
-                    const question = questions[index];
-                    return `
-                    <div class="question-card ${answer.isCorrect ? 'correct' : 'incorrect'}">
-                        <div class="question-card-header">
-                            <span class="question-number">Q${index + 1}</span>
-                            <span class="result-icon">${answer.isCorrect ? 
-                                '<i class="fas fa-check"></i>' : 
-                                '<i class="fas fa-times"></i>'}</span>
-                        </div>
-                        
-                        <div class="question-card-body">
-                            <div class="question-title">${question.title.replace(/^Question \d+: /, '')}</div>
-                            <div class="answer-info">
-                                <div class="answer-given">Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong></div>
-                                ${answer.isCorrect ? '' : 
-                                   `<div class="correct-answer">Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong></div>`
-                                }
+            <div class="two-column-grid">
+                <div class="column">
+                    ${userAnswers.slice(0, Math.ceil(userAnswers.length/2)).map((answer, index) => {
+                        const question = questions[index];
+                        return `
+                        <div class="question-card ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                            <div class="question-card-header">
+                                <span class="question-number">Q${index + 1}</span>
+                                <span class="result-icon">${answer.isCorrect ? 
+                                    '<i class="fas fa-check"></i>' : 
+                                    '<i class="fas fa-times"></i>'}</span>
+                            </div>
+                            
+                            <div class="question-card-body">
+                                <div class="question-title">${question.title.replace(/^Question \d+: /, '')}</div>
+                                <div class="answer-info">
+                                    <div class="answer-given">Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong></div>
+                                    ${answer.isCorrect ? '' : 
+                                       `<div class="correct-answer">Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong></div>`
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    `;
-                }).join('')}
+                        `;
+                    }).join('')}
+                </div>
+                <div class="column">
+                    ${userAnswers.slice(Math.ceil(userAnswers.length/2)).map((answer, index) => {
+                        const actualIndex = index + Math.ceil(userAnswers.length/2);
+                        const question = questions[actualIndex];
+                        return `
+                        <div class="question-card ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                            <div class="question-card-header">
+                                <span class="question-number">Q${actualIndex + 1}</span>
+                                <span class="result-icon">${answer.isCorrect ? 
+                                    '<i class="fas fa-check"></i>' : 
+                                    '<i class="fas fa-times"></i>'}</span>
+                            </div>
+                            
+                            <div class="question-card-body">
+                                <div class="question-title">${question.title.replace(/^Question \d+: /, '')}</div>
+                                <div class="answer-info">
+                                    <div class="answer-given">Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong></div>
+                                    ${answer.isCorrect ? '' : 
+                                       `<div class="correct-answer">Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong></div>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
             </div>
         </div>
     `;
