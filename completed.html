@@ -13,6 +13,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <!-- Favicon Link -->
     <link rel="icon" type="image/png" href="img/professor_tempo.png">
+    <style>
+        /* Styles for scrollable certificate section */
+        .lesson-main.completed-screen {
+            overflow-y: auto !important;
+            max-height: 70vh;
+        }
+        
+        .completion-content {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .certificate-container {
+            margin: 20px auto;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* Add scrollbar styling for better appearance */
+        .lesson-main.completed-screen::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .lesson-main.completed-screen::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .lesson-main.completed-screen::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 4px;
+        }
+
+        .lesson-main.completed-screen::-webkit-scrollbar-thumb:hover {
+            background-color: #aaa;
+        }
+    </style>
 </head>
 <body>
     <div class="lesson-container">
