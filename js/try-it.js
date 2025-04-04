@@ -201,8 +201,8 @@ const subSteps = [
     },
     { // 3: Drag Arrow in Clockwise Direction
         title: "Drag the Arrow Clockwise",
-        instruction: "Which way is clockwise? Drag the arrow around the clock in the clockwise direction.",
-        checkType: 'drag',
+        instruction: "Which way is clockwise? Click the arrow to show the clock moving in the clockwise direction.",
+        checkType: 'arrow',
         feedbackCorrect: "Perfect! That's clockwise!",
         feedbackIncorrect: "Not quite. Remember, clockwise follows the numbers around...",
         p5config: {
@@ -211,7 +211,8 @@ const subSteps = [
             showHands: true,
             initialTime: { h: 3, m: 0 },
             animateHands: false,
-            showDirectionArrows: false
+            showDirectionArrows: true,
+            interactionTarget: { type: 'arrow', value: 'clockwise' }
         },
         setup: (instance) => {
             console.log("Running setup for Try It Step 3");
@@ -223,8 +224,10 @@ const subSteps = [
             feedbackArea.textContent = '';
             feedbackArea.className = 'feedback';
             
-            // Set up draggable arrow
-            setupDragArrow(instance);
+            // Enable arrow interaction
+            if (instance) {
+                instance.setInteraction(true, stepData.p5config.interactionTarget);
+            }
             
             // Play instruction audio
             const instructionAudioFile = getAudioFilename(3, 'instruction');
@@ -359,33 +362,6 @@ function handleYesNoResponse(isYes) {
     
     const isCorrect = (isYes === true); // "yes" is the correct answer
     handleInteractionResult(isCorrect);
-}
-
-// Set up draggable arrow for step 3
-function setupDragArrow(instance) {
-    // This function will be implemented to create a draggable arrow
-    // using p5.js or native DOM manipulation
-    console.log("Setting up draggable arrow");
-    
-    // Implementation will depend on the chosen approach:
-    // 1. We could use p5.js to draw and handle the draggable arrow
-    // 2. We could create a DOM element and use standard drag events
-    
-    // For now, we'll add a placeholder button to check
-    // This will be replaced with actual draggable functionality
-    checkArea.innerHTML = '';
-    
-    const checkButton = document.createElement('button');
-    checkButton.textContent = 'Check Direction';
-    checkButton.className = 'btn btn-primary';
-    checkButton.addEventListener('click', () => {
-        // In a complete implementation, we would check if the arrow
-        // has been dragged in the clockwise direction
-        // For now, we'll simulate a correct response
-        handleInteractionResult(true);
-    });
-    
-    checkArea.appendChild(checkButton);
 }
 
 // --- Core Functions ---
@@ -524,9 +500,17 @@ function clockSketch(config) {
         let localHandAngleOffset = 0;
         let localHoveredNumber = null;
         let localHoveredHand = null;
-        let localClickFeedback = { number: null, hand: null, correct: null };
+        let localHoveredArrow = null; // Track which arrow is hovered
+        let localClickFeedback = { number: null, hand: null, arrow: null, correct: null };
         let currentHour = config.initialTime ? config.initialTime.h : 3;
         let currentMinute = config.initialTime ? config.initialTime.m : 0;
+        
+        // Direction animation state
+        let directionAnimationActive = false;
+        let directionAnimationSpeed = 0;
+        let animationStartTime = 0;
+        let animationDuration = 2000; // 2 seconds of animation
+        let directionAnimationDirection = null; // 'clockwise' or 'counterclockwise'
         
         // --- p5.js Setup ---
         p.setup = () => {
@@ -551,7 +535,7 @@ function clockSketch(config) {
             p.textAlign(p.CENTER, p.CENTER);
             p.textFont('Arial');
             
-            if (!localHandAnimationActive) p.noLoop(); else p.loop();
+            if (!localHandAnimationActive && !directionAnimationActive) p.noLoop(); else p.loop();
             p.redraw();
         };
         
@@ -571,19 +555,55 @@ function clockSketch(config) {
                 let hAngle, mAngle;
                 
                 if (localHandAnimationActive) {
+                    // Regular animation for step 2
                     const speed = 1;
                     localHandAngleOffset += speed;
                     mAngle = (localHandAngleOffset % 360) * 6 - 90;
                     hAngle = ((localHandAngleOffset / 12) % 360) * 30 - 90;
+                } else if (directionAnimationActive) {
+                    // Direction animation for step 3
+                    const elapsed = Date.now() - animationStartTime;
+                    
+                    // Check if animation time is complete
+                    if (elapsed >= animationDuration) {
+                        directionAnimationActive = false;
+                        // Just stop the animation without showing feedback again
+                        p.noLoop();
+                    } else {
+                        // Continue animation based on selected direction
+                        if (directionAnimationDirection === 'clockwise') {
+                            localHandAngleOffset += directionAnimationSpeed;
+                        } else {
+                            localHandAngleOffset -= directionAnimationSpeed;
+                        }
+                        
+                        // Calculate angle for animation
+                        mAngle = (localHandAngleOffset % 360) * 6 - 90;
+                        hAngle = ((localHandAngleOffset / 12) % 360) * 30 - 90;
+                    }
                 } else {
+                    // Static display
                     mAngle = p.map(currentMinute, 0, 60, 0, 360) - 90;
                     hAngle = p.map(currentHour % 12 + currentMinute / 60, 0, 12, 0, 360) - 90;
                 }
                 
+                // Calculate offsets for arrows if hovered
+                let hourHandOffset = 0;
+                if (localHoveredArrow === 'clockwise') {
+                    hourHandOffset = 5; // Down arrow is clockwise - moves hand down
+                } else if (localHoveredArrow === 'counterclockwise') {
+                    hourHandOffset = -5; // Up arrow is counterclockwise - moves hand up
+                }
+                
                 drawHand(p, 'minute', mAngle, minuteHandColor, minuteHandLength, minuteHandWidth, 
                          localHighlightTarget, localHoveredHand, localClickFeedback);
-                drawHand(p, 'hour', hAngle, hourHandColor, hourHandLength, hourHandWidth, 
+                drawHand(p, 'hour', hAngle + hourHandOffset, hourHandColor, hourHandLength, hourHandWidth, 
                          localHighlightTarget, localHoveredHand, localClickFeedback);
+            }
+            
+            // Draw direction arrows for step 3
+            if (stepConfig.showDirectionArrows) {
+                drawDirectionArrows(p, localInteractionEnabled, localHoveredArrow, localClickFeedback);
             }
             
             // Draw center dot on top
@@ -595,7 +615,9 @@ function clockSketch(config) {
             if (!localInteractionEnabled) return;
             
             let prevHoverHand = localHoveredHand;
+            let prevHoverArrow = localHoveredArrow;
             localHoveredHand = null;
+            localHoveredArrow = null;
             
             // Check hand hover
             if (localInteractionTarget?.type === 'hand' && stepConfig.showHands) {
@@ -625,17 +647,50 @@ function clockSketch(config) {
                 }
             }
             
+            // Check arrow hover for step 3
+            if (localInteractionTarget?.type === 'arrow' && stepConfig.showDirectionArrows) {
+                const arrowSize = clockDiameter * 0.07; // Same size as in drawDirectionArrows
+                const hitRadius = arrowSize * 1.5;
+                
+                // Calculate arrow positions - same as in drawDirectionArrows
+                // Number 2 position (for counterclockwise/up arrow)
+                const angle2 = 2 * 30 - 90; // 2nd hour position in degrees (-30 degrees)
+                const radius2 = clockDiameter * 0.25; // Closer to center than the number
+                const ccwX = p.cos(angle2) * radius2;
+                const ccwY = p.sin(angle2) * radius2;
+                
+                // Number 4 position (for clockwise/down arrow)
+                const angle4 = 4 * 30 - 90; // 4th hour position in degrees (30 degrees)
+                const radius4 = clockDiameter * 0.25;
+                const cwX = p.cos(angle4) * radius4;
+                const cwY = p.sin(angle4) * radius4;
+                
+                // Check if mouse is over either arrow
+                const distToCW = p.dist(p.mouseX - p.width / 2, p.mouseY - p.height / 2, cwX, cwY);
+                const distToCCW = p.dist(p.mouseX - p.width / 2, p.mouseY - p.height / 2, ccwX, ccwY);
+                
+                if (distToCW < hitRadius) {
+                    localHoveredArrow = 'clockwise';
+                } else if (distToCCW < hitRadius) {
+                    localHoveredArrow = 'counterclockwise';
+                }
+            }
+            
             // Redraw if hover state changed
-            if (prevHoverHand !== localHoveredHand) {
-                if (!localHandAnimationActive) p.redraw();
+            if (prevHoverHand !== localHoveredHand || prevHoverArrow !== localHoveredArrow) {
+                if (!localHandAnimationActive && !directionAnimationActive) p.redraw();
             }
             
             // Update cursor
-            p.cursor(localHoveredHand ? p.HAND : p.ARROW);
+            if (localHoveredHand || localHoveredArrow) {
+                p.cursor(p.HAND);
+            } else {
+                p.cursor(p.ARROW);
+            }
         };
         
         p.mousePressed = () => {
-            if (!localInteractionEnabled) return;
+            if (!localInteractionEnabled || directionAnimationActive) return;
             
             // Clear previous feedback
             if (feedbackArea.textContent) {
@@ -651,11 +706,41 @@ function clockSketch(config) {
                 localClickFeedback = { 
                     number: null, 
                     hand: localHoveredHand, 
+                    arrow: null,
                     correct: isCorrect 
                 };
                 
                 p.redraw();
                 setTimeout(() => { handleInteractionResult(isCorrect); }, 300);
+            }
+            
+            // Process arrow clicks for step 3
+            if (localHoveredArrow && localInteractionTarget?.type === 'arrow') {
+                console.log(`Clicked on ${localHoveredArrow} arrow`);
+                
+                // Immediately determine if the answer is correct
+                const isCorrect = (localHoveredArrow === 'clockwise');
+                
+                // Update feedback immediately
+                localClickFeedback = { 
+                    number: null, 
+                    hand: null, 
+                    arrow: localHoveredArrow, 
+                    correct: isCorrect 
+                };
+                
+                // Show feedback right away
+                handleInteractionResult(isCorrect);
+                
+                // Start direction animation
+                directionAnimationActive = true;
+                directionAnimationDirection = localHoveredArrow;
+                directionAnimationSpeed = 3; // Adjust speed as needed
+                animationStartTime = Date.now(); // Store the current time
+                localHandAngleOffset = 0; // Reset animation offset
+                
+                // Ensure we're looping to animate
+                p.loop();
             }
         };
         
@@ -666,13 +751,14 @@ function clockSketch(config) {
                 
                 localInteractionEnabled = enabled;
                 localInteractionTarget = target || null;
-                localClickFeedback = { number: null, hand: null, correct: null };
+                localClickFeedback = { number: null, hand: null, arrow: null, correct: null };
                 localHoveredNumber = null;
                 localHoveredHand = null;
+                localHoveredArrow = null;
                 
                 console.log(`Setting interaction: ${enabled}`, target);
                 
-                if (!localHandAnimationActive) p.redraw();
+                if (!localHandAnimationActive && !directionAnimationActive) p.redraw();
             }
         };
         
@@ -694,15 +780,15 @@ function clockSketch(config) {
                 }
                 
                 console.log("Stopping animation");
-                p.noLoop();
+                if (!directionAnimationActive) p.noLoop();
                 p.redraw();
             }
         };
         
         p.resetClickFeedback = () => {
-            if (localClickFeedback.hand !== null) {
-                localClickFeedback = { number: null, hand: null, correct: null };
-                if (!localHandAnimationActive) p.redraw();
+            if (localClickFeedback.hand !== null || localClickFeedback.arrow !== null) {
+                localClickFeedback = { number: null, hand: null, arrow: null, correct: null };
+                if (!localHandAnimationActive && !directionAnimationActive) p.redraw();
             }
         };
         
@@ -837,6 +923,83 @@ function distPointLine(x, y, x1, y1, x2, y2) {
     const projY = y1 + t * (y2 - y1);
     
     return Math.sqrt((x - projX) * (x - projX) + (y - projY) * (y - projY));
+}
+
+// Draw direction arrows for step 3
+function drawDirectionArrows(p, interactionEnabled, hoveredArrow, clickFeedback) {
+    const arrowSize = clockDiameter * 0.07; // Smaller arrows
+    
+    // Calculate positions near numbers 2 and 4
+    // Number 2 position (for counterclockwise/up arrow)
+    const angle2 = 2 * 30 - 90; // 2nd hour position in degrees (-30 degrees)
+    const radius2 = clockDiameter * 0.25; // Closer to center than the number
+    const ccwX = p.cos(angle2) * radius2;
+    const ccwY = p.sin(angle2) * radius2;
+    
+    // Number 4 position (for clockwise/down arrow)
+    const angle4 = 4 * 30 - 90; // 4th hour position in degrees (30 degrees)
+    const radius4 = clockDiameter * 0.25;
+    const cwX = p.cos(angle4) * radius4;
+    const cwY = p.sin(angle4) * radius4;
+    
+    // Draw counterclockwise (up) arrow
+    drawArrow(p, ccwX, ccwY, arrowSize, 'up', 
+             hoveredArrow === 'counterclockwise', 
+             clickFeedback.arrow === 'counterclockwise', 
+             clickFeedback.correct === false); // Reverse correct state since we swapped meaning
+    
+    // Draw clockwise (down) arrow
+    drawArrow(p, cwX, cwY, arrowSize, 'down', 
+             hoveredArrow === 'clockwise', 
+             clickFeedback.arrow === 'clockwise', 
+             clickFeedback.correct === true); // Maintain correct state for clockwise
+}
+
+// Helper function to draw arrows with different states
+function drawArrow(p, x, y, size, direction, isHovered, isClicked, isCorrect) {
+    let arrowColor = numberColor; // Default color
+    let arrowScale = 1.0;
+    
+    // Apply hover effect
+    if (isHovered) {
+        arrowColor = highlightColor;
+        arrowScale = 1.2;
+    }
+    
+    // Apply click feedback (overrides hover)
+    if (isClicked) {
+        arrowColor = isCorrect ? correctColor : incorrectColor;
+        arrowScale = 1.3;
+    }
+    
+    // Draw arrow with selected appearance
+    p.push();
+    p.translate(x, y);
+    p.scale(arrowScale);
+    
+    // Draw arrow circle background - more opaque and slightly larger
+    p.noStroke();
+    p.fill(240, 240, 240, 240);
+    p.ellipse(0, 0, size * 2.2, size * 2.2);
+    
+    // Draw arrow
+    p.stroke(arrowColor);
+    p.strokeWeight(size * 0.18); // Thicker lines
+    p.noFill();
+    
+    if (direction === 'up') {
+        // Draw up arrow (clockwise)
+        p.line(0, size * 0.6, 0, -size * 0.6);  // Vertical line
+        p.line(0, -size * 0.6, -size * 0.4, -size * 0.2);  // Left arrowhead
+        p.line(0, -size * 0.6, size * 0.4, -size * 0.2);   // Right arrowhead
+    } else {
+        // Draw down arrow (counterclockwise)
+        p.line(0, -size * 0.6, 0, size * 0.6);  // Vertical line
+        p.line(0, size * 0.6, -size * 0.4, size * 0.2);    // Left arrowhead
+        p.line(0, size * 0.6, size * 0.4, size * 0.2);     // Right arrowhead
+    }
+    
+    p.pop();
 }
 
 // --- Event Listeners ---
