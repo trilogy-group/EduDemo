@@ -918,6 +918,26 @@ document.addEventListener('DOMContentLoaded', () => {
             loadSubStep(0);
             // --- End Load First Step ---
         });
+        
+        // Setup navigation buttons
+        nextButtonActual.addEventListener('click', () => {
+            if (currentSubStep < subSteps.length - 1) {
+                loadSubStep(currentSubStep + 1);
+            } else {
+                // Navigate to next page when all steps are completed
+                window.location.href = 'try-it.html';
+            }
+        });
+        
+        prevButtonActual.addEventListener('click', () => {
+            if (currentSubStep > 0) {
+                loadSubStep(currentSubStep - 1);
+            } else {
+                // Navigate to previous page
+                window.location.href = 'warm-up.html';
+            }
+        });
+        
     } else {
         console.error("One or more required elements not found!", 
             {start: startLessonButton, skip: skipButtonActual, prev: prevButtonActual, next: nextButtonActual, professor: professorImg, content: learnItContent, initialTitle, initialIntro }); // Use corrected variable in log
