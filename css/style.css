@@ -186,20 +186,22 @@ body {
     display: flex; 
     flex-direction: row; /* Side-by-side layout */
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    align-items: flex-start; 
+    align-items: stretch; /* Allow children to stretch to full height */
     justify-content: space-between; /* Space between left and right sides */
     gap: 20px; /* Gap between content sections */
     padding-top: 5px;
+    min-height: 400px; /* Ensure minimum height for proper centering */
 }
 
 /* Content left (clock container) */
 .content-left {
     flex: 1;
-    min-width: 300px; /* Minimum width for clock container */
+    min-width: 300px;
     order: 1; /* Appears first (left) */
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* Center vertically */
 }
 
 /* Content right (text content) */

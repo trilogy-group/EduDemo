@@ -1,6 +1,7 @@
 // --- Global Variables & Constants ---
-const titleElement = document.getElementById('warm-up-title');
-const instructionElement = document.getElementById('warm-up-instruction');
+// Use let instead of const for DOM elements that might be created dynamically
+let titleElement;
+let instructionElement;
 const characterImageElement = document.getElementById('learn-it-character');
 const canvasContainer = document.getElementById('canvas-container');
 const checkArea = document.getElementById('embedded-check-area');
@@ -230,10 +231,11 @@ function loadSubStep(stepIndex) {
         p5Instance = null;
     }
     
-    const container = document.getElementById('canvas-container');
-    if (container) container.innerHTML = '';
-    else { console.error("Canvas container not found!"); return; }
-
+    // Make sure canvas container and check area are clear
+    canvasContainer.innerHTML = '';
+    checkArea.innerHTML = '';
+    
+    // Stop any playing audio
     stopAudio(true);
     
     // Update general UI elements (Title, Feedback, etc.)
@@ -241,7 +243,6 @@ function loadSubStep(stepIndex) {
     instructionElement.innerHTML = ''; // Setup will set
     feedbackArea.textContent = '';
     feedbackArea.className = 'feedback';
-    checkArea.innerHTML = '';
     
     if (lessonCounterElement) {
         lessonCounterElement.textContent = `Warm-up - Step ${stepIndex + 1} of ${subSteps.length}`;
@@ -335,9 +336,22 @@ function clockSketch(config) {
         
         // --- p5.js Setup ---
         p.setup = () => {
-            let canvas = p.createCanvas(400, 400);
+            // Get container dimensions for responsive canvas
+            const container = document.getElementById('canvas-container');
+            if (!container) {
+                console.error("Canvas container not found!");
+                return;
+            }
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const canvasSize = p.min(containerWidth, containerHeight);
+            
+            console.log(`Container size: ${containerWidth}x${containerHeight}, Canvas size: ${canvasSize}`);
+            
+            let canvas = p.createCanvas(canvasSize, canvasSize);
             canvas.parent('canvas-container');
-            clockDiameter = p.min(p.width, p.height) * 0.6;
+            clockDiameter = canvasSize * 0.95; // Match learn-it.js size (95% of canvas)
+            
             p.angleMode(p.DEGREES);
             p.textAlign(p.CENTER, p.CENTER);
             p.textFont('Arial');
@@ -583,6 +597,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const warmUpContent = document.getElementById('warm-up-content');
     const initialTitle = document.getElementById('initial-lesson-title');
     const initialIntro = document.getElementById('initial-lesson-intro');
+    const contentRight = document.querySelector('.content-right');
+    
+    // Initialize title and instruction elements
+    titleElement = document.getElementById('warm-up-title');
+    if (!titleElement) {
+        titleElement = document.createElement('h2');
+        titleElement.id = 'warm-up-title';
+        titleElement.textContent = "Let's Take a Look at a Clock";
+    }
+    
+    instructionElement = document.getElementById('warm-up-instruction');
+    if (!instructionElement) {
+        instructionElement = document.createElement('p');
+        instructionElement.id = 'warm-up-instruction';
+        instructionElement.className = 'instruction';
+        instructionElement.textContent = "Instructions will appear here.";
+    }
+    
+    // Append to content-right if not already there and if contentRight exists
+    if (contentRight) {
+        if (!document.getElementById('warm-up-title')) {
+            contentRight.appendChild(titleElement);
+        }
+        if (!document.getElementById('warm-up-instruction')) {
+            contentRight.appendChild(instructionElement);
+        }
+    }
 
     console.log("DOM Loaded for Warm-up.");
     
@@ -614,6 +655,26 @@ document.addEventListener('DOMContentLoaded', () => {
             skipButtonActual.style.display = 'inline-flex'; 
             prevButtonActual.style.display = 'inline-flex'; 
             nextButtonActual.style.display = 'inline-flex'; 
+
+            // Make sure content containers are ready
+            const contentLeft = document.querySelector('.content-left');
+            const contentRight = document.querySelector('.content-right');
+            
+            // Make sure canvasContainer and checkArea are in contentLeft
+            if (contentLeft && canvasContainer.parentNode !== contentLeft) {
+                contentLeft.appendChild(canvasContainer);
+                contentLeft.appendChild(checkArea);
+            }
+            
+            // Make sure title and instruction are in contentRight
+            if (contentRight) {
+                if (titleElement.parentNode !== contentRight) {
+                    contentRight.appendChild(titleElement);
+                }
+                if (instructionElement.parentNode !== contentRight) {
+                    contentRight.appendChild(instructionElement);
+                }
+            }
 
             // --- Load the FIRST sub-step ---
             loadSubStep(0);

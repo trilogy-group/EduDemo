@@ -45,15 +45,11 @@
                 
                 <!-- Content wrapper - initially hidden with class -->
                 <div id="warm-up-content" class="hidden">
-                    <!-- Right side content (text) -->
+                    <!-- This div can be empty because loadSubStep will populate it -->
                     <div class="content-right">
-                        <!-- This title will be updated by JS for sub-steps -->
-                        <h2 id="warm-up-title">Let's Take a Look at a Clock</h2> 
-                        <!-- Subtitle/Instruction text goes here -->
-                        <p class="instruction" id="warm-up-instruction">Instructions will appear here.</p>
+                        <!-- Title and instruction will be appended here by loadSubStep -->
                     </div>
                     
-                    <!-- Left side content (clock) -->
                     <div class="content-left">
                         <div id="canvas-container" class="clock-container">
                             <!-- p5.js canvas will be inserted here by script -->
