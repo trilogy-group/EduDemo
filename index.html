@@ -3,145 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to "Meet the Clock!" Lesson</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Using Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Using Google Fonts for child-friendly typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        /* Custom styles for welcome page */
-        .welcome-message {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            gap: 2rem;
-            margin-top: 1.5rem;
-        }
-        
-        .welcome-text {
-            flex: 1;
-            text-align: left;
-        }
-        
-        .welcome-image {
-            order: 2; /* Move to the right side */
-            margin-bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            align-self: center; /* Center vertically within parent */
-        }
-        
-        .welcome-text ul {
-            text-align: left;
-            margin: 1rem 0;
-            padding-left: 1.5rem;
-        }
-        
-        .welcome-text li {
-            margin-bottom: 0.5rem;
-            font-size: 1rem; 
-            line-height: 1.4;
-        }
-        
-        /* REMOVED: .welcome-icon rule */
-        /* .welcome-icon { ... } */
-        
-        /* <<< ADDED: Style for Professor Image >>> */
-        .welcome-professor-img {
-            height: 180px; /* Adjust size as needed */
-            width: auto;
-        }
-        
-        /* Responsive design adjustment */
-        @media (max-width: 768px) {
-            .welcome-message {
-                flex-direction: column-reverse;
-                align-items: center;
-            }
-            
-            .welcome-image {
-                margin-top: 1rem;
-                margin-bottom: 1.5rem;
-            }
-            
-            .welcome-text {
-                text-align: center;
-            }
-        }
-    </style>
+    <title>Redirecting...</title>
+    <!-- Minimal styles or remove CSS link if truly no content shown -->
+    <!-- <link rel="stylesheet" href="css/style.css"> --> 
+    <script>
+        // Immediately redirect to the warm-up page
+        window.location.replace('warm-up.html');
+    </script>
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=warm-up.html">
+    </noscript>
 </head>
 <body>
-    <div class="lesson-container">
-        <header class="lesson-header">
-            <div class="header-left">
-                <i class="fas fa-graduation-cap header-icon"></i>
-                <span class="header-title">EduSpark</span>
-            </div>
-            <div class="header-right">
-                <span class="user-name">Jimmy</span>
-                <div class="avatar-initial">J</div>
-            </div>
-        </header>
+    <!-- Fallback content in case JavaScript is disabled or slow -->
+    <p>Redirecting to the lesson...</p>
+    <p>If you are not redirected automatically, <a href="warm-up.html">click here</a>.</p>
 
-        <div class="lesson-progress-area">
-             <div class="lesson-info">
-                 <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
-                 <span class="lesson-counter">Welcome</span>
-             </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 10%;"></div>
-            </div>
-        </div>
-
-        <main class="lesson-main welcome-screen">
-            <div class="welcome-content">
-                <h2>Welcome to "Meet the Clock!" Lesson</h2>
-                <div class="welcome-message">
-                    <div class="welcome-text">
-                        <p>Hello, time explorer! Are you ready to learn about clocks?</p>
-                        <p>In this lesson, you will:</p>
-                        <ul>
-                            <li>Identify the numbers 1 through 12 and their positions on a clock face</li>
-                            <li>Learn about the hour hand (short) and minute hand (long)</li>
-                            <li>Understand how clock hands move in the clockwise direction</li>
-                            <li>Become a clock expert!</li>
-                        </ul>
-                        <p>Click "Start Lesson" when you're ready to begin!</p>
-                    </div>
-                    <div class="welcome-image">
-                        <!-- Replaced icon with image -->
-                        <img src="img/professor_tempo.png" alt="Professor Tempo" class="welcome-professor-img">
-                    </div>
-                </div>
-            </div>
-
-            <div class="navigation-buttons welcome-buttons">
-                <button class="btn btn-primary btn-start-lesson" onclick="window.location.href='warm-up.html'">
-                    <i class="fas fa-play-circle"></i> Start Lesson
-                </button>
-            </div>
-        </main>
-
-        <footer class="lesson-footer">
-            <div class="step-indicators" style="display: none;">
-                <!-- Step indicators hidden on welcome page -->
-            </div>
-
-            <div class="footer-controls" style="margin-left: auto;">
-                <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
-                <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
-                <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
-                <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Link to JavaScript files -->
-    <script src="js/stepNavigation.js" type="module"></script>
-    <script src="js/main.js" type="module"></script>
+    <!-- Removed all previous body content -->
+    <!-- <div class="lesson-container"> ... </div> -->
+    <!-- Removed script links for main.js, stepNavigation.js -->
 </body>
 </html> 

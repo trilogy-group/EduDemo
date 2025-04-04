@@ -76,16 +76,29 @@ body {
 }
 /* --- End Add --- */
 
+/* Style for header icons */
 .header-icon {
-    font-size: 24px;
+    font-size: 24px; /* Default size for Font Awesome icons */
     color: var(--accent-blue);
     margin-right: 10px;
+    display: inline-block; /* Ensure vertical alignment behaves */
+    vertical-align: middle; /* Align icon vertically with text */
+}
+
+/* Specific style for the Professor image when used as a header icon */
+.header-icon.professor-icon {
+    height: 28px; /* <<< Set explicit height for the image */
+    width: auto;  /* <<< Let width adjust automatically */
+    font-size: initial; /* Reset font-size for image tag */
+    color: initial; /* Reset color for image tag */
+    vertical-align: middle; /* Ensure vertical alignment */
 }
 
 .header-title {
     font-weight: 700;
     font-size: 20px;
     color: var(--text-primary);
+    vertical-align: middle; /* Align title vertically with icon */
 }
 
 .header-right {

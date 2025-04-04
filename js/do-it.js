@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Do It: Clock Detective Practice</title>
+    <title>Do It: Clock Practice</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Using Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Using Google Fonts for child-friendly typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
@@ -16,8 +14,8 @@
     <div class="lesson-container">
         <header class="lesson-header">
             <div class="header-left">
-                <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-icon professor-icon">
-                <span class="header-title">TI Education</span>
+                 <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-icon professor-icon">
+                 <span class="header-title">TI Education</span>
             </div>
             <div class="header-right">
                 <span class="user-name">Jimmy</span>
@@ -27,34 +25,31 @@
 
         <div class="lesson-progress-area">
              <div class="lesson-info">
-                 <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
-                 <span class="lesson-counter">Step 4 of 5: Do It</span>
+                 <h1 class="lesson-title" id="do-it-page-title">Time - Lesson 1: Meet the Clock!</h1>
+                 <span class="lesson-counter" id="do-it-step-counter">Step 4 of 5: Do It</span>
              </div>
             <div class="progress-bar-container">
-                <div class="progress-bar"></div>
+                <div class="progress-bar" style="width: 60%;"></div>
             </div>
         </div>
 
         <main class="lesson-main">
             <div class="activity-area">
-                <h2>Do It: Clock Detective Practice</h2>
-                <p class="instruction">Time to be a clock detective! Look at each clock and answer the questions.</p>
-                <div class="clock-container">
-                    <!-- Placeholder for interactive clock content -->
-                    <p class="placeholder-text">Interactive Clock Quiz Questions</p>
-                    <p class="question">Question 1 of 8: Which is the Hour Hand?</p>
-                </div>
+                 <div id="do-it-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+                     <h2 id="do-it-question-title">Question 1</h2>
+                     <p class="instruction" id="do-it-instruction">Question text will appear here.</p>
+                     <div id="canvas-container" class="clock-container" style="min-height: 250px; width: 90%; max-width: 400px; flex-grow: 1; display:flex; justify-content:center; align-items:center;">
+                     </div>
+                     <div id="embedded-check-area" style="margin-top: 15px; min-height: 50px;">
+                     </div>
+                 </div>
             </div>
 
-            <div class="instruction-box">
-                <p class="instruction-title">Clock Detective</p> 
-                <p class="instruction-detail"><i class="fas fa-star star-icon"></i> Answer the questions to show what you've learned about clock parts.</p> 
-            </div>
+            <div id="feedback-area" class="feedback"></div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" onclick="window.location.href='try-it.html'"><i class="fas fa-arrow-left"></i> Previous Step</button>
-                <button class="btn btn-skip"><i class="fas fa-forward"></i> Skip</button>
-                <button class="btn btn-primary btn-next-step" onclick="window.location.href='show-it.html'"><i class="fas fa-arrow-right"></i> Next Step</button>
+                <button class="btn btn-prev-step" id="prev-button"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="btn btn-primary btn-next-step" id="next-button" disabled><i class="fas fa-arrow-right"></i> Next</button>
             </div>
         </main>
 
@@ -63,12 +58,12 @@
                 <button class="step-indicator completed" onclick="window.location.href='warm-up.html'"><i class="fas fa-check"></i> Warm-up</button>
                 <button class="step-indicator completed" onclick="window.location.href='learn-it.html'"><i class="fas fa-check"></i> Learn It</button>
                 <button class="step-indicator completed" onclick="window.location.href='try-it.html'"><i class="fas fa-check"></i> Try It</button>
-                <button class="step-indicator active"><i class="fas fa-play"></i> Do It</button>
+                <button class="step-indicator active"><i class="fas fa-pencil-alt"></i> Do It</button>
                 <button class="step-indicator locked"><i class="fas fa-lock"></i> Show It</button>
             </div>
 
             <div class="footer-controls">
-                <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
+                <button id="footer-audio-button" class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-mute"></i></button>
                 <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
                 <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
                 <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
@@ -76,11 +71,7 @@
         </footer>
     </div>
 
-    <!-- Link to p5.js library for interactive elements -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    
-    <!-- Link to JavaScript files -->
-    <script src="js/stepNavigation.js" type="module"></script>
-    <script src="js/main.js" type="module"></script>
+    <script src="js/do-it.js"></script>
 </body>
-</html> 
+</html>
