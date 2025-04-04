@@ -40,15 +40,16 @@
 
         <main class="lesson-main">
             <div class="activity-area">
-                <!-- Add Professor image initially -->
-                <img id="professor-intro-img" class="instruction-character-img" src="img/professor_tempo.png" alt="Professor Tempo Intro">
+                <!-- Initial Content: Title, Intro, Professor Image -->
+                <h1 id="initial-lesson-title">Unlock the Clock's Secrets!</h1>
+                <p id="initial-lesson-intro">Welcome! Get ready to learn all about the parts of a clock. Click 'Start Learning!' below when you're ready.</p>
+                <img id="professor-img" src="img/professor_tempo.png" alt="Professor Tempo" style="max-width: 200px; margin-bottom: 20px;">
                 
                 <!-- Content wrapper - initially hidden with class -->
                 <div id="learn-it-content" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <h2 id="learn-it-title">Learn It: The Clock Face</h2>
-                    <!-- Remove character image -->
-                    <!-- <img id="learn-it-character" class="instruction-character-img" src="img/professor_tempo.png" alt="Professor Tempo giving instructions" style="display: none;"> -->
-                    <!-- Add back instruction paragraph -->
+                    <!-- This title will be updated by JS for sub-steps -->
+                    <h2 id="learn-it-title">Learn It: The Clock Face</h2> 
+                    <!-- Subtitle/Instruction text goes here -->
                     <p class="instruction" id="learn-it-instruction">Instructions will appear here.</p>
                     <div id="canvas-container" class="clock-container">
                         <!-- p5.js canvas will be inserted here by script -->
@@ -56,9 +57,11 @@
                     <div id="embedded-check-area">
                         <!-- Content dynamically added by JS -->
                     </div>
-                    <div id="feedback-area" class="feedback"></div>
                 </div>
             </div>
+
+            <!-- Moved Feedback Area outside activity-area -->
+            <div id="feedback-area" class="feedback"></div>
 
             <!-- Optional side instruction box if needed, content via JS -->
             <div class="instruction-box" id="side-instruction-box" style="display: none;">
