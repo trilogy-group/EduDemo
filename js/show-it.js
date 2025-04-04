@@ -471,16 +471,11 @@ function showResults() {
         p5Instance = null;
     }
     
-    // Switch to results-specific class that allows overflow
-    const activityArea = document.querySelector('.activity-area');
-    activityArea.classList.add('activity-area-results');
-    
     // Hide question content
     document.getElementById('show-it-content').classList.add('hidden');
     
     // Show results
     resultsArea.classList.remove('hidden');
-    resultsArea.style.width = '100%';
     
     // Display score
     const totalQuestions = questions.length;
@@ -489,198 +484,66 @@ function showResults() {
     
     // Create a more professional, compact results display
     scoreDisplay.innerHTML = `
-        <div class="results-card ${passed ? 'results-passed' : 'results-failed'}" style="
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-            background-color: #fefefe;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        ">
-            <h2 style="margin-top: 0; margin-bottom: 15px; font-size: 1.4rem; text-align: center; color: #333333;">
-                Assessment Complete
-            </h2>
+        <div class="results-card ${passed ? 'results-passed' : 'results-failed'}">
+            <h2>Assessment Complete</h2>
             
-            <div style="display: flex; align-items: center; justify-content: center; gap: 30px; padding: 5px 0;">
-                <div style="
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    background-color: white;
-                    border-radius: 50%;
-                    width: 70px;
-                    height: 70px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                    border: 2px solid #6a4fed;
-                ">
-                    <span style="font-size: 1.5rem; font-weight: bold; color: #6a4fed;">${userScore}/${totalQuestions}</span>
-                    <span style="font-size: 0.8rem; color: #666666;">${scorePercent}%</span>
+            <div class="results-summary">
+                <div class="score-badge">
+                    <span class="score-number">${userScore}/${totalQuestions}</span>
+                    <span class="score-percent">${scorePercent}%</span>
                 </div>
                 
-                <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-start;">
-                    <div style="
-                        display: inline-block;
-                        font-weight: bold;
-                        font-size: 1rem;
-                        padding: 5px 15px;
-                        border-radius: 4px;
-                        background-color: ${passed ? 'rgba(40, 204, 113, 0.15)' : 'rgba(255, 202, 40, 0.15)'};
-                        color: ${passed ? '#28cc71' : '#ffca28'};
-                        border: 1px solid ${passed ? '#28cc71' : '#ffca28'};
-                    ">
+                <div class="status-container">
+                    <div class="score-status ${passed ? 'success' : 'warning'}">
                         ${passed ? 'PASS' : 'NEEDS REVIEW'}
                     </div>
-                    <div style="
-                        font-size: 0.9rem;
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                        color: ${passed ? '#28cc71' : '#ffca28'};
-                    ">
-                        <i class="fas ${passed ? 'fa-trophy' : 'fa-info-circle'}"></i>
-                        ${passed ? 'Clock Expert Badge Earned!' : 'More practice needed'}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Add a separate scrollable container for question review
-    const reviewContainer = document.createElement('div');
-    reviewContainer.style.cssText = `
-        padding: 15px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        border: 1px solid #e0e0e0;
-        max-height: 300px;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        width: 100%;
-        box-sizing: border-box;
-    `;
-    
-    // Create header
-    const reviewHeader = document.createElement('div');
-    reviewHeader.style.cssText = `
-        margin-bottom: 15px;
-        flex-shrink: 0;
-        position: sticky;
-        top: 0;
-        background-color: #f9f9f9;
-        z-index: 10;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #e0e0e0;
-    `;
-    reviewHeader.innerHTML = `
-        <h3 style="margin: 0; color: #333333; font-size: 1.2rem;">Question Review</h3>
-        ${passed ? '' : '<p style="color: #666666; font-size: 0.8rem; margin: 5px 0 0 0; font-style: italic;">Review these questions to improve your understanding</p>'}
-    `;
-    
-    // Create scrollable content
-    const questionList = document.createElement('div');
-    questionList.style.cssText = `
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-right: 10px;
-        -webkit-overflow-scrolling: touch;
-    `;
-    
-    // Add question cards
-    questionList.innerHTML = userAnswers.map((answer, index) => {
-        const question = questions[index];
-        return `
-        <div style="
-            background-color: white;
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border-left: 3px solid ${answer.isCorrect ? '#28cc71' : '#ff5c5c'};
-            margin-bottom: 12px;
-        ">
-            <div style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px 12px;
-                background-color: #f5f5f5;
-                border-bottom: 1px solid #eee;
-            ">
-                <span style="font-weight: bold; font-size: 0.9rem; color: #333333;">Q${index + 1}</span>
-                <span style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 24px;
-                    height: 24px;
-                    border-radius: 50%;
-                    font-size: 0.8rem;
-                    background-color: ${answer.isCorrect ? '#28cc71' : '#ff5c5c'};
-                    color: white;
-                ">
-                    ${answer.isCorrect ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>'}
-                </span>
-            </div>
-            
-            <div style="padding: 12px;">
-                <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem; color: #333333;">
-                    ${question.title.replace(/^Question \d+: /, '')}
-                </div>
-                <div style="font-size: 0.85rem; color: #666666;">
-                    <div style="margin-bottom: 4px;">
-                        Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong>
-                    </div>
-                    ${answer.isCorrect ? '' : 
-                        `<div style="margin-bottom: 4px; color: #28cc71;">
-                            Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong>
-                        </div>`
+                    ${passed ? 
+                        `<div class="success-message"><i class="fas fa-trophy"></i> Clock Expert Badge Earned!</div>` : 
+                        `<div class="review-message"><i class="fas fa-info-circle"></i> More practice needed</div>`
                     }
                 </div>
             </div>
         </div>
-        `;
-    }).join('');
-
-    // Assemble the review container
-    reviewContainer.appendChild(reviewHeader);
-    reviewContainer.appendChild(questionList);
-    
-    // Add the scroll hint
-    const scrollHint = document.createElement('div');
-    scrollHint.innerHTML = '<i class="fas fa-arrow-down"></i> Scroll to see all questions';
-    scrollHint.style.cssText = `
-        text-align: center;
-        color: #666;
-        font-size: 0.8rem;
-        padding: 5px;
-        background-color: rgba(255, 255, 255, 0.8);
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        border-top: 1px solid #eee;
-    `;
-    reviewContainer.appendChild(scrollHint);
-    
-    // Clear and update the score display with our scrollable container
-    remediationMessage.innerHTML = '';
-    remediationMessage.appendChild(reviewContainer);
-    
-    // Add remediation buttons if needed
-    if (!passed) {
-        const actionPrompt = document.createElement('div');
-        actionPrompt.style.cssText = `
-            text-align: center;
-            padding: 15px;
-            margin-top: 10px;
-        `;
         
-        actionPrompt.innerHTML = `
-            <p style="margin-top: 0; color: #666666; font-size: 0.9rem;">Choose an option to continue:</p>
-            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 10px;">
+        <div class="results-details">
+            <div class="results-details-header">
+                <h3>Question Review</h3>
+                ${passed ? '' : '<p class="review-hint">Review these questions to improve your understanding</p>'}
+            </div>
+            
+            <div class="question-grid">
+                ${userAnswers.map((answer, index) => {
+                    const question = questions[index];
+                    return `
+                    <div class="question-card ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="question-card-header">
+                            <span class="question-number">Q${index + 1}</span>
+                            <span class="result-icon">${answer.isCorrect ? 
+                                '<i class="fas fa-check"></i>' : 
+                                '<i class="fas fa-times"></i>'}</span>
+                        </div>
+                        
+                        <div class="question-card-body">
+                            <div class="question-title">${question.title.replace(/^Question \d+: /, '')}</div>
+                            <div class="answer-info">
+                                <div class="answer-given">Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong></div>
+                                ${answer.isCorrect ? '' : 
+                                   `<div class="correct-answer">Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong></div>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+    
+    // Simplified remediation area
+    remediationMessage.innerHTML = !passed ? `
+        <div class="action-prompt">
+            <p>Choose an option to continue:</p>
+            <div class="remediation-actions">
                 <button class="btn btn-secondary" onclick="window.location.href='learn-it.html'">
                     <i class="fas fa-book-open"></i> Review Lesson
                 </button>
@@ -688,12 +551,10 @@ function showResults() {
                     <i class="fas fa-dumbbell"></i> Practice More
                 </button>
             </div>
-        `;
-        
-        remediationMessage.appendChild(actionPrompt);
-    }
+        </div>
+    ` : '';
     
-    // Update navigation buttons
+    // Update navigation buttons - move to the navigation-buttons area
     const navigationButtons = document.querySelector('.navigation-buttons');
     navigationButtons.innerHTML = '';
     
@@ -705,12 +566,7 @@ function showResults() {
         // Reset the quiz
         userScore = 0;
         userAnswers = [];
-        
-        // Hide results and remove results-specific class
         resultsArea.classList.add('hidden');
-        activityArea.classList.remove('activity-area-results');
-        
-        // Load first question
         loadQuestion(0);
     });
     
