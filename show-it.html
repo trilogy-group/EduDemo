@@ -16,8 +16,12 @@
     <div class="lesson-container">
         <header class="lesson-header">
             <div class="header-left">
+                <!-- Remove existing Professor image guide -->
+                <!-- <img src="img/professor_tempo.png" alt="Professor Tempo Guide" class="character-guide-img"> -->
+                <!-- Replaced icon with Professor image -->
                 <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-icon professor-icon">
-                <span class="header-title">TI Education</span>
+                <!-- Updated title text -->
+                <span class="header-title">TI Education</span> 
             </div>
             <div class="header-right">
                 <span class="user-name">Jimmy</span>
@@ -28,33 +32,71 @@
         <div class="lesson-progress-area">
              <div class="lesson-info">
                  <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
+                 <!-- JS will update this span -->
                  <span class="lesson-counter">Step 5 of 5: Show It</span>
              </div>
             <div class="progress-bar-container">
-                <div class="progress-bar"></div>
+                <!-- JS might update progress -->
+                <div class="progress-bar" style="width: 80%;"></div>
             </div>
         </div>
 
         <main class="lesson-main">
             <div class="activity-area">
-                <h2>Show It: Clock Expert Check</h2>
-                <p class="instruction">Now show what you know! Answer these final questions to become a clock expert.</p>
-                <div class="clock-container">
-                    <!-- Placeholder for interactive clock content -->
-                    <p class="placeholder-text">Final Assessment Clock Questions</p>
-                    <p class="question">Question 1 of 4: Click the Hour Hand.</p>
+                <!-- Initial Content: Title, Intro, Professor Image -->
+                <h1 id="initial-lesson-title">Clock Expert Check!</h1>
+                <p id="initial-lesson-intro">Show what you've learned about clocks! This quick quiz will help you test your knowledge. Click 'Start Quiz!' when you're ready.</p>
+                <img id="professor-img" src="img/professor_tempo.png" alt="Professor Tempo" style="max-width: 200px; margin-bottom: 20px;">
+                
+                <!-- Content wrapper - initially hidden with class -->
+                <div id="show-it-content" class="hidden">
+                    <!-- Right side content (text) -->
+                    <div class="content-right">
+                        <!-- This title will be updated by JS for sub-steps -->
+                        <h2 id="show-it-title">Show It: Clock Expert Check</h2> 
+                        <!-- Subtitle/Instruction text goes here -->
+                        <p class="instruction" id="show-it-instruction">Instructions will appear here.</p>
+                    </div>
+                    
+                    <!-- Left side content (clock) -->
+                    <div class="content-left">
+                        <div id="canvas-container" class="clock-container">
+                            <!-- p5.js canvas will be inserted here by script -->
+                        </div>
+                        <div id="embedded-check-area">
+                            <!-- Content dynamically added by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results area - initially hidden -->
+                <div id="results-area" class="hidden">
+                    <h2 id="results-title">Your Results</h2>
+                    <div id="score-display"></div>
+                    <div id="remediation-message"></div>
                 </div>
             </div>
 
-            <div class="instruction-box">
-                <p class="instruction-title">Clock Expert Check</p> 
-                <p class="instruction-detail"><i class="fas fa-star star-icon"></i> Show your clock knowledge by answering these final questions.</p> 
+            <!-- Moved Feedback Area outside activity-area -->
+            <div id="feedback-area" class="feedback"></div>
+
+            <!-- Optional side instruction box if needed, content via JS -->
+            <div class="instruction-box" id="side-instruction-box" style="display: none;">
+                 <p class="instruction-title" id="side-instruction-title"></p>
+                 <p class="instruction-detail" id="side-instruction-detail"></p>
             </div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" onclick="window.location.href='do-it.html'"><i class="fas fa-arrow-left"></i> Previous Step</button>
-                <button class="btn btn-skip"><i class="fas fa-forward"></i> Skip</button>
-                <button class="btn btn-primary btn-next-step" onclick="window.location.href='completed.html'"><i class="fas fa-check"></i> Finish Lesson</button>
+                <!-- Resolved Conflict: Kept version without hardcoded onclick -->
+                <button class="btn btn-prev-step" style="display: none;"><i class="fas fa-arrow-left"></i> Previous Step</button>
+                
+                <!-- Start button initially in place of Skip -->
+                <button id="start-lesson-button" class="btn btn-secondary"><i class="fas fa-play"></i> Start Quiz!</button> 
+                
+                <!-- Skip button hidden for assessment -->
+                <button class="btn btn-skip" id="skip-button" style="display: none;"><i class="fas fa-forward"></i> Skip</button>
+                
+                <button class="btn btn-primary btn-next-step" id="next-step-button" disabled style="display: none;"><i class="fas fa-arrow-right"></i> Next Step</button>
             </div>
         </main>
 
@@ -64,11 +106,11 @@
                 <button class="step-indicator completed" onclick="window.location.href='learn-it.html'"><i class="fas fa-check"></i> Learn It</button>
                 <button class="step-indicator completed" onclick="window.location.href='try-it.html'"><i class="fas fa-check"></i> Try It</button>
                 <button class="step-indicator completed" onclick="window.location.href='do-it.html'"><i class="fas fa-check"></i> Do It</button>
-                <button class="step-indicator active"><i class="fas fa-play"></i> Show It</button>
+                <button class="step-indicator active"><i class="fas fa-graduation-cap"></i> Show It</button>
             </div>
 
             <div class="footer-controls">
-                <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
+                <button id="footer-audio-button" class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
                 <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
                 <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
@@ -76,11 +118,10 @@
         </footer>
     </div>
 
-    <!-- Link to p5.js library for interactive elements -->
+    <!-- Link to p5.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    
-    <!-- Link to JavaScript files -->
-    <script src="js/stepNavigation.js" type="module"></script>
-    <script src="js/main.js" type="module"></script>
+
+    <!-- Link to the specific JavaScript for this page -->
+    <script src="js/show-it.js"></script>
 </body>
 </html> 
