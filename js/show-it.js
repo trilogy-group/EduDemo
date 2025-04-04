@@ -474,8 +474,9 @@ function showResults() {
     // Hide question content
     document.getElementById('show-it-content').classList.add('hidden');
     
-    // Show results
+    // Show results and add a special class to activity-area for proper styling
     resultsArea.classList.remove('hidden');
+    document.querySelector('.activity-area').classList.add('results-view');
     
     // Display score
     const totalQuestions = questions.length;
