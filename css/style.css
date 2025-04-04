@@ -162,31 +162,58 @@ body {
     flex-grow: 1; 
     display: flex;
     flex-direction: column;
-    gap: 20px; 
+    gap: 15px; /* Reduced gap slightly */
     overflow: hidden; 
 }
 
 .activity-area {
     background-color: var(--card-background);
     border-radius: 15px;
-    text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     display: flex; 
     flex-direction: column; 
-    justify-content: center; 
     align-items: center; 
-    height: calc(95vh - 280px);
+    flex-grow: 1; /* Allow height to be flexible */
     overflow: hidden;
+    padding: 20px;
+    /* Removed fixed height calc */
+}
+
+/* Style the content wrapper inside activity-area */
+#learn-it-content {
+    width: 100%;
+    /* height: 100%; Removed fixed height */
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start; /* Align content to top */
+    gap: 15px; /* Space between elements */
+}
+
+/* Style title and instruction */
+#learn-it-title {
+    flex-shrink: 0; /* Prevent shrinking */
+    margin-bottom: 5px; /* Adjust spacing */
+    font-size: 1.5rem; /* Consistent size */
+}
+
+#learn-it-instruction {
+     flex-shrink: 0; /* Prevent shrinking */
+     margin-bottom: 15px; /* Space below instruction */
+     max-width: 90%; /* Prevent text getting too wide */
+     line-height: 1.5;
 }
 
 /* --- Adjust Canvas Container --- */
 #canvas-container {
     width: 100%; 
-    height: 100%;
+    flex-grow: 1; /* Keep allowing canvas to take up remaining space */
+    flex-shrink: 1; /* Allow shrinking if needed */
+    min-height: 250px; /* Ensure a minimum height for the clock */
     display: flex; 
     justify-content: center;
     align-items: center;
-    line-height: 0; /* Prevent extra space before canvas loads */
+    line-height: 0; /* Prevent extra space */
 }
 /* --- End Adjust --- */
 
@@ -225,8 +252,8 @@ body {
     display: flex;
     justify-content: space-between; 
     align-items: center;
-    flex-shrink: 0;
-    padding-top: 10px;
+    flex-shrink: 0; /* Prevent shrinking */
+    padding-top: 0; /* Gap is handled by lesson-main */
 }
 
 .btn {
@@ -688,4 +715,178 @@ body {
     .completion-icon {
         font-size: 4rem;
     }
+}
+
+/* Lesson Content Layout Styles */
+.center-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.content-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.content-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.clock-column {
+    flex: 0 0 350px; /* Fixed width for clock */
+}
+
+.text-column {
+    flex: 1;
+    padding: 0 15px;
+}
+
+.text-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+}
+
+.intro-text {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.info-box {
+    background-color: #f0f8ff;
+    border-radius: 10px;
+    padding: 20px 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.info-list {
+    list-style-type: disc;
+    margin: 0;
+    padding-left: 25px;
+}
+
+.info-list li {
+    margin-bottom: 12px;
+    line-height: 1.5;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.info-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive adjustments for the content layout */
+@media (max-width: 768px) {
+    .content-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .clock-column,
+    .text-column {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .text-content {
+        margin-top: 20px;
+    }
+}
+
+/* --- Add Style for Feedback Area --- */
+.feedback {
+    min-height: 20px;
+    margin-top: 0; /* Gap is handled by lesson-main */
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.feedback-correct {
+    color: var(--success); /* Green */
+    background-color: #eafaf1; /* Light green background */
+    border: 1px solid #a3e9a4; /* Light green border */
+}
+
+.feedback-incorrect {
+    color: var(--error); /* Red */
+    background-color: #ffeeee; /* Light red background */
+    border: 1px solid #ffc2c2; /* Light red border */
+}
+/* --- End Add --- */
+
+/* Style check area */
+#embedded-check-area {
+    /* Default styles when not inside the wrapper */
+    min-height: 40px; 
+    width: 100%; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px; /* Keep default top margin */
+    gap: 20px; /* Keep default gap */
+}
+
+/* --- Add Style for Wrapper --- */
+.canvas-check-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center; /* Vertically center clock and buttons */
+    justify-content: center; /* Center the group */
+    width: 100%;
+    gap: 10px; /* Space between clock and buttons */
+    flex-grow: 1; /* Allow wrapper to grow vertically */
+    min-height: 250px; /* Match canvas min-height */
+}
+
+/* Style check area WHEN INSIDE the wrapper (for step 2 buttons) */
+.canvas-check-wrapper > #embedded-check-area {
+     display: flex; 
+     flex-direction: column; /* Stack buttons vertically */
+     justify-content: center; /* Center vertically */
+     align-items: center; /* Center horizontally */
+     gap: 15px; /* Vertical gap between buttons */
+     margin-top: 0; /* Override default top margin */
+     width: auto; /* Allow width to be determined by buttons */
+     min-height: initial; /* Reset min-height */
+     flex-shrink: 0; /* Prevent shrinking */
+}
+/* --- End Add --- */
+
+/* Direction Buttons Style (Complete Rule) */
+.direction-btn {
+    font-size: 2.5rem; /* Keep icon size large */
+    width: 70px; /* Set fixed width */
+    height: 70px; /* Set fixed height (equal to width) */
+    border-radius: 50%; /* Make it circular */
+    background-color: var(--card-background);
+    color: var(--primary-purple);
+    border: 2px solid var(--primary-purple);
+    display: inline-flex; /* Keep inline-flex */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    line-height: 1; /* Ensure icon centering isn't affected by line-height */
+    /* Removed padding and min-width */
+}
+
+/* Direction Buttons Hover Style (Complete Rule) */
+.direction-btn:hover {
+   background-color: #f4f1ff;
+   color: var(--primary-purple-hover);
+   border-color: var(--primary-purple-hover);
 }

@@ -58,7 +58,84 @@ const audioFilenameMap = {
     '2-check': 'which_arrow_shows_the_clockwise_direction.mp3',
 };
 
-// --- Lesson Data (Update setup signatures) ---
+// --- Helper Functions to Setup Check Phases ---
+function setupStep0Check(stepData, instance) {
+    console.log("Setting up check phase for Step 0.");
+    if (!instance) return;
+    instance.updateHighlight(null); // Ensure highlighting is cleared
+    instructionElement.innerHTML = stepData.instructionCheck;
+    const checkAudioFile = getAudioFilename(0, 'check');
+    currentAudioFilename = checkAudioFile;
+    playAudio(checkAudioFile);
+    instance.setInteraction(true, stepData.p5config.interactionTarget);
+}
+
+function setupStep1Check(stepData, instance, checkIndex) {
+    console.log(`Setting up check phase for Step 1, check index: ${checkIndex}`);
+    if (!instance || !stepData.checks || checkIndex >= stepData.checks.length) return;
+    instance.stopBlinking();
+    const check = stepData.checks[checkIndex];
+    const target = { type: 'hand', value: check.targetValue };
+    instructionElement.innerHTML = check.instruction;
+    const audioKey = `check${checkIndex + 1}`;
+    const audioFile = getAudioFilename(1, audioKey);
+    currentAudioFilename = audioFile;
+    playAudio(audioFile);
+    instance.setInteraction(true, target);
+    nextButton.disabled = true;
+}
+
+function setupStep2Check(stepData, instance) {
+    console.log("Setting up check phase for Step 2.");
+    if (!instance) return;
+    instance.stopAnimation({h: 12, m: 0}); 
+    instance.updateHighlight(null); 
+    instructionElement.innerHTML = stepData.instructionCheck;
+    
+    // --- Create Wrapper Layout ---
+    const wrapper = document.createElement('div');
+    wrapper.className = 'canvas-check-wrapper';
+    
+    // Move canvas into wrapper
+    canvasContainer.parentNode.insertBefore(wrapper, canvasContainer);
+    wrapper.appendChild(canvasContainer);
+    
+    // Move check area into wrapper
+    wrapper.appendChild(checkArea);
+    // --- End Wrapper Layout --- 
+    
+    checkArea.innerHTML = ''; // Clear area before adding buttons
+    createDirectionCheckButtons(); // Add buttons inside the checkArea (now in wrapper)
+    
+    console.log("Disabling interaction for Step 2 Check.");
+    instance.setInteraction(false, null); 
+    
+    const checkAudioFile = getAudioFilename(2, 'check');
+    currentAudioFilename = checkAudioFile;
+    playAudio(checkAudioFile); 
+    nextButton.disabled = true;
+}
+
+// --- NEW Cleanup Function ---
+function cleanupCheckLayout() {
+    const wrapper = document.querySelector('.canvas-check-wrapper');
+    if (wrapper) {
+        console.log("Cleaning up check layout wrapper.");
+        const parent = wrapper.parentNode; // The learn-it-content div
+        
+        // Move canvas back to original parent, before the wrapper
+        parent.insertBefore(canvasContainer, wrapper);
+        
+        // Move check area back to original parent, after the canvas
+        parent.insertBefore(checkArea, wrapper.nextSibling); // Insert after canvas (original position)
+        
+        // Remove the now-empty wrapper
+        parent.removeChild(wrapper);
+    }
+    checkArea.innerHTML = ''; // Ensure check area is clear after cleanup
+}
+
+// --- Lesson Data (Update setup functions) ---
 const subSteps = [
     { // 0: Face & Numbers
         title: "Learn It: The Clock Face",
@@ -77,24 +154,12 @@ const subSteps = [
             showDirectionArrows: false,
             interactionTarget: { type: 'number', value: 9 } // Step-specific target
         },
-        setup: (instance) => { // <-- Accept instance
+        setup: (instance) => {
             console.log("Running setup for Step 0");
-            const stepData = subSteps[0]; // Easier access to step data
+            const stepData = subSteps[0];
             instructionElement.innerHTML = stepData.instruction;
             const instructionAudioFile = getAudioFilename(0, 'instruction');
             currentAudioFilename = instructionAudioFile;
-
-            // Define check phase logic
-            const startCheckPhase = () => {
-                console.log("Highlighting finished. Starting check phase (Step 0).");
-                if (instance) instance.updateHighlight(null); // Use instance method
-                instructionElement.innerHTML = stepData.instructionCheck;
-                const checkAudioFile = getAudioFilename(0, 'check');
-                currentAudioFilename = checkAudioFile;
-                playAudio(checkAudioFile);
-                // Enable interaction via instance, using target from config
-                if (instance) instance.setInteraction(true, stepData.p5config.interactionTarget);
-            };
 
             // Define highlighting sequence
             const highlightNumbersSequentially = () => {
@@ -102,15 +167,12 @@ const subSteps = [
                 const highlightDuration = 360;
                 const delayBetweenHighlights = 90;
                 function highlightNext() {
-                    if (!instance) { startCheckPhase(); return; } // Check instance exists
-                    if (currentHighlightNumber > 12) { startCheckPhase(); return; }
-
-                    // Use instance method to update highlight
+                    if (!instance) { setupStep0Check(stepData, instance); return; } // Call helper
+                    if (currentHighlightNumber > 12) { setupStep0Check(stepData, instance); return; } // Call helper
                     instance.updateHighlight({ type: 'number', value: currentHighlightNumber });
                     console.log("Highlighting number:", currentHighlightNumber);
-
                     setTimeout(() => {
-                        if (instance) instance.updateHighlight(null); // Use instance method
+                        if (instance) instance.updateHighlight(null);
                         console.log("Cleared highlight for number:", currentHighlightNumber);
                         setTimeout(() => {
                             currentHighlightNumber++;
@@ -121,11 +183,9 @@ const subSteps = [
                 highlightNext();
             };
 
-            // Start the process
             playAudio(instructionAudioFile);
             console.log("Scheduling number highlighting sequence in 6 seconds (Step 0).");
             setTimeout(highlightNumbersSequentially, 6000);
-            // Ensure interaction is initially disabled for this step
             if (instance) instance.setInteraction(false, null);
         }
     },
@@ -151,54 +211,43 @@ const subSteps = [
             showDirectionArrows: false
             // interactionTarget set dynamically by checks
         },
-        setup: (instance) => { // <-- Accept instance
+        setup: (instance) => {
             console.log("Running setup for Step 1");
             const stepData = subSteps[1];
-            stepData.currentCheckIndex = 0; // Reset check index
+            stepData.currentCheckIndex = 0;
             nextButton.disabled = true;
 
-            const setupCheck = (checkIndex) => {
-                if (!instance) return;
-                const check = stepData.checks[checkIndex];
-                const target = { type: 'hand', value: check.targetValue };
-                instructionElement.innerHTML = check.instruction;
-                const audioKey = `check${checkIndex + 1}`;
-                const audioFile = getAudioFilename(1, audioKey);
-                currentAudioFilename = audioFile;
-                playAudio(audioFile);
-                // Update highlight and interaction via instance
-                instance.updateHighlight(target);
-                instance.setInteraction(true, target);
-            };
-
-            // Define instruction sequence using instance methods with delays
+            // Define instruction sequence with blinking
             const playInstruction3 = () => {
                 instructionElement.innerHTML = stepData.instruction3;
-                if(instance) instance.updateHighlight({ type: 'hand', value: 'both' });
-                // Play audio, then START CHECK IMMEDIATELY
+                // No blinking for summary, proceed to check
                 playAudio(getAudioFilename(1, 'instruction3'), () => {
-                    setupCheck(0); // Remove setTimeout wrapper
+                    setupStep1Check(stepData, instance, 0);
                 });
             };
             const playInstruction2 = () => {
                 instructionElement.innerHTML = stepData.instruction2;
-                if(instance) instance.updateHighlight({ type: 'hand', value: 'minute' });
-                // Play audio, then wait 2s before playing next instruction
+                if (instance) instance.startBlinking('minute'); // Start minute hand blink
                 playAudio(getAudioFilename(1, 'instruction2'), () => {
-                     setTimeout(playInstruction3, 2000); // Keep this delay
+                    if (instance) instance.stopBlinking(); // Stop minute hand blink
+                     setTimeout(playInstruction3, 2000);
                  });
             };
             const playInstruction1 = () => {
                 instructionElement.innerHTML = stepData.instruction1;
-                if(instance) instance.updateHighlight({ type: 'hand', value: 'hour' });
-                // Play audio, then wait 2s before playing next instruction
+                 // Start hour hand blink after 4 seconds
+                 setTimeout(() => { 
+                     if (instance && currentSubStep === 1) { // Check if still on step 1
+                         instance.startBlinking('hour'); 
+                     }
+                 }, 4000);
                 playAudio(getAudioFilename(1, 'instruction1'), () => {
-                     setTimeout(playInstruction2, 2000); // Keep this delay
+                    if (instance) instance.stopBlinking(); // Stop hour hand blink
+                     setTimeout(playInstruction2, 2000);
                  });
             };
 
-            playInstruction1(); // Start sequence
-            // Ensure interaction is initially disabled
+            playInstruction1();
             if (instance) instance.setInteraction(false, null);
         }
     },
@@ -212,42 +261,25 @@ const subSteps = [
         feedbackIncorrect: "Clockwise follows the numbers 1, 2, 3... Try again!",
         p5config: {
             stepIndex: 2,
-            showNumbers: false,
+            showNumbers: true,
             showHands: true,
             initialTime: { h: 12, m: 0 },
             animateHands: true,
-            showDirectionArrows: true,
-            interactionTarget: { type: 'direction', value: 'clockwise' } // Used by external buttons
+            interactionTarget: { type: 'direction', value: 'clockwise' }
         },
-        setup: (instance) => { // <-- Accept instance
+        setup: (instance) => {
             console.log("Running setup for Step 2");
             const stepData = subSteps[2];
             instructionElement.innerHTML = stepData.instruction;
-            checkArea.innerHTML = ''; // Clear buttons from previous steps
+            checkArea.innerHTML = '';
             feedbackArea.textContent = '';
             nextButton.disabled = true;
-
             const instructionAudioFile = getAudioFilename(2, 'instruction');
             currentAudioFilename = instructionAudioFile;
 
-            // Define check setup logic
-            const setupDirectionCheck = () => {
-                console.log("Animation finished. Setting up direction check (Step 2).");
-                // Stop animation and set final time via instance
-                if (instance) instance.stopAnimation({h: 12, m: 0});
-                instructionElement.innerHTML = stepData.instructionCheck;
-                createDirectionCheckButtons(); // Create HTML buttons
-                const checkAudioFile = getAudioFilename(2, 'check');
-                currentAudioFilename = checkAudioFile;
-                playAudio(checkAudioFile);
-                // p5 interaction remains disabled as check uses buttons
-                if (instance) instance.setInteraction(false, null);
-            };
-
-            // Start animation via instance and play audio
+            // Play instruction audio, call check setup helper in callback
+            playAudio(instructionAudioFile, () => setupStep2Check(stepData, instance)); // Call helper
             if (instance) instance.startAnimation();
-            playAudio(instructionAudioFile, setupDirectionCheck);
-            // Ensure p5 interaction is disabled
             if (instance) instance.setInteraction(false, null);
         }
     }
@@ -343,10 +375,6 @@ function playAudio(filename, onEndedCallback = null) {
        console.warn("Audio play() did not return a promise.");
        // Rely on events
     }
-}
-
-function createDirectionCheckButtons() {
-    // Implementation needed
 }
 
 // --- Core Functions ---
@@ -527,16 +555,34 @@ function sketch(config) {
         let localHandAnimationActive = config.animateHands || false;
         let localHandAngleOffset = 0;
         let localHoveredNumber = null;
-        let localHoveredHand = null; // Added for hand interaction
-        let localClickFeedback = { number: null, hand: null, correct: null }; // Modified feedback structure
+        let localHoveredHand = null;
+        let localHoveredArrow = null; // <<< NEW state for arrow hover
+        let localClickFeedback = { number: null, hand: null, correct: null }; // Added arrow property
         let currentHour = config.initialTime ? config.initialTime.h : 10;
         let currentMinute = config.initialTime ? config.initialTime.m : 10;
+        // Blinking State <<< NEW
+        let localBlinkingHand = null;
+        let localBlinkVisible = true;
+        let localBlinkIntervalId = null;
 
         // --- p5.js Setup ---
         p.setup = () => {
-            let canvas = p.createCanvas(400, 400);
+            const container = document.getElementById('canvas-container');
+            if (!container) {
+                console.error("Canvas container not found!");
+                return;
+            }
+            // Use container dimensions for canvas size
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const canvasSize = p.min(containerWidth, containerHeight); // Keep it square-ish
+            
+            console.log(`Container size: ${containerWidth}x${containerHeight}, Canvas size: ${canvasSize}`);
+            
+            let canvas = p.createCanvas(canvasSize, canvasSize); // Create responsive canvas
             canvas.parent('canvas-container');
-            clockDiameter = p.min(p.width, p.height) * 0.8; // Set global diameter
+            clockDiameter = canvasSize * 0.95; // Adjust diameter based on actual size (Increased multiplier)
+            
             p.angleMode(p.DEGREES);
             p.textAlign(p.CENTER, p.CENTER);
             p.textFont('Arial');
@@ -545,7 +591,7 @@ function sketch(config) {
             p.redraw();
         };
 
-        // --- p5.js Draw ---
+        // --- p5.js Draw --- (Pass blinking state to drawHand)
         p.draw = () => {
             p.background(bgColor);
             p.translate(p.width / 2, p.height / 2);
@@ -557,7 +603,7 @@ function sketch(config) {
             if (stepConfig.showHands) {
                  let hAngle, mAngle;
                  if (localHandAnimationActive) {
-                     const speed = 2;
+                     const speed = 1;
                      localHandAngleOffset += speed;
                      mAngle = (localHandAngleOffset % 360) * 6 - 90;
                      hAngle = ((localHandAngleOffset / 12) % 360) * 30 - 90;
@@ -565,12 +611,13 @@ function sketch(config) {
                      mAngle = p.map(currentMinute, 0, 60, 0, 360) - 90;
                      hAngle = p.map(currentHour % 12 + currentMinute / 60, 0, 12, 0, 360) - 90;
                  }
-                 // Pass local state to hand drawing
-                 drawHand(p, 'minute', mAngle, minuteHandColor, minuteHandLength, minuteHandWidth, localHighlightTarget, localHoveredHand, localClickFeedback);
-                 drawHand(p, 'hour', hAngle, hourHandColor, hourHandLength, hourHandWidth, localHighlightTarget, localHoveredHand, localClickFeedback);
+                 // Pass local state including blinking state to hand drawing <<< MODIFIED
+                 drawHand(p, 'minute', mAngle, minuteHandColor, minuteHandLength, minuteHandWidth, localHighlightTarget, localHoveredHand, localClickFeedback, localBlinkingHand, localBlinkVisible);
+                 drawHand(p, 'hour', hAngle, hourHandColor, hourHandLength, hourHandWidth, localHighlightTarget, localHoveredHand, localClickFeedback, localBlinkingHand, localBlinkVisible);
             }
              if (stepConfig.showDirectionArrows) {
-                 drawDirectionArrows(p, localHighlightTarget);
+                 // Pass hover and click state to drawing function <<< MODIFIED
+                 drawDirectionArrows(p, localInteractionEnabled, localHoveredArrow, localClickFeedback);
              }
              // Draw center dot last to be on top of hands
              drawCenterDot(p);
@@ -578,11 +625,21 @@ function sketch(config) {
 
         // --- p5.js Event Handlers (using local state) ---
         p.mouseMoved = () => {
-            if (!localInteractionEnabled) return;
+            if (!localInteractionEnabled) { // Exit early if interaction is off
+                 // Reset hover state if interaction gets disabled while hovering
+                 if (localHoveredArrow) {
+                     localHoveredArrow = null;
+                     if (!localHandAnimationActive) p.redraw(); // Redraw if static
+                     p.cursor(p.ARROW);
+                 }
+                 return;
+            }
             let prevHoverNumber = localHoveredNumber;
             let prevHoverHand = localHoveredHand;
+            let prevHoverArrow = localHoveredArrow; 
             localHoveredNumber = null;
             localHoveredHand = null;
+            localHoveredArrow = null; 
 
             // Check number hover
             if (localInteractionTarget?.type === 'number' && stepConfig.showNumbers) {
@@ -624,14 +681,34 @@ function sketch(config) {
                       localHoveredHand = 'hour';
                  }
              }
+             // Check direction arrow hover ONLY if interaction is enabled and type is direction <<< MODIFIED
+             else if (localInteractionTarget?.type === 'direction') { // No need to check config.showDirectionArrows
+                 const arrowRadius = clockDiameter * 0.5; 
+                 const arrowSize = clockDiameter * 0.15;
+                 const hitRadius = arrowSize * 1.2;
+
+                 // Calculate position ONLY for the clockwise arrow on the RIGHT
+                 const cwX_pos = p.cos(-30) * arrowRadius; 
+                 const cwY_pos = p.sin(-30) * arrowRadius;
+
+                 const distToCW_Symbol = p.dist(p.mouseX - p.width / 2, p.mouseY - p.height / 2, cwX_pos, cwY_pos);
+
+                 // Assign hover only for the clockwise arrow
+                 if (distToCW_Symbol < hitRadius) {
+                     localHoveredArrow = 'clockwise'; // Hovering over the ↻ symbol (now on right)
+                 }
+                 // No else needed, as there's no other arrow
+             }
 
             // Redraw if hover state changed
-            if (prevHoverNumber !== localHoveredNumber || prevHoverHand !== localHoveredHand) {
-                p.redraw();
+            if (prevHoverNumber !== localHoveredNumber || prevHoverHand !== localHoveredHand || prevHoverArrow !== localHoveredArrow) { 
+                if (!localHandAnimationActive) p.redraw();
             }
             // Update cursor
             let cursorType = p.ARROW;
-            if ((localHoveredNumber && localInteractionTarget?.type === 'number') || (localHoveredHand && localInteractionTarget?.type === 'hand')) {
+            if ((localHoveredNumber && localInteractionTarget?.type === 'number') || 
+                (localHoveredHand && localInteractionTarget?.type === 'hand') || 
+                (localHoveredArrow && localInteractionTarget?.type === 'direction')) { 
                  cursorType = p.HAND;
             }
             p.cursor(cursorType);
@@ -651,7 +728,7 @@ function sketch(config) {
             let clickedValue = null;
             let clickedType = null;
 
-            // Determine clicked element (number or hand)
+            // Determine clicked element (number, hand, or arrow)
             if (localHoveredNumber && localInteractionTarget?.type === 'number') {
                 clickedValue = localHoveredNumber;
                 clickedType = 'number';
@@ -660,22 +737,26 @@ function sketch(config) {
                  clickedValue = localHoveredHand;
                  clickedType = 'hand';
                  localClickFeedback = { number: null, hand: clickedValue, correct: null };
+            } else if (localHoveredArrow && localInteractionTarget?.type === 'direction') { // localHoveredArrow will only be 'clockwise'
+                 clickedValue = localHoveredArrow;
+                 clickedType = 'direction';
+                 localClickFeedback = { number: null, hand: null, correct: null };
             }
 
             // Process the click if a valid target type was clicked
             if (clickedType && clickedType === localInteractionTarget.type) {
                 console.log(`p5 clicked ${clickedType}: ${clickedValue}`);
                 const isCorrect = (clickedValue === localInteractionTarget.value);
-                localClickFeedback.correct = isCorrect; // Set correctness for p5 visual feedback
-                p.redraw(); // Show p5 visual feedback immediately (colored circle/hand)
-                // Call external handler to process result (audio, text feedback, enable next)
-                setTimeout(() => {
-                    handleInteractionResult(isCorrect);
-                }, 300); // Short delay before processing result
+                // Update specific feedback property based on type
+                if (clickedType === 'number') { localClickFeedback.number = clickedValue; }
+                else if (clickedType === 'hand') { localClickFeedback.hand = clickedValue; }
+                localClickFeedback.correct = isCorrect;
+                p.redraw();
+                setTimeout(() => { handleInteractionResult(isCorrect); }, 300);
             }
         };
 
-        // --- External Control Methods ---
+        // --- External Control Methods --- (Add blinking methods)
         p.updateHighlight = (newTarget) => {
             // Avoid redraw if target hasn't changed
             if (JSON.stringify(localHighlightTarget) !== JSON.stringify(newTarget)) {
@@ -683,12 +764,12 @@ function sketch(config) {
                 if (!localHandAnimationActive) p.redraw();
             }
         };
-        p.setInteraction = (enabled, target) => {
+        p.setInteraction = (enabled, target) => { // Update to reset arrow hover/feedback
             if (localInteractionEnabled !== enabled || JSON.stringify(localInteractionTarget) !== JSON.stringify(target)) {
                  localInteractionEnabled = enabled;
                  localInteractionTarget = target || null;
-                 localClickFeedback = { number: null, hand: null, correct: null }; // Reset feedback
-                 localHoveredNumber = null; // Reset hover
+                 localClickFeedback = { number: null, hand: null, correct: null }; // Reset feedback (no arrow)
+                 localHoveredNumber = null;
                  localHoveredHand = null;
                  console.log(`p5 setInteraction for step ${stepConfig.stepIndex}. Enabled: ${enabled}, Target:`, localInteractionTarget);
                  if (!localHandAnimationActive) p.redraw();
@@ -713,16 +794,40 @@ function sketch(config) {
                 p.redraw(); // Draw final static frame
             }
         };
-        p.resetClickFeedback = () => {
-            if (localClickFeedback.number !== null || localClickFeedback.hand !== null) {
+        p.resetClickFeedback = () => { // Update to reset arrow feedback
+            if (localClickFeedback.number !== null || localClickFeedback.hand !== null) { 
                 localClickFeedback = { number: null, hand: null, correct: null };
                 if (!localHandAnimationActive) p.redraw();
             }
         };
 
-        // --- Cleanup ---
+        // Blinking Control Methods <<< NEW
+        p.startBlinking = (handType) => {
+            if (localBlinkIntervalId) p.stopBlinking(); // Stop previous blinking
+            localBlinkingHand = handType;
+            localBlinkVisible = true; // Start visible
+            console.log(`Starting blink for: ${handType}`);
+            localBlinkIntervalId = setInterval(() => {
+                localBlinkVisible = !localBlinkVisible;
+                // console.log(`Blink state: ${localBlinkVisible}`);
+                if (!localHandAnimationActive) p.redraw(); // Redraw if static
+            }, 500); // Blink interval (ms)
+        };
+        p.stopBlinking = () => {
+             if (localBlinkIntervalId) {
+                 console.log(`Stopping blink for: ${localBlinkingHand}`);
+                 clearInterval(localBlinkIntervalId);
+                 localBlinkIntervalId = null;
+             }
+             localBlinkingHand = null;
+             localBlinkVisible = true; // Ensure hand is visible when stopped
+             if (!localHandAnimationActive) p.redraw(); // Redraw final state
+         };
+
+        // --- Cleanup --- (Ensure blinking stops)
         p.remove = () => {
             console.log(`Removing p5 instance for step ${stepConfig.stepIndex}.`);
+            p.stopBlinking(); // <<< ADDED
             p.noLoop();
         };
 
@@ -768,32 +873,43 @@ function drawCenterDot(p) {
      p.ellipse(0, 0, clockDiameter * 0.08, clockDiameter * 0.08); // Larger center dot
 }
 
-function drawHand(p, handType, angle, color, lengthMultiplier, weight, highlightTarget, hoveredHand, clickFeedback) {
+// Modified drawHand to include blinking logic
+function drawHand(p, handType, angle, color, lengthMultiplier, weight, highlightTarget, hoveredHand, clickFeedback, blinkingHand, blinkVisible) {
     p.push();
     p.rotate(angle);
     let finalWeight = weight;
     let finalColor = color;
+    let isVisible = true;
 
-    // Apply hover state
-    if (hoveredHand === handType) {
+    // Check blinking state <<< NEW
+    if (blinkingHand === handType && !blinkVisible) {
+        isVisible = false;
+    }
+
+    // Apply hover state (only if visible)
+    if (isVisible && hoveredHand === handType) {
         finalColor = highlightColor;
         finalWeight = weight + 2;
     }
-    // Apply highlight state (overrides hover)
-    if (highlightTarget && highlightTarget.type === 'hand' && (highlightTarget.value === handType || highlightTarget.value === 'both')) {
+    // Apply highlight state (overrides hover, only if visible)
+    if (isVisible && highlightTarget && highlightTarget.type === 'hand' && (highlightTarget.value === handType || highlightTarget.value === 'both')) {
         finalColor = highlightColor;
         finalWeight = weight + 4;
     }
-    // Apply click feedback state (overrides hover/highlight)
-    if (clickFeedback.hand === handType) {
+    // Apply click feedback state (overrides hover/highlight, only if visible)
+    if (isVisible && clickFeedback.hand === handType) {
          finalColor = clickFeedback.correct ? correctColor : incorrectColor;
          finalWeight = weight + 4;
     }
 
-    p.strokeCap(p.ROUND); // <<< ADDED for rounded ends
-    p.stroke(finalColor);
-    p.strokeWeight(finalWeight);
-    p.line(0, 0, clockDiameter * lengthMultiplier, 0);
+    // Draw the hand only if it's currently visible
+    if (isVisible) {
+        p.strokeCap(p.ROUND);
+        p.stroke(finalColor);
+        p.strokeWeight(finalWeight);
+        p.line(0, 0, clockDiameter * lengthMultiplier, 0);
+    }
+    
     p.pop();
 }
 
@@ -845,28 +961,56 @@ function applyHighlights(p, highlightTarget) {
     // if (highlightTarget && highlightTarget.type === 'face') { ... }
 }
 
-function drawDirectionArrows(p, highlightTarget) {
-    const arrowRadius = clockDiameter * 0.6;
-    const arrowSize = clockDiameter * 0.1;
-    p.textSize(arrowSize * 1.5);
-    p.noStroke();
-    const cwX = p.cos(-30) * arrowRadius;
-    const cwY = p.sin(-30) * arrowRadius;
-    const ccwX = p.cos(210) * arrowRadius;
-    const ccwY = p.sin(210) * arrowRadius;
+// Update drawDirectionArrows: Only draw single CW arrow on right when interaction enabled
+function drawDirectionArrows(p, interactionEnabled, hoveredArrow, clickFeedback) {
+     // REMOVED: Redundant check: if (!interactionEnabled) return;
+     
+     // <<< ADD LOGGING (UNCOMMENTED) >>>
+     console.log("drawDirectionArrows entered.");
 
-    // Highlight based on target
-    let cwFill = 150, ccwFill = 150;
-    if (highlightTarget && highlightTarget.type === 'direction') {
-         if (highlightTarget.value === 'clockwise') {
-             // Draw highlight behind clockwise arrow
-             p.fill(highlightColor);
-             p.ellipse(cwX, cwY, arrowSize * 1.8, arrowSize * 1.8);
-         } // Add else if for counter-clockwise if needed
+    const arrowRadius = clockDiameter * 0.5; 
+    const arrowSize = clockDiameter * 0.15;
+    const baseTextSize = arrowSize * 1.8;
+    const hitRadius = arrowSize * 1.2; 
+
+    // Calculate position ONLY for the clockwise arrow on the RIGHT
+    const cwX = p.cos(-30) * arrowRadius; 
+    const cwY = p.sin(-30) * arrowRadius;
+    // REMOVED: ccwX, ccwY calculation
+
+    p.noStroke();
+
+    // --- Draw Clockwise Arrow '↻' (at right position) --- 
+    let cwFill = numberColor; 
+    let cwBgFill = null;
+    let cwScale = 1.0;
+
+    // Apply click feedback if the clicked arrow was clockwise
+    if (clickFeedback.arrow === 'clockwise') {
+        cwBgFill = clickFeedback.correct ? correctColor : incorrectColor; // Should always be correct now
+        cwScale = 1.1;
     }
-    // Draw arrows on top
-    p.fill(cwFill); p.text("↻", cwX, cwY);
-    p.fill(ccwFill); p.text("↺", ccwX, ccwY);
+    // Apply hover feedback if hovering over the clockwise arrow
+    else if (hoveredArrow === 'clockwise') {
+        cwBgFill = highlightColor;
+        cwScale = 1.1;
+    }
+
+    // Draw background circle if needed
+    if (cwBgFill) {
+        p.fill(p.color(cwBgFill));
+        p.ellipse(cwX, cwY, hitRadius * 2.2 * cwScale, hitRadius * 2.2 * cwScale);
+    }
+    // Draw arrow text
+    p.push();
+    p.translate(cwX, cwY);
+    p.scale(cwScale);
+    p.fill(cwFill);
+    p.textSize(baseTextSize);
+    p.text("↻", 0, 0); // Draw the clockwise symbol
+    p.pop();
+
+    // --- REMOVED Counter-Clockwise Arrow Logic ---
 }
 
 // --- Utility function needed for hand hover ---
@@ -880,43 +1024,45 @@ function distPointLine(x, y, x1, y1, x2, y2) {
   return Math.sqrt((x - projX) * (x - projX) + (y - projY) * (y - projY));
 }
 
-// --- DOMContentLoaded ---
-// Make sure the start button logic calls the new loadSubStep(0)
+// --- Event Listeners ---
+// REMOVE global skipButton listener:
+// skipButton.addEventListener('click', () => { ... });
+
+// REMOVE global nextButton listener:
+// nextButton.addEventListener('click', () => { ... });
+
+// REMOVE global prevButton listener:
+// prevButton.addEventListener('click', () => { stopAudio(true); }); // Link handled by HTML onclick now
+
+// --- DOMContentLoaded setup ---
 document.addEventListener('DOMContentLoaded', () => {
     const footerAudioButton = document.getElementById('footer-audio-button');
     const startLessonButton = document.getElementById('start-lesson-button');
-    const skipButtonActual = document.getElementById('skip-button'); // Get the real skip button
-    const prevButtonActual = document.querySelector('.btn-prev-step'); // Use querySelector to get prev button
-    const nextButtonActual = document.getElementById('next-step-button'); // Get next button
-    const professorImg = document.getElementById('professor-img'); // Corrected ID
+    const skipButtonActual = document.getElementById('skip-button');
+    const prevButtonActual = document.querySelector('.btn-prev-step');
+    const nextButtonActual = document.getElementById('next-step-button');
+    const professorImg = document.getElementById('professor-img');
     const learnItContent = document.getElementById('learn-it-content');
     const initialTitle = document.getElementById('initial-lesson-title');
     const initialIntro = document.getElementById('initial-lesson-intro');
 
     console.log("DOM Loaded.");
-    // --- Adjust Start Button Logic ---
-    if (startLessonButton && skipButtonActual && prevButtonActual && nextButtonActual && professorImg && learnItContent && initialTitle && initialIntro) { // Use corrected variable
-        console.log("All required initial elements found.");
+
+    // --- Start Button Listener ---
+    if (startLessonButton && skipButtonActual && prevButtonActual && nextButtonActual && professorImg && learnItContent && initialTitle && initialIntro) {
+        console.log("Attaching Start button listener.");
         startLessonButton.addEventListener('click', () => {
             console.log("Start button clicked.");
             startLessonButton.style.display = 'none'; 
-            
-            // --- Hide Initial Text & Image, Show Content --- 
             initialTitle.classList.add('hidden'); 
             initialIntro.classList.add('hidden'); 
-            professorImg.classList.add('hidden'); // Use corrected variable
+            professorImg.classList.add('hidden');
             learnItContent.classList.remove('hidden'); 
-            // --- End Hide/Show --- 
-            
-            // Show the actual navigation buttons
+            // Show actual navigation buttons
             skipButtonActual.style.display = 'inline-flex'; 
-            prevButtonActual.style.display = 'inline-flex'; 
-            nextButtonActual.style.display = 'inline-flex'; 
-
-            // --- Load the FIRST sub-step using the new function ---
-            // No need to create p5 instance here anymore, loadSubStep handles it
+            prevButtonActual.style.display = 'inline-flex'; // Show Prev button
+            nextButtonActual.style.display = 'inline-flex'; // Show Next button
             loadSubStep(0);
-            // --- End Load First Step ---
         });
         
         // Setup navigation buttons
@@ -939,20 +1085,110 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
     } else {
-        console.error("One or more required elements not found!", 
-            {start: startLessonButton, skip: skipButtonActual, prev: prevButtonActual, next: nextButtonActual, professor: professorImg, content: learnItContent, initialTitle, initialIntro }); // Use corrected variable in log
+        console.error("One or more required initial elements not found! Cannot attach Start button listener.", 
+            {start: startLessonButton, skip: skipButtonActual, prev: prevButtonActual, next: nextButtonActual, professor: professorImg, content: learnItContent, initialTitle, initialIntro });
     }
-    // --- End Adjust ---
 
+    // --- Next Button Listener --- <<< MODIFIED HERE
+    if (nextButtonActual) {
+        console.log("Attaching Next button listener.");
+        nextButtonActual.addEventListener('click', () => {
+            console.log("Next button clicked. Current step:", currentSubStep);
+            if (!nextButtonActual.disabled) {
+                stopAudio(true);
+                // Check if it's the last 'Learn It' step
+                if (currentSubStep === subSteps.length - 1) {
+                    console.log("Last 'Learn It' step finished. Redirecting to Try It page.");
+                    window.location.href = 'try-it.html'; // <<< REDIRECT
+                } else {
+                    // Otherwise, load the next sub-step within 'Learn It'
+                    console.log("Loading next sub-step:", currentSubStep + 1);
+                    loadSubStep(currentSubStep + 1);
+                }
+            }
+        });
+    } else {
+        console.error("Next button not found!");
+    }
+
+    // --- Skip Button Listener --- <<< MOVED HERE
+    if (skipButtonActual) {
+        console.log("Attaching Skip button listener.");
+         skipButtonActual.addEventListener('click', () => {
+             console.log("Skip button clicked. Current step:", currentSubStep);
+             stopAudio(true);
+             if (currentSubStep < 0 || currentSubStep >= subSteps.length || !p5Instance) return;
+             const stepData = subSteps[currentSubStep];
+             const instance = p5Instance;
+             console.log("Stopping visuals and jumping to check phase.");
+             if (currentSubStep === 0) {
+                  instance.updateHighlight(null);
+                  setupStep0Check(stepData, instance);
+              } else if (currentSubStep === 1) {
+                   setupStep1Check(stepData, instance, stepData.currentCheckIndex);
+              } else if (currentSubStep === 2) {
+                   setupStep2Check(stepData, instance);
+              }
+             nextButtonActual.disabled = true; // Use correct variable
+         });
+    } else {
+         console.error("Skip button not found!");
+    }
+
+    // --- Previous Button Listener --- <<< UPDATED
+    if (prevButtonActual) {
+        console.log("Attaching Previous button listener.");
+        prevButtonActual.addEventListener('click', () => {
+            console.log("Previous button clicked.");
+            if (!prevButtonActual.disabled) { // Check if disabled
+                 stopAudio(true); 
+                 loadSubStep(currentSubStep - 1);
+            }
+        });
+    } else {
+         console.error("Previous button not found!");
+    }
+    
+    // --- Footer Audio Button Listener ---
     if (footerAudioButton) {
-        console.log("Footer audio button found.");
+        console.log("Attaching Footer audio button listener.");
         footerAudioButton.addEventListener('click', () => {
             console.log("Footer audio button clicked.");
             console.log("Current audio filename to play:", currentAudioFilename);
-            stopAudio(true); // Stop current and clear pending callback
-            playAudio(currentAudioFilename); // Replay from beginning
+            stopAudio(true);
+            playAudio(currentAudioFilename);
         });
     } else {
         console.error("Footer audio button not found!");
     }
 }); 
+
+// Restore createDirectionCheckButtons function <<< ADDED BACK
+function createDirectionCheckButtons() {
+    checkArea.innerHTML = ''; // Clear previous content
+
+    const clockwiseBtn = document.createElement('button');
+    clockwiseBtn.id = 'clockwise-btn';
+    clockwiseBtn.textContent = '↻';
+    clockwiseBtn.classList.add('btn', 'direction-btn');
+    clockwiseBtn.addEventListener('click', () => {
+        if (currentSubStep === 2) { // Ensure this is the correct step
+             // Target value for step 2 is 'clockwise'
+             handleInteractionResult(true); 
+        }
+    });
+
+    const counterClockwiseBtn = document.createElement('button');
+    counterClockwiseBtn.id = 'counter-clockwise-btn';
+    counterClockwiseBtn.textContent = '↺';
+    counterClockwiseBtn.classList.add('btn', 'direction-btn');
+    counterClockwiseBtn.addEventListener('click', () => {
+         if (currentSubStep === 2) { 
+             // Clicking the wrong button is incorrect
+             handleInteractionResult(false); 
+         }
+    });
+
+    checkArea.appendChild(clockwiseBtn);
+    checkArea.appendChild(counterClockwiseBtn);
+} 
