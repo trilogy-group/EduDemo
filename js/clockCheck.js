@@ -5,8 +5,8 @@
 
 // Configuration options that can be customized by implementers
 const CONFIG = {
-    // Anchor numbers that will always be displayed (generally the quarters)
-    anchorNumbers: [12, 3, 6, 9],
+    // Anchor numbers that will always be displayed (generally the quarters and 1 & 12)
+    anchorNumbers: [1, 12, 3, 6, 9],
     // Number of numbers to hide/test (1-3 recommended for young children)
     missingNumberCount: 3,
     // Animation durations
@@ -38,17 +38,47 @@ class ClockActivity {
         this.clockSize = 0;
         this.clockCenterX = 0;
         this.clockCenterY = 0;
+        this.hintElement = null;
         
         // Initialize the activity
         this.setupMissingNumbers();
         this.setupEventListeners();
+        this.createHintElement();
+    }
+    
+    /**
+     * Create a hint element for showing guidance
+     */
+    createHintElement() {
+        this.hintElement = document.createElement('div');
+        this.hintElement.className = 'hint-message';
+        this.hintElement.style.display = 'none';
+        this.hintElement.style.position = 'absolute';
+        this.hintElement.style.top = '10px';
+        this.hintElement.style.left = '0';
+        this.hintElement.style.right = '0';
+        this.hintElement.style.textAlign = 'center';
+        this.hintElement.style.padding = '8px 15px';
+        this.hintElement.style.backgroundColor = 'rgba(255, 240, 150, 0.9)';
+        this.hintElement.style.borderRadius = '8px';
+        this.hintElement.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+        this.hintElement.style.fontSize = '18px';
+        this.hintElement.style.fontWeight = 'bold';
+        this.hintElement.style.color = '#333';
+        this.hintElement.style.zIndex = '1002';
+        this.hintElement.style.maxWidth = '80%';
+        this.hintElement.style.margin = '0 auto';
+        
+        const clockContainer = document.getElementById('clock-container');
+        clockContainer.appendChild(this.hintElement);
     }
     
     /**
      * Set up which numbers will be missing from the clock
+     * Ensures no adjacent numbers are both missing
      */
     setupMissingNumbers() {
-        // Keep configured anchors (typically 12, 3, 6, 9)
+        // Keep configured anchors
         const anchors = CONFIG.anchorNumbers;
         
         // Determine which numbers can be hidden
@@ -59,13 +89,34 @@ class ClockActivity {
             }
         }
         
-        // Shuffle and take required number of missing numbers
+        // Shuffle possible missing numbers
         this.shuffleArray(possibleMissing);
-        this.missingNumbers = possibleMissing.slice(0, CONFIG.missingNumberCount);
-        this.correctAnswers = [...this.missingNumbers]; 
-        this.userAnswers = new Array(this.missingNumbers.length).fill(null);
         
-        return this.missingNumbers;
+        // Select non-adjacent numbers
+        const selected = [];
+        for (let i = 0; i < possibleMissing.length && selected.length < CONFIG.missingNumberCount; i++) {
+            const num = possibleMissing[i];
+            
+            // Check if this number is adjacent to any already selected number
+            let isAdjacent = false;
+            for (let j = 0; j < selected.length; j++) {
+                const diff = Math.abs(num - selected[j]);
+                if (diff === 1 || diff === 11) { // Adjacent on the clock (11 and 12 are adjacent)
+                    isAdjacent = true;
+                    break;
+                }
+            }
+            
+            if (!isAdjacent) {
+                selected.push(num);
+            }
+        }
+        
+        this.missingNumbers = selected;
+        this.correctAnswers = [...selected]; 
+        this.userAnswers = new Array(selected.length).fill(null);
+        
+        return selected;
     }
     
     /**
@@ -84,6 +135,7 @@ class ClockActivity {
             const activeBoxElement = document.querySelector('.incorrect-box-highlight');
             if (!event.target.closest('#clock-container') && !activeBoxElement) {
                 this.hideNumberKeypad();
+                this.hideHint();
                 this.activeBoxIndex = -1;
             }
         });
@@ -115,10 +167,51 @@ class ClockActivity {
             }
         }
         
-        // If clicked elsewhere on the canvas, hide keypad
+        // If clicked elsewhere on the canvas, hide keypad and hint
         if (!clickedOnBox) {
             this.hideNumberKeypad();
+            this.hideHint();
             this.activeBoxIndex = -1;
+        }
+    }
+    
+    /**
+     * Show a hint for the current missing number
+     * @param {number} missingNumber - The number that's currently missing
+     */
+    showHintForNumber(missingNumber) {
+        // Find the numbers before and after the missing number
+        const before = missingNumber === 1 ? 12 : missingNumber - 1;
+        const after = missingNumber === 12 ? 1 : missingNumber + 1;
+        
+        // Check if before/after numbers are also missing
+        const beforeIsMissing = this.missingNumbers.includes(before);
+        const afterIsMissing = this.missingNumbers.includes(after);
+        
+        let hintText = '';
+        
+        // Create appropriate hint based on whether adjacent numbers are missing
+        if (!beforeIsMissing && !afterIsMissing) {
+            hintText = `What number comes between ${before} and ${after} on the clock?`;
+        } else if (!beforeIsMissing) {
+            hintText = `What number comes after ${before} on the clock?`;
+        } else if (!afterIsMissing) {
+            hintText = `What number comes before ${after} on the clock?`;
+        } else {
+            // This shouldn't happen with our non-adjacent rule, but just in case
+            hintText = `Try to find the missing number here.`;
+        }
+        
+        this.hintElement.textContent = hintText;
+        this.hintElement.style.display = 'block';
+    }
+    
+    /**
+     * Hide the hint element
+     */
+    hideHint() {
+        if (this.hintElement) {
+            this.hintElement.style.display = 'none';
         }
     }
     
@@ -194,79 +287,24 @@ class ClockActivity {
             if (value === correctAnswer) {
                 // Correct answer
                 this.userAnswers[this.activeBoxIndex] = value;
-                this.showFeedback('correct');
+                this.hideHint();
                 this.hideNumberKeypad();
             } else {
-                // Incorrect answer
-                this.showFeedback('incorrect');
-                // Keep keypad visible to try again
-            }
-        }
-    }
-    
-    /**
-     * Show feedback for correct/incorrect answers
-     * @param {string} type - 'correct' or 'incorrect'
-     */
-    showFeedback(type) {
-        const feedbackElement = document.getElementById(`feedback-${type}`);
-        
-        // Position feedback near active box
-        if (this.activeBoxIndex !== -1 && this.boxes && this.boxes.length > 0) {
-            const box = this.boxes[this.activeBoxIndex];
-            
-            // Get clock container position
-            const clockContainer = document.getElementById('clock-container');
-            const containerRect = clockContainer.getBoundingClientRect();
-            
-            // Calculate absolute position in viewport
-            const absX = containerRect.left + box.x;
-            const absY = containerRect.top + box.y;
-            
-            // Position the feedback
-            feedbackElement.style.position = 'fixed';
-            feedbackElement.style.left = (absX - 15) + 'px';
-            feedbackElement.style.top = (absY - 15) + 'px';
-            feedbackElement.style.display = 'flex';
-            feedbackElement.style.zIndex = '1001'; // Higher than keypad
-            
-            if (type === 'incorrect') {
-                // Add "Try again!" text to feedback
-                feedbackElement.innerHTML = '<i class="fas fa-times" style="color: red;"></i><span style="color: red; margin-left: 5px; font-size: 16px;">Try again!</span>';
+                // Incorrect answer - now show a helpful hint about which number is missing
+                const boxValue = this.boxes[this.activeBoxIndex].value;
+                this.showHintForNumber(boxValue);
                 
-                // Add shake animation for incorrect answers
-                feedbackElement.classList.add('shake-animation');
+                // Add a prefix to indicate it was wrong and style the hint as an error
+                const originalHint = this.hintElement.textContent;
+                this.hintElement.textContent = `That's not right. ${originalHint}`;
+                this.hintElement.style.backgroundColor = 'rgba(255, 200, 200, 0.9)';
                 
-                // Highlight the box with red border
-                const activeBox = document.createElement('div');
-                activeBox.classList.add('incorrect-box-highlight');
-                activeBox.style.position = 'fixed';
-                activeBox.style.left = (absX - box.size/2 - 5) + 'px';
-                activeBox.style.top = (absY - box.size/2 - 5) + 'px';
-                activeBox.style.width = (box.size + 10) + 'px';
-                activeBox.style.height = (box.size + 10) + 'px';
-                activeBox.style.border = '3px solid red';
-                activeBox.style.borderRadius = '8px';
-                activeBox.style.pointerEvents = 'none';
-                activeBox.style.zIndex = '999'; // Below feedback but above other elements
-                document.body.appendChild(activeBox);
-                
-                // Hide after a moment
+                // Return the hint to normal after a delay
                 setTimeout(() => {
-                    feedbackElement.style.display = 'none';
-                    feedbackElement.classList.remove('shake-animation');
-                    if (document.querySelector('.incorrect-box-highlight')) {
-                        document.body.removeChild(activeBox);
+                    if (this.activeBoxIndex !== -1) {
+                        this.hintElement.style.backgroundColor = 'rgba(255, 240, 150, 0.9)';
                     }
-                }, CONFIG.animations.incorrectFeedbackDuration);
-            } else {
-                // For correct, show checkmark
-                feedbackElement.innerHTML = '<i class="fas fa-check" style="color: green;"></i>';
-                
-                // Fade out after specified duration
-                setTimeout(() => {
-                    feedbackElement.style.display = 'none';
-                }, CONFIG.animations.correctFeedbackDuration);
+                }, 1500);
             }
         }
     }
@@ -282,6 +320,7 @@ class ClockActivity {
         
         if (allAnswered) {
             this.allCompleted = true;
+            this.hideHint();
             
             // Show completion message and enable next button after a short delay
             setTimeout(() => {
