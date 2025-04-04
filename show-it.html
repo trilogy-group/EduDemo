@@ -20,13 +20,16 @@
             gap: 20px;
             margin-top: 20px;
             width: 100%;
-            max-width: 1800px;
+            max-width: none;
             margin-left: auto;
             margin-right: auto;
         }
         
         .two-column-grid .column {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
         }
         
         .question-card {
@@ -34,10 +37,9 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             padding: 20px;
-            width: 98%;
+            width: 100%;
             min-height: 140px;
-            margin-left: auto;
-            margin-right: auto;
+            box-sizing: border-box;
         }
         
         .question-card-header {
@@ -65,22 +67,96 @@
         }
         
         .results-details {
-            max-height: none;
-            overflow: visible;
+            max-height: none !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
             width: 100%;
+            box-sizing: border-box;
         }
         
         .results-card {
-            width: 98%;
-            max-width: 1800px;
-            margin-left: auto;
-            margin-right: auto;
+            width: 100%;
+            max-width: none;
+            margin-bottom: 20px;
         }
 
         #results-area {
-            width: 95%;
-            margin-left: auto;
-            margin-right: auto;
+            width: 100% !important;
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .activity-area {
+            padding: 20px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Special styling for results view */
+        .activity-area.results-view {
+            padding: 20px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            max-width: 100%;
+            width: 100%;
+        }
+        
+        /* Override the question-grid styles from main CSS */
+        .question-grid {
+            max-height: none !important;
+            overflow-y: visible !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Reset the default width constraints from the activity area */
+        .activity-area #results-area {
+            max-width: 100%;
+            width: 100%;
+        }
+        
+        /* Results title styling */
+        #results-title {
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            width: 100%;
+        }
+        
+        /* Results details header */
+        .results-details-header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        /* Ensure full width of score-display */
+        #score-display {
+            width: 100%;
+        }
+        
+        /* Add scrollbar styling for better appearance */
+        #results-area::-webkit-scrollbar,
+        .activity-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #results-area::-webkit-scrollbar-track,
+        .activity-area::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        #results-area::-webkit-scrollbar-thumb,
+        .activity-area::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 4px;
+        }
+
+        #results-area::-webkit-scrollbar-thumb:hover,
+        .activity-area::-webkit-scrollbar-thumb:hover {
+            background-color: #aaa;
         }
     </style>
 </head>
