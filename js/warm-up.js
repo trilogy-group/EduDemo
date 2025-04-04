@@ -42,7 +42,7 @@ const audioFilenameMap = {
     // '0-instruction': 'this_is_how_a_clock_looks_like.mp3',
     
     // Updated indices for missing numbers activity (now at index 0)
-    '0-instruction': 'welcome_time_explorers_lets_quickly.mp3',
+    '0-instruction': 'welcome_time_explorers_lets_quickly_check.mp3',
     '0-feedback-correct': 'correct.mp3',
     '0-feedback-incorrect': 'try_again.mp3',
     '0-complete': 'perfect.mp3'
@@ -77,7 +77,7 @@ const subSteps = [
     // },
     { // 1: Missing Numbers Activity
         title: "Fix the Missing Numbers",
-        instruction: "Oh no! Some numbers are missing from our clock! Can you help fix the clock by filling in the missing numbers? Click on each empty box and type the correct number on your keyboard.",
+        instruction: "Welcome, time explorers! Let's quickly check this clock. A few numbers are missing! Can you type the correct number in each empty box?",
         missingNumbers: [1, 4, 8],
         p5config: {
             stepIndex: 1,
@@ -89,11 +89,11 @@ const subSteps = [
             missingNumbers: [1, 4, 8]
         },
         setup: (instance) => {
-            console.log("Running setup for Step 1");
-            const stepData = subSteps[0]; // Updated index since this is now the first step
-            instructionElement.innerHTML = stepData.instruction;
+            console.log("Running setup for Step 0 (Missing Numbers)");
+            const stepData = subSteps[0]; // This is now the first step
+            instructionElement.innerHTML = stepData.instruction; // Use the updated instruction
             
-            const instructionAudioFile = getAudioFilename(0, 'instruction'); // Updated to use index 0
+            const instructionAudioFile = getAudioFilename(0, 'instruction'); 
             currentAudioFilename = instructionAudioFile;
             playAudio(instructionAudioFile);
             
