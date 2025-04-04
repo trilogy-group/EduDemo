@@ -575,7 +575,7 @@ function showResults() {
     finishButton.className = 'btn btn-primary';
     finishButton.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish Lesson';
     finishButton.addEventListener('click', () => {
-        window.location.href = 'index.html';
+        window.location.href = 'completed.html';
     });
     
     // Add buttons to navigation area
@@ -940,7 +940,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // If results are showing, finish the lesson
             if (!resultsArea.classList.contains('hidden')) {
-                window.location.href = 'index.html'; // Return to home/next lesson
+                window.location.href = 'completed.html'; // Return to home/next lesson
                 return;
             }
             
