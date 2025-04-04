@@ -648,3 +648,90 @@ body {
         font-size: 4rem;
     }
 }
+
+/* Lesson Content Layout Styles */
+.center-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.content-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.content-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.clock-column {
+    flex: 0 0 350px; /* Fixed width for clock */
+}
+
+.text-column {
+    flex: 1;
+    padding: 0 15px;
+}
+
+.text-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+}
+
+.intro-text {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.info-box {
+    background-color: #f0f8ff;
+    border-radius: 10px;
+    padding: 20px 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.info-list {
+    list-style-type: disc;
+    margin: 0;
+    padding-left: 25px;
+}
+
+.info-list li {
+    margin-bottom: 12px;
+    line-height: 1.5;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.info-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive adjustments for the content layout */
+@media (max-width: 768px) {
+    .content-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .clock-column,
+    .text-column {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .text-content {
+        margin-top: 20px;
+    }
+}

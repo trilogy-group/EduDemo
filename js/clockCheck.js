@@ -338,7 +338,7 @@ class ClockActivity {
         instruction.textContent = "Perfect! All numbers accounted for. Now let's learn about the parts of the clock!";
         
         // Show the completion instruction box
-        document.getElementById('completion-instruction').classList.remove('d-none');
+        document.getElementById('completion-instruction').style.display = 'block';
         
         // Add a quick success animation to the clock
         const clockContainer = document.getElementById('clock-container');
