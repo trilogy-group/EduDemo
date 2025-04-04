@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles to fix specific issues */
+        /* Custom styles for welcome page */
         .welcome-message {
             display: flex;
             flex-direction: row;
@@ -43,16 +43,17 @@
         
         .welcome-text li {
             margin-bottom: 0.5rem;
-            font-size: 1rem; /* Reduced from 1.1rem */
+            font-size: 1rem; 
             line-height: 1.4;
         }
         
-        /* Make sure the icon is well-positioned */
-        .welcome-icon {
-            font-size: 8rem;
-            color: #4a6bdf;
-            display: block;
-            margin-top: 1rem; /* Add some top margin */
+        /* REMOVED: .welcome-icon rule */
+        /* .welcome-icon { ... } */
+        
+        /* <<< ADDED: Style for Professor Image >>> */
+        .welcome-professor-img {
+            height: 180px; /* Adjust size as needed */
+            width: auto;
         }
         
         /* Responsive design adjustment */
@@ -112,7 +113,8 @@
                         <p>Click "Start Lesson" when you're ready to begin!</p>
                     </div>
                     <div class="welcome-image">
-                        <i class="fas fa-clock welcome-icon"></i>
+                        <!-- Replaced icon with image -->
+                        <img src="img/professor_tempo.png" alt="Professor Tempo" class="welcome-professor-img">
                     </div>
                 </div>
             </div>
@@ -129,7 +131,7 @@
                 <!-- Step indicators hidden on welcome page -->
             </div>
 
-            <div class="footer-controls">
+            <div class="footer-controls" style="margin-left: auto;">
                 <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
                 <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
