@@ -186,47 +186,97 @@ body {
     display: flex; 
     flex-direction: column; 
     align-items: center; 
+    justify-content: center; /* Center content vertically */
     flex-grow: 1; /* Allow height to be flexible */
     overflow: hidden;
     padding: 25px 20px; /* Increased top padding */
-    /* Removed fixed height calc */
+    text-align: center; /* Center text elements by default */
 }
 
 /* Style the content wrapper inside activity-area */
 #learn-it-content, 
 #warm-up-content,
-#try-it-content {
+#try-it-content,
+#do-it-content { /* Apply common row layout */
     width: 100%;
+    height: 100%;
     display: flex; 
-    flex-direction: row; /* Side-by-side layout */
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    align-items: stretch; /* Allow children to stretch to full height */
-    justify-content: space-between; /* Space between left and right sides */
-    gap: 20px; /* Gap between content sections */
-    padding-top: 5px;
-    min-height: 400px; /* Ensure minimum height for proper centering */
+    flex-direction: row; /* Revert to row */
+    flex-wrap: wrap; 
+    align-items: stretch; 
+    justify-content: space-between; 
+    gap: 20px; 
+    padding: 5px 0; /* Vertical padding */
+    min-height: 400px; /* Ensure minimum height */
 }
 
-/* Content left (clock container) */
+/* Style title and instruction globally within content-right */
+.content-right h2 {
+    font-size: 1.4rem; 
+    font-weight: 700;
+    margin-bottom: 5px; 
+    color: var(--text-primary);
+    flex-shrink: 0;
+    width: 100%; /* Take full width of content-right */
+    text-align: left; /* Ensure left alignment */
+}
+
+.content-right p.instruction {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 15px; /* More space before check area */
+    max-width: 100%; /* Take full width */
+    line-height: 1.4;
+    flex-shrink: 0;
+    text-align: left; /* Ensure left alignment */
+}
+
+.content-right #embedded-check-area {
+    flex-grow: 1; /* Allow this area to take available vertical space */
+    min-height: 50px;
+    width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column; /* Keep column direction */
+    justify-content: center; /* Vertically center the content (e.g., mcq-button-container) */
+    align-items: center; /* Horizontally center the content */
+}
+
+/* Update canvas container globally within content-left */
+.content-left #canvas-container {
+    min-height: 250px; 
+    height: 100%; /* Fill height of content-left */
+    width: 100%; /* Fill width of content-left */
+    max-width: 100%; 
+    flex-grow: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0; 
+}
+
+/* Content left/right */
 .content-left {
     flex: 1;
     min-width: 300px;
-    order: 1; /* Appears first (left) */
+    order: 1; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Center vertically */
+    justify-content: center; 
+    height: 100%; /* Ensure full height */
 }
 
-/* Content right (text content) */
 .content-right {
     flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Left-align text */
-    text-align: left; /* Left-align text content */
-    min-width: 250px; /* Ensure text has enough space */
-    order: 2; /* Appears second (right) */
+    align-items: flex-start; 
+    text-align: left; 
+    min-width: 250px; 
+    order: 2; 
+    height: 100%; /* Ensure full height */
+    padding: 10px; /* Add some padding */
 }
 
 /* Style title and instruction */
@@ -1051,3 +1101,163 @@ body {
     margin-top: 5px;
     align-self: flex-start;
 }
+
+/* Styles for Do It page multiple choice buttons */
+.mcq-button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.option-button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border: 2px solid #6c5ce7;
+    background-color: white;
+    color: #6c5ce7;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.option-button:hover {
+    background-color: #f5f3ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.option-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.correct-answer-highlight {
+    background-color: var(--success) !important;
+    color: white !important;
+    border-color: var(--success) !important;
+    animation: pulse 0.8s ease-in-out;
+    box-shadow: 0 0 15px rgba(40, 204, 113, 0.5) !important;
+}
+
+.incorrect-answer-flash {
+    background-color: var(--error) !important;
+    color: white !important;
+    border-color: var(--error) !important;
+    animation: flash 0.8s ease-in-out;
+    box-shadow: 0 0 15px rgba(255, 92, 92, 0.5) !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@keyframes flash {
+    0% { opacity: 1; background-color: var(--error) !important; }
+    25% { opacity: 0.7; background-color: white !important; color: var(--error) !important; }
+    50% { opacity: 1; background-color: var(--error) !important; color: white !important; }
+    75% { opacity: 0.7; background-color: white !important; color: var(--error) !important; }
+    100% { opacity: 1; background-color: var(--error) !important; color: white !important; }
+}
+
+/* Shared Styles for Intro Sections (Learn It, Try It, Do It) */
+#learn-it-intro-section,
+#try-it-intro-section, 
+#do-it-intro-section { /* Added do-it intro section */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    flex-grow: 1;
+    width: 100%; 
+    height: 100%;
+}
+
+#initial-lesson-title,
+#initial-try-it-title, 
+#initial-do-it-title { /* Added do-it title */
+    font-size: 2rem; /* Larger title */
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+#initial-lesson-intro,
+#initial-try-it-intro,
+#initial-do-it-intro { /* Added do-it intro paragraph */
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+/* Style for the start buttons */
+#start-learning-button,
+#start-try-it-button,
+#start-do-it-button { /* Added do-it button */
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* Ensure professor is visible initially in activity area for intros */
+.activity-area > #professor-image {
+    /* Styles if needed, but visibility is handled by JS adding/removing hidden class */
+    margin-bottom: 20px; /* Space below professor if shown with intro text */
+}
+
+/* Style for professor image within the intro section */
+#professor-img,
+#professor-do-it-img { /* Added ID for do-it page */
+    max-width: 200px; 
+    height: auto;
+    margin-bottom: 20px;
+}
+
+/* Titles */
+#initial-lesson-title,
+#initial-try-it-title, 
+#initial-do-it-title { 
+    /* ... existing styles ... */
+}
+
+/* Intro Paragraphs */
+#initial-lesson-intro,
+#initial-try-it-intro,
+#initial-do-it-intro { 
+    /* ... existing styles ... */
+}
+
+/* Style for the start buttons (now in nav bar) */
+#start-learning-button,
+#start-try-it-button,
+#start-do-it-button { 
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    /* Add specific positioning styles if needed, but flexbox in .navigation-buttons should handle it */
+}
+
+/* Navigation Buttons Container */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between; /* Keep this for when real buttons show */
+    align-items: center;
+    flex-shrink: 0; 
+    padding-top: 0; 
+}
+
+/* Initially, the start button might be the only visible element */
+/* If the container needs specific alignment for just the start button, add rules here */
+/* Example: .navigation-buttons:has(#start-do-it-button:not([style*="display: none"])) { justify-content: center; } */
+/* Note: :has() is not universally supported yet, JS handles the hiding/showing */

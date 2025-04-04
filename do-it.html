@@ -16,7 +16,7 @@
     <div class="lesson-container">
         <header class="lesson-header">
             <div class="header-left">
-                <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-icon professor-icon">
+                <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-icon professor-icon" id="professor-image">
                 <span class="header-title">TI Education</span>
             </div>
             <div class="header-right">
@@ -31,18 +31,28 @@
                  <span class="lesson-counter" id="do-it-step-counter">Step 4 of 5: Do It</span>
              </div>
             <div class="progress-bar-container">
-                <div class="progress-bar"></div>
+                <div class="progress-bar" style="width: 60%;"></div>
             </div>
         </div>
 
         <main class="lesson-main">
             <div class="activity-area">
-                <div id="do-it-content" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
-                    <h2 id="do-it-question-title">Question 1</h2>
-                    <p class="instruction" id="do-it-instruction">Question text will appear here.</p>
-                    <div id="canvas-container" class="clock-container" style="min-height: 250px; width: 90%; max-width: 400px; flex-grow: 1; display:flex; justify-content:center; align-items:center;">
+                <div id="do-it-intro-section">
+                    <h1 id="initial-do-it-title">Ready for Practice?</h1>
+                    <p id="initial-do-it-intro">Time to put your clock knowledge to the test! Click 'Start Practice' when you're ready.</p>
+                    <img id="professor-do-it-img" src="img/professor_tempo.png" alt="Professor Tempo">
+                </div>
+
+                <div id="do-it-content" class="hidden"> 
+                    <div class="content-left"> 
+                        <div id="canvas-container" class="clock-container">
+                        </div>
                     </div>
-                    <div id="embedded-check-area" style="margin-top: 15px; min-height: 50px;">
+                    <div class="content-right"> 
+                        <h2 id="do-it-question-title">Question 1</h2>
+                        <p class="instruction" id="do-it-instruction">Question text will appear here.</p>
+                        <div id="embedded-check-area">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -50,8 +60,9 @@
             <div id="feedback-area" class="feedback"></div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" id="prev-button"><i class="fas fa-arrow-left"></i> Previous</button>
-                <button class="btn btn-primary btn-next-step" id="next-button" disabled><i class="fas fa-arrow-right"></i> Next</button>
+                <button class="btn btn-secondary" id="start-do-it-button"><i class="fas fa-play"></i> Start Practice</button>
+                <button class="btn btn-prev-step" id="prev-button" disabled style="display: none;"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="btn btn-primary btn-next-step" id="next-button" disabled style="display: none;"><i class="fas fa-arrow-right"></i> Next</button>
             </div>
         </main>
 
