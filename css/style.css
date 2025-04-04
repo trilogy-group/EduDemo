@@ -316,6 +316,8 @@ body {
     justify-content: center;
     align-items: center;
     line-height: 0;
+    position: relative; /* Needed for potential absolute positioning inside */
+    touch-action: none; /* Prevent default touch actions like scrolling */
 }
 
 .placeholder-text {
@@ -1706,4 +1708,10 @@ body {
     overflow: visible; /* Allow content to be visible/scrollable */
     padding: 25px 20px;
     width: 100%;
+}
+
+/* Warm-up Number Placeholder Style */
+.number-placeholder-circle {
+    /* p5.js handles drawing, but we can define cursor */
+    cursor: text; /* Indicate it's clickable for text input */
 }

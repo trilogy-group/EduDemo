@@ -338,6 +338,7 @@ function clockSketch(config) {
         let stepConfig = config;
         let localMissingNumbers = config.missingNumbers || [];
         let localSelectedInputBox = null;
+        let localInteractionEnabled = true;
         
         // --- p5.js Setup ---
         p.setup = () => {
@@ -389,30 +390,27 @@ function clockSketch(config) {
         };
 
         // --- p5.js Event Handlers ---
-        p.mousePressed = () => {
-            // Check if we're in step 1 (missing numbers)
-            if (stepConfig.stepIndex !== 1) return;
-            
-            // Check if clicked on an input box
-            for (const numStr of Object.keys(inputValues)) {
-                const num = parseInt(numStr);
-                if (isMouseOverNumber(p, num)) {
-                    if (localSelectedInputBox !== num) {
-                        localSelectedInputBox = num;
-                        selectedInputBox = num; // Update global
-                        console.log("Selected input box:", localSelectedInputBox);
-                        p.redraw();
-                        
-                        // Clear previous feedback when selecting a new box
-                        feedbackArea.textContent = '';
-                        feedbackArea.className = 'feedback';
-                    }
-                    return;
+        p.mouseClicked = () => {
+            if (!localInteractionEnabled) return;
+            let boxSelected = false;
+            for (const num of stepConfig.missingNumbers) {
+                const angle = p.map(num, 0, 12, -90, 270);
+                const numberRadius = clockDiameter * 0.38;
+                const x = p.cos(angle) * numberRadius;
+                const y = p.sin(angle) * numberRadius;
+                const circleDiameter = clockDiameter * 0.12;
+                // Check if click is within the circle bounds
+                if (p.dist(p.mouseX - p.width/2, p.mouseY - p.height/2, x, y) < circleDiameter / 2) {
+                    console.log(`Clicked on input box for number ${num}`);
+                    selectedInputBox = num;
+                    boxSelected = true;
+                    break; // Only select one box at a time
                 }
             }
-            localSelectedInputBox = null; // Clear selection if clicked elsewhere
-            selectedInputBox = null; // Update global
-            p.redraw();
+            if (!boxSelected) {
+                selectedInputBox = null; // Deselect if clicking elsewhere
+            }
+            p.redraw(); // Redraw to show selection highlight
         };
         
         // --- Helper function to check if mouse is over a number position ---
@@ -532,50 +530,62 @@ function drawAllNumbers(p) {
 }
 
 function drawNumbersAndInputBoxes(p, missingNumbers) {
-    p.textFont('Arial', clockDiameter * 0.13);
+    p.textSize(clockDiameter * 0.10);
+    p.textAlign(p.CENTER, p.CENTER);
     p.textStyle(p.BOLD);
-    
+
     for (let i = 1; i <= 12; i++) {
-        const angle = i * 30 - 90;
-        const radius = clockDiameter * 0.35;
-        const x = p.cos(angle) * radius;
-        const y = p.sin(angle) * radius;
-        
+        const angle = p.map(i, 0, 12, -90, 270);
+        const numberRadius = clockDiameter * 0.38;
+        const x = p.cos(angle) * numberRadius;
+        const y = p.sin(angle) * numberRadius;
+
         if (missingNumbers.includes(i)) {
-            // Draw input box
+            // Draw a circle placeholder instead of a rectangle
+            const circleDiameter = clockDiameter * 0.12; // Size of the circle
             p.noStroke();
             
-            // Box background
+            // Highlight if selected
             if (selectedInputBox === i) {
-                p.fill('#FFD700'); // Highlight selected box
-            } else if (inputValues[i] !== undefined) {
-                // Box has a value - color based on correctness
-                if (parseInt(inputValues[i]) === i) {
-                    p.fill(correctColor);
-                } else {
-                    p.fill(incorrectColor);
-                }
+                p.fill(200, 200, 255); // Light blue highlight
             } else {
-                p.fill(inputBoxColor);
+                p.fill(inputBoxColor); // Default grey placeholder color
             }
-            
-            p.rect(x - clockDiameter * 0.08, y - clockDiameter * 0.08, 
-                   clockDiameter * 0.16, clockDiameter * 0.16, 
-                   clockDiameter * 0.02); // Rounded rectangle
-                   
-            // Draw input value if it exists
-            if (inputValues[i] !== undefined) {
-                p.fill(numberColor);
+            p.ellipse(x, y, circleDiameter);
+
+            // Determine correctness directly
+            let feedbackColor = null;
+            if (inputValues[i] !== undefined && inputValues[i] !== '') {
+                const isCorrect = (parseInt(inputValues[i]) === i);
+                feedbackColor = isCorrect ? correctColor : incorrectColor;
+
+                // Draw entered text inside the circle
+                p.fill(0); // Black text
                 p.text(inputValues[i], x, y);
+            } else if (selectedInputBox === i) {
+                // Maybe show a blinking cursor simulation if selected and empty
+                // if (p.frameCount % 60 < 30) { // <<< Comment out this block
+                //     p.fill(0); 
+                //     p.rect(x - circleDiameter * 0.05, y - circleDiameter * 0.2, circleDiameter * 0.1, circleDiameter * 0.4);
+                // } // <<< End comment out
             }
+
+            // Draw feedback indicator (like a border) if needed
+            if (feedbackColor) {
+                p.strokeWeight(3);
+                p.stroke(feedbackColor);
+                p.noFill();
+                p.ellipse(x, y, circleDiameter + 4);
+            }
+
         } else {
-            // Draw regular number
+            // Draw the number normally
             p.noStroke();
             p.fill(numberColor);
             p.text(i, x, y);
         }
     }
-    p.textStyle(p.NORMAL);
+    p.textStyle(p.NORMAL); // Reset text style
 }
 
 // --- Keyboard Input Handler ---
