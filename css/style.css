@@ -181,7 +181,8 @@ body {
 
 /* Style the content wrapper inside activity-area */
 #learn-it-content, 
-#warm-up-content {
+#warm-up-content,
+#try-it-content {
     width: 100%;
     display: flex; 
     flex-direction: row; /* Side-by-side layout */
@@ -851,6 +852,45 @@ body {
     flex-shrink: 0;
 }
 
+/* Adjust direction-buttons-wrapper specifically for Yes/No buttons */
+.direction-buttons-wrapper.yesno-buttons-wrapper {
+    justify-content: flex-start;
+    padding-left: 0;
+    margin-top: 10px;
+    gap: 15px; /* Smaller gap for Yes/No buttons */
+}
+
+/* Make Yes/No buttons more prominent */
+.yesno-btn {
+    min-width: 100px;
+    padding: 12px 25px;
+    background-color: var(--accent-blue-hover);
+    color: white;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 10px;
+}
+
+/* Yes/No Buttons Hover Style */
+.yesno-btn:hover {
+   background-color: var(--accent-blue);
+   transform: scale(1.05);
+   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Yes/No Buttons Active Style */
+.yesno-btn:active {
+   transform: scale(0.96);
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
 /* Direction buttons wrapper for horizontal layout */
 .direction-buttons-wrapper {
     display: flex;
@@ -985,4 +1025,16 @@ body {
         height: 60px;
         font-size: 2rem;
     }
+}
+
+/* Adjust check area position specifically for Yes/No question */
+#try-it-content .content-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#try-it-content .content-right #embedded-check-area {
+    margin-top: 5px;
+    align-self: flex-start;
 }

@@ -16,6 +16,7 @@
     <div class="lesson-container">
         <header class="lesson-header">
             <div class="header-left">
+                <img src="img/professor_tempo.png" alt="Professor Tempo Guide" class="character-guide-img">
                 <i class="fas fa-graduation-cap header-icon"></i>
                 <span class="header-title">EduSpark</span>
             </div>
@@ -31,29 +32,56 @@
                  <span class="lesson-counter">Step 3 of 5: Try It</span>
              </div>
             <div class="progress-bar-container">
-                <div class="progress-bar"></div>
+                <div class="progress-bar" style="width: 40%;"></div>
             </div>
         </div>
 
         <main class="lesson-main">
             <div class="activity-area">
-                <h2>Try It: Guided Hand Spotting</h2>
-                <p class="instruction">Find the <strong>Hour Hand</strong>. Remember, it's the short one. Click it!</p>
-                <div class="clock-container">
-                    <!-- Placeholder for interactive clock content -->
-                    <p class="placeholder-text">Interactive Clock With Clickable Hands</p>
+                <!-- Initial Content: Title, Intro, Professor Image -->
+                <h1 id="initial-lesson-title">Your Turn to Try!</h1>
+                <p id="initial-lesson-intro">Now it's your turn to practice what you've learned about clocks. Click 'Start Practice!' when you're ready.</p>
+                <img id="professor-img" src="img/professor_tempo.png" alt="Professor Tempo" style="max-width: 200px; margin-bottom: 20px;">
+                
+                <!-- Content wrapper - initially hidden with class -->
+                <div id="try-it-content" class="hidden">
+                    <!-- Right side content (text) -->
+                    <div class="content-right">
+                        <h2 id="try-it-title">Try It: Guided Hand Spotting</h2>
+                        <p class="instruction" id="try-it-instruction">Instructions will appear here.</p>
+                    </div>
+                    
+                    <!-- Left side content (clock) -->
+                    <div class="content-left">
+                        <div id="canvas-container" class="clock-container">
+                            <!-- p5.js canvas will be inserted here by script -->
+                        </div>
+                        <div id="embedded-check-area">
+                            <!-- Content dynamically added by JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="instruction-box">
-                <p class="instruction-title">Hands on the Clock</p> 
-                <p class="instruction-detail"><i class="fas fa-star star-icon"></i> Click on the hands as instructed to practice identifying them.</p> 
+            <!-- Feedback Area -->
+            <div id="feedback-area" class="feedback"></div>
+
+            <!-- Optional side instruction box - set to hidden initially -->
+            <div class="instruction-box" id="side-instruction-box" style="display: none;">
+                <p class="instruction-title" id="side-instruction-title"></p>
+                <p class="instruction-detail" id="side-instruction-detail"></p>
             </div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" onclick="window.location.href='learn-it.html'"><i class="fas fa-arrow-left"></i> Previous Step</button>
-                <button class="btn btn-skip"><i class="fas fa-forward"></i> Skip</button>
-                <button class="btn btn-primary btn-next-step" onclick="window.location.href='do-it.html'"><i class="fas fa-arrow-right"></i> Next Step</button>
+                <button class="btn btn-prev-step" style="display: none;"><i class="fas fa-arrow-left"></i> Previous Step</button>
+                
+                <!-- Start button initially in place of Skip -->
+                <button id="start-lesson-button" class="btn btn-secondary"><i class="fas fa-play"></i> Start Practice!</button> 
+                
+                <!-- Actual Skip button, initially hidden -->
+                <button class="btn btn-skip" id="skip-button" style="display: none;"><i class="fas fa-forward"></i> Skip</button>
+                
+                <button class="btn btn-primary btn-next-step" id="next-step-button" disabled style="display: none;"><i class="fas fa-arrow-right"></i> Next Step</button>
             </div>
         </main>
 
@@ -67,7 +95,7 @@
             </div>
 
             <div class="footer-controls">
-                <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
+                <button id="footer-audio-button" class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
                 <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
                 <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
                 <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
@@ -79,7 +107,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     
     <!-- Link to JavaScript files -->
-    <script src="js/stepNavigation.js" type="module"></script>
-    <script src="js/main.js" type="module"></script>
+    <script src="js/try-it.js"></script>
 </body>
 </html> 
