@@ -177,7 +177,7 @@ body {
     border-radius: 15px;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: all 0.2s ease;
     font-weight: 700;
     display: inline-flex; /* Align icon and text */
     align-items: center;
@@ -188,35 +188,66 @@ body {
     font-size: 16px; /* Slightly smaller icon */
 }
 
+/* Primary/Next button - Teal green */
 .btn-primary {
-    background-color: #24c486; /* Green for primary actions */
+    background-color: #24c486; /* Secondary Teal from our palette */
     color: white;
+    border: none;
 }
 
 .btn-primary:hover {
-    background-color: #1da16f;
+    background-color: #1da16f; /* Darker shade for hover */
 }
 
+/* Previous button - Blue */
+.btn-prev-step {
+    background-color: #46c0ff; /* Accent Blue from our palette */
+    color: white;
+    border: none;
+}
+
+.btn-prev-step:hover {
+    background-color: #2e9ad9; /* Darker blue for hover */
+}
+
+/* Skip button - Pink outline */
+.btn-skip {
+    background-color: white;
+    color: #ff6b9d; /* Accent Pink from our palette */
+    border: 2px solid #ff6b9d;
+}
+
+.btn-skip:hover {
+    background-color: #fff0f5; /* Very light pink background on hover */
+}
+
+/* General secondary button style for other secondary buttons */
 .btn-secondary {
-    /* background-color: #cccccc; /* Darker gray for better visibility */ 
-    background-color: #ffffff; /* White background */
-    color: #6a4fed; /* Purple text */
-    border: 2px solid #6a4fed; /* Purple border */
+    background-color: #ffffff;
+    color: #6a4fed; /* Primary Purple */
+    border: 2px solid #6a4fed; 
 }
 
 .btn-secondary:hover {
-    /* background-color: #bbbbbb; /* Darker hover state */
     background-color: #f4f1ff; /* Very light purple background on hover */
-    color: #5a3fcf; /* Slightly darker purple text/border on hover */
+    color: #5a3fcf;
     border-color: #5a3fcf;
 }
 
-/* Removed btn-try-again specific style as it's replaced by btn-prev-step */
-/* .btn-try-again i {
-    color: #ff5c5c; 
-} */
+/* Disabled button state */
+.btn:disabled {
+    background-color: #e0e0e0;
+    color: #999999;
+    border: none;
+    cursor: not-allowed;
+}
 
-.btn:active {
+.btn:disabled:hover {
+    background-color: #e0e0e0; /* No change on hover when disabled */
+    transform: none;
+}
+
+.btn:active:not(:disabled) {
     transform: scale(0.98);
 }
 
