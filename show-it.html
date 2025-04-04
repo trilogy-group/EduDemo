@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warm-up: Clock Number Check</title>
+    <title>Show It: Clock Expert Check</title>
     <link rel="stylesheet" href="css/style.css">
     <!-- Using Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -28,7 +28,7 @@
         <div class="lesson-progress-area">
              <div class="lesson-info">
                  <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
-                 <span class="lesson-counter">Step 1 of 5: Warm-up</span>
+                 <span class="lesson-counter">Step 5 of 5: Show It</span>
              </div>
             <div class="progress-bar-container">
                 <div class="progress-bar"></div>
@@ -37,33 +37,34 @@
 
         <main class="lesson-main">
             <div class="activity-area">
-                <h2>Warm-up: Clock Number Check</h2>
-                <p class="instruction">Welcome, time explorers! Let's quickly check this clock. A few numbers are missing! Can you type the correct number in each empty box?</p>
+                <h2>Show It: Clock Expert Check</h2>
+                <p class="instruction">Now show what you know! Answer these final questions to become a clock expert.</p>
                 <div class="clock-container">
                     <!-- Placeholder for interactive clock content -->
-                    <p class="placeholder-text">Interactive Clock With Missing Numbers</p>
+                    <p class="placeholder-text">Final Assessment Clock Questions</p>
+                    <p class="question">Question 1 of 4: Click the Hour Hand.</p>
                 </div>
             </div>
 
             <div class="instruction-box">
-                <p class="instruction-title">Clock Number Check</p> 
-                <p class="instruction-detail"><i class="fas fa-star star-icon"></i> Fill in the missing numbers on the clock face.</p> 
+                <p class="instruction-title">Clock Expert Check</p> 
+                <p class="instruction-detail"><i class="fas fa-star star-icon"></i> Show your clock knowledge by answering these final questions.</p> 
             </div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" disabled><i class="fas fa-arrow-left"></i> Previous Step</button>
+                <button class="btn btn-prev-step" onclick="window.location.href='do-it.html'"><i class="fas fa-arrow-left"></i> Previous Step</button>
                 <button class="btn btn-skip"><i class="fas fa-forward"></i> Skip</button>
-                <button class="btn btn-primary btn-next-step" onclick="window.location.href='learn-it.html'"><i class="fas fa-arrow-right"></i> Next Step</button>
+                <button class="btn btn-primary btn-next-step" disabled><i class="fas fa-check"></i> Finish Lesson</button>
             </div>
         </main>
 
         <footer class="lesson-footer">
             <div class="step-indicators">
-                <button class="step-indicator active"><i class="fas fa-play"></i> Warm-up</button>
-                <button class="step-indicator locked"><i class="fas fa-lock"></i> Learn It</button>
-                <button class="step-indicator locked"><i class="fas fa-lock"></i> Try It</button>
-                <button class="step-indicator locked"><i class="fas fa-lock"></i> Do It</button>
-                <button class="step-indicator locked"><i class="fas fa-lock"></i> Show It</button>
+                <button class="step-indicator completed" onclick="window.location.href='index.html'"><i class="fas fa-check"></i> Warm-up</button>
+                <button class="step-indicator completed" onclick="window.location.href='learn-it.html'"><i class="fas fa-check"></i> Learn It</button>
+                <button class="step-indicator completed" onclick="window.location.href='try-it.html'"><i class="fas fa-check"></i> Try It</button>
+                <button class="step-indicator completed" onclick="window.location.href='do-it.html'"><i class="fas fa-check"></i> Do It</button>
+                <button class="step-indicator active"><i class="fas fa-play"></i> Show It</button>
             </div>
 
             <div class="footer-controls">
