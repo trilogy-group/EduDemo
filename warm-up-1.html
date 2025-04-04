@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warm-up: Meet the Clock</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Using Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Using Google Fonts for child-friendly typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Clock styles */
+        .clock-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 350px;
+            width: 350px;
+            margin: 0 auto;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Content alignment */
+        .content-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .content-column h2 {
+            margin-top: 0;
+        }
+        
+        .instruction {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #444;
+            transition: color 0.3s ease;
+        }
+        
+        /* Adjust Bootstrap row margins */
+        .activity-area.row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+        
+        /* Clock features highlight */
+        .clock-feature {
+            background-color: #f0f9ff;
+            border-left: 4px solid #4a86e8;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .clock-feature h4 {
+            margin-top: 0;
+            color: #2c5aa0;
+            font-size: 18px;
+        }
+        
+        .clock-feature p {
+            margin-bottom: 0;
+            font-size: 16px;
+        }
+        
+        .highlight-pulse {
+            animation: highlightPulse 2s infinite;
+        }
+        
+        @keyframes highlightPulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 134, 232, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(74, 134, 232, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 134, 232, 0); }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <header class="lesson-header">
+            <div class="header-left">
+                <i class="fas fa-graduation-cap header-icon"></i>
+                <span class="header-title">EduSpark</span>
+            </div>
+            <div class="header-right">
+                <span class="user-name">Jimmy</span>
+                <div class="avatar-initial">J</div>
+            </div>
+        </header>
+
+        <div class="lesson-progress-area">
+             <div class="lesson-info">
+                 <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
+                 <span class="lesson-counter">Step 1 of 5: Warm-up (1/2)</span>
+             </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 10%;"></div>
+            </div>
+        </div>
+
+        <main class="lesson-main">
+            <div class="activity-area">
+                <h2 class="center-title">Warm-up: Meet the Clock</h2>
+                
+                <div class="content-layout">
+                    <div class="content-column clock-column">
+                        <div class="clock-container" id="clock-container">
+                            <!-- p5.js will render the complete clock here -->
+                        </div>
+                    </div>
+                    
+                    <div class="content-column text-column">
+                        <div class="text-content">
+                            <p class="intro-text">Before we start our time adventure, let's take a look at the clock!</p>
+                            
+                            <div class="info-box">
+                                <ul class="info-list">
+                                    <li>A clock has numbers 1 through 12 placed in a circle</li>
+                                    <li>The clock face is the round part where all the numbers are shown</li>
+                                    <li>The short hand is called the hour hand - it points to the current hour</li>
+                                    <li>The long hand is called the minute hand - it points to the minutes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="btn btn-prev-step" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Previous Step</button>
+                <button class="btn btn-skip"><i class="fas fa-forward"></i> Skip</button>
+                <button class="btn btn-primary btn-next-step" onclick="window.location.href='warm-up-2.html'"><i class="fas fa-arrow-right"></i> Next Step</button>
+            </div>
+        </main>
+
+        <footer class="lesson-footer">
+            <div class="step-indicators">
+                <button class="step-indicator active"><i class="fas fa-play"></i> Warm-up</button>
+                <button class="step-indicator locked"><i class="fas fa-lock"></i> Learn It</button>
+                <button class="step-indicator locked"><i class="fas fa-lock"></i> Try It</button>
+                <button class="step-indicator locked"><i class="fas fa-lock"></i> Do It</button>
+                <button class="step-indicator locked"><i class="fas fa-lock"></i> Show It</button>
+            </div>
+
+            <div class="footer-controls">
+                <button class="btn-icon" aria-label="Audio Control"><i class="fas fa-volume-up"></i></button>
+                <button class="btn-icon" aria-label="Closed Captions"><i class="fas fa-closed-captioning"></i></button>
+                <button class="btn-icon" aria-label="Help"><i class="fas fa-question"></i></button>
+                <button class="btn-icon" aria-label="Settings"><i class="fas fa-cog"></i></button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Link to p5.js library for interactive elements -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    
+    <!-- Link to JavaScript files -->
+    <script src="js/stepNavigation.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+    <script src="js/completeClock.js"></script>
+</body>
+</html> 
