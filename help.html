@@ -9,6 +9,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="img/professor/professor_tempo_32x32.png">
+    <!-- Using Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Using Google Fonts for child-friendly typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* Add specific styles for help page */
         .help-content {
@@ -74,20 +81,51 @@
 </head>
 <body>
     <div class="lesson-container">
-        <!-- Header -->
         <header class="lesson-header">
-            <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-image">
-            <span class="user-name">Jimmy</span>
-            <!-- No help button needed on the help page itself -->
+            <div class="header-left">
+                <img src="img/professor/professor_tempo_48x48.png" alt="Professor Tempo" class="header-icon professor-icon" id="professor-image">
+                <span class="header-title">TI Education</span>
+            </div>
+            <div class="header-right">
+                <span class="user-name">Jimmy</span>
+                <div class="avatar-initial">J</div>
+            </div>
         </header>
 
+        <div class="lesson-progress-area">
+             <div class="lesson-info">
+                 <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
+                 <span class="lesson-counter">Help</span>
+             </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 0%;"></div>
+            </div>
+        </div>
+
         <main class="lesson-main">
-            <div class="help-content">
-                <h1>Help & Instructions</h1>
+            <div class="activity-area">
+                <!-- Initial Content: Title, Intro, Professor Image -->
+                <h1 id="initial-lesson-title">Need Help?</h1>
+                <p id="initial-lesson-intro">Don't worry, Professor Tempo is here to help!</p>
+                <img id="professor-help-img" src="img/professor/professor_tempo_240x240.png" alt="Professor Tempo" style="max-width: 240px; margin-bottom: 20px;">
 
-                <h2>Welcome!</h2>
-                <p>Need a little help learning about clocks and time? You've come to the right place! This page explains how the lessons work.</p>
+                <div class="help-content">
+                    <h1>Help & Instructions</h1>
 
+                    <h2>Welcome!</h2>
+                    <p>Need a little help learning about clocks and time? You've come to the right place! This page explains how the lessons work.</p>
+
+                    <h2>Understanding the Clock</h2>
+                    <ul>
+                        <li><strong>Hour Hand:</strong> The shorter hand. It points to the hour.</li>
+                        <li><strong>Minute Hand:</strong> The longer hand. It points to the minutes.</li>
+                        <li><strong>Numbers:</strong> The numbers 1 through 12 show the hours.</li>
+                        <li><strong>Tick Marks:</strong> The small lines show the minutes (there are 60 minutes in an hour).</li>
+                    </ul>
+
+                    <h2>How to Use the Lessons</h2>
+                    <ul>
+                        <li><strong>Navigation:</strong> Use the "Next Step" and "Previous Step" buttons (usually below the clock or activity) to move through the different parts of the lesson.</li>
                 <h2>Understanding the Clock</h2>
                 <ul>
                     <li><strong>Hour Hand:</strong> The shorter hand. It points to the hour.</li>

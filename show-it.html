@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <!-- Favicon Link -->
-    <link rel="icon" type="image/png" href="img/professor_tempo.png">
+    <link rel="icon" type="image/png" href="img/professor/professor_tempo_32x32.png">
     <style>
         /* Two-column grid layout for results page */
         .two-column-grid {
@@ -206,12 +206,8 @@
     <div class="lesson-container">
         <header class="lesson-header">
             <div class="header-left">
-                <!-- Remove existing Professor image guide -->
-                <!-- <img src="img/professor_tempo.png" alt="Professor Tempo Guide" class="character-guide-img"> -->
-                <!-- Replaced icon with Professor image -->
-                <img src="img/professor_tempo.png" alt="Professor Tempo" class="header-icon professor-icon">
-                <!-- Updated title text -->
-                <span class="header-title">TI Education</span> 
+                <img src="img/professor/professor_tempo_48x48.png" alt="Professor Tempo" class="header-icon professor-icon" id="professor-image">
+                <span class="header-title">TI Education</span>
             </div>
             <div class="header-right">
                 <span class="user-name">Jimmy</span>
@@ -222,21 +218,19 @@
         <div class="lesson-progress-area">
              <div class="lesson-info">
                  <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
-                 <!-- JS will update this span -->
-                 <span class="lesson-counter">Step 5 of 5: Show It</span>
+                 <span class="lesson-counter">Step 3 of 5: Show It</span>
              </div>
             <div class="progress-bar-container">
-                <!-- JS might update progress -->
-                <div class="progress-bar" style="width: 80%;"></div>
+                <div class="progress-bar" style="width: 40%;"></div>
             </div>
         </div>
 
         <main class="lesson-main">
             <div class="activity-area">
                 <!-- Initial Content: Title, Intro, Professor Image -->
-                <h1 id="initial-lesson-title">Clock Expert Check!</h1>
-                <p id="initial-lesson-intro">Show what you've learned about clocks! This quick quiz will help you test your knowledge. Click 'Start Quiz!' when you're ready.</p>
-                <img id="professor-img" src="img/professor_tempo.png" alt="Professor Tempo" style="max-width: 200px; margin-bottom: 20px;">
+                <h1 id="initial-lesson-title">Let's Practice Together!</h1>
+                <p id="initial-lesson-intro">Watch as I show you how to read a clock, then you'll get to try it yourself!</p>
+                <img id="professor-show-it-img" src="img/professor/professor_tempo_240x240.png" alt="Professor Tempo" style="max-width: 240px; margin-bottom: 20px;">
                 
                 <!-- Content wrapper - initially hidden with class -->
                 <div id="show-it-content" class="hidden">
