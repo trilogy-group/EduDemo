@@ -1,22 +1,23 @@
-// --- Global Variables & Constants ---
-// Use let instead of const for DOM elements that might be created dynamically
-let titleElement;
-let instructionElement;
-const characterImageElement = document.getElementById('learn-it-character');
-const canvasContainer = document.getElementById('canvas-container');
-const checkArea = document.getElementById('embedded-check-area');
-const feedbackArea = document.getElementById('feedback-area');
-const nextButton = document.getElementById('next-step-button');
-const prevButton = document.querySelector('.btn-prev-step');
-const skipButton = document.getElementById('skip-button');
-const lessonCounterElement = document.querySelector('.lesson-counter');
+// --- Global State & Constants ---
+let p5Instance = null;
+let narrationAudio = new Audio();
+let currentAudioFilename = null;
+let clockDiameter; 
+let inputValues = {}; 
+let selectedInputBox = null; 
+let currentWarmUpStep = 0; // Start at the first step
 
-// --- Lesson State (Globals reduced) ---
-let currentSubStep = -1; // Start at -1 before first load
-let p5Instance = null; // Holds the current p5 instance
-let narrationAudio = new Audio(); // Audio object for narration
-let currentAudioFilename = null; // Store the filename for the current instruction
-let clockDiameter; // Keep global as it's calculated in setup
+// Define warmUpSteps globally
+const warmUpSteps = [
+    {
+        instruction: "Let's warm up! Some numbers are missing from the clock. Click a circle and type the correct number.",
+        missingNumbers: [1, 4, 8],
+        showClockHands: true,
+        time: '1:00', 
+        audio: 'voice/welcome_time_explorers_lets_quickly_check.mp3'
+    },
+    // Add more warm-up steps here if needed
+];
 
 // Color definitions
 const bgColor = '#FFFFFF';
@@ -36,96 +37,194 @@ const minuteHandLength = 0.40;
 const hourHandWidth = 10; // Thickness in pixels
 const minuteHandWidth = 8;
 
-// --- Audio Filename Map ---
-const audioFilenameMap = {
-    // Audio for introduction step (now skipped)
-    // '0-instruction': 'this_is_how_a_clock_looks_like.mp3',
-    
-    // Updated indices for missing numbers activity (now at index 0)
-    '0-instruction': 'welcome_time_explorers_lets_quickly_check.mp3',
-    '0-feedback-correct': 'correct.mp3',
-    '0-feedback-incorrect': 'try_again.mp3',
-    '0-complete': 'perfect.mp3'
-};
+// --- Core Logic Functions ---
 
-// --- Lesson Data (Defined as substeps) ---
-const subSteps = [
-    // Step 0 is already commented out - we're skipping the introduction and going straight to
-    // the missing numbers activity as requested
-    // { // 0: Introduction to Clock
-    //     title: "Let's Take a Look at a Clock",
-    //     instruction: "This is how a clock looks like. A clock has numbers from 1 to 12 arranged in a circle. It also has two hands that tell us the time.",
-    //     p5config: {
-    //         stepIndex: 0,
-    //         showAllNumbers: true,
-    //         showHands: true,
-    //         initialTime: { h: 1, m: 0 },
-    //         animateHands: false,
-    //         showMissingNumbers: false
-    //     },
-    //     setup: (instance) => {
-    //         console.log("Running setup for Step 0");
-    //         const stepData = subSteps[0];
-    //         instructionElement.innerHTML = stepData.instruction;
-    //         const instructionAudioFile = getAudioFilename(0, 'instruction');
-    //         currentAudioFilename = instructionAudioFile;
-            
-    //         playAudio(instructionAudioFile);
-    //         // Enable next button for this step
-    //         nextButton.disabled = false;
-    //     }
-    // },
-    { // 1: Missing Numbers Activity
-        title: "Fix the Missing Numbers",
-        instruction: "Welcome, time explorers! Let's quickly check this clock. A few numbers are missing! Can you type the correct number in each empty box?",
-        missingNumbers: [1, 4, 8],
-        p5config: {
-            stepIndex: 1,
-            showAllNumbers: false,
-            showHands: true,
-            initialTime: { h: 1, m: 0 },
-            animateHands: false,
-            showMissingNumbers: true,
-            missingNumbers: [1, 4, 8]
-        },
-        setup: (instance) => {
-            console.log("Running setup for Step 0 (Missing Numbers)");
-            const stepData = subSteps[0]; // This is now the first step
-            instructionElement.innerHTML = stepData.instruction; // Use the updated instruction
-            
-            const instructionAudioFile = getAudioFilename(0, 'instruction'); 
-            currentAudioFilename = instructionAudioFile;
-            playAudio(instructionAudioFile);
-            
-            // Initialize input values
-            for (const num of stepData.missingNumbers) {
-                inputValues[num] = undefined;
+function loadWarmUpStep(stepIndex) {
+    if (stepIndex < 0 || stepIndex >= warmUpSteps.length) {
+        console.error("Invalid warm-up step index:", stepIndex);
+        // Handle end of warm-up (e.g., navigate)
+        console.log("Warm-up complete. Navigating to Learn It.");
+        window.location.href = 'learn-it.html'; 
+        return;
+    }
+    console.log(`Loading warm-up step: ${stepIndex}`);
+    currentWarmUpStep = stepIndex;
+    const stepData = warmUpSteps[currentWarmUpStep];
+
+    stopAudio(true); // Stop previous audio
+
+    // Update instruction text
+    const instructionElement = document.getElementById('warm-up-instruction');
+    if (instructionElement) {
+        instructionElement.innerHTML = stepData.instruction || "";
+        console.log("Instruction element found. InnerHTML set to:", instructionElement.innerHTML);
+    } else {
+        console.error("Instruction element #warm-up-instruction not found!");
+    }
+
+    // Remove previous p5 instance
+    if (p5Instance) {
+        p5Instance.remove();
+        p5Instance = null;
+        console.log("Previous p5 instance removed.");
+    }
+
+    // Prepare canvas container
+    const canvasContainer = document.getElementById('canvas-container');
+    if (!canvasContainer) {
+        console.error('Canvas container #canvas-container not found!');
+        return; 
+    }
+    canvasContainer.innerHTML = ''; // Clear previous canvas
+
+    // Initialize p5 instance (checks container size internally)
+    initP5(stepData);
+
+    // Update UI elements
+    updateNavigationButtons();
+    updateProgressBar();
+    updateLessonCounter();
+}
+
+function initP5(stepData) {
+    const canvasContainer = document.getElementById('canvas-container');
+    // Check if container is visible and has dimensions
+    if (canvasContainer && canvasContainer.offsetWidth > 0 && canvasContainer.offsetHeight > 0) {
+        console.log("Canvas container dimensions ready:", canvasContainer.offsetWidth, canvasContainer.offsetHeight);
+        if (typeof clockSketch === 'function') {
+            const config = { // Prepare config for clockSketch
+                missingNumbers: stepData.missingNumbers || [],
+                initialTime: stepData.time || '12:00',
+                showClockHands: stepData.showClockHands !== undefined ? stepData.showClockHands : true
+            };
+            try {
+                // Create the p5 instance
+                p5Instance = new p5(clockSketch(config), canvasContainer);
+                console.log("p5 instance created.");
+                
+                // Initialize inputs and play audio *after* p5 setup is likely underway
+                initializeStepInputs(stepData); 
+                playCurrentAudio();         
+            } catch (error) {
+                console.error("Error creating p5 instance:", error);
             }
-            
-            // Disable next button until all inputs are correct
-            nextButton.disabled = true;
-            
-            // Enable interaction
-            if (instance) {
-                instance.initializeInputBoxes(stepData.missingNumbers);
+        } else {
+            console.error('clockSketch function is not defined!');
+        }
+    } else {
+        console.warn("Canvas container not ready or has zero dimensions. Retrying p5 init in 100ms...");
+        setTimeout(() => initP5(stepData), 100); // Retry after delay
+    }
+}
+
+function initializeStepInputs(stepData) {
+    inputValues = {}; 
+    selectedInputBox = null;
+    if (stepData.missingNumbers) {
+        stepData.missingNumbers.forEach(num => {
+                inputValues[num] = undefined;
+        });
+        console.log("Input values initialized for:", stepData.missingNumbers);
+    }
+    checkCompletion(); // Set initial state of next button
+}
+
+function handleKeyboardInput(key) {
+    if (selectedInputBox === null) return;
+    console.log(`Keyboard input: ${key} for box ${selectedInputBox}`);
+    if (/^[0-9]$/.test(key)) { // Allow only single digits
+         inputValues[selectedInputBox] = key; 
+         
+         // Show feedback based on correctness
+         const feedbackArea = document.getElementById('feedback-area');
+         if (parseInt(key) === selectedInputBox) {
+             feedbackArea.textContent = "Correct!";
+             feedbackArea.className = "feedback feedback-correct";
+             // Play correct answer audio
+             playAudio('voice/correct.mp3');
+         } else {
+             feedbackArea.textContent = "Not quite right... Try again!";
+             feedbackArea.className = "feedback feedback-incorrect";
+             // Play incorrect answer audio
+             playAudio('voice/try_again.mp3');
+         }
+         
+         if (p5Instance) {
+             p5Instance.redraw(); // Redraw to show input and feedback
+         }
+         checkCompletion(); // Check if all inputs are now correct
+    }
+}
+
+function checkCompletion() {
+    const nextButton = document.getElementById('next-step-button'); // Use the correct ID from HTML
+    if (!nextButton) {
+        console.warn("Next button (#next-step-button) not found for completion check.");
+        return;
+    }
+    let allCorrect = true;
+    const stepData = warmUpSteps[currentWarmUpStep];
+    if (!stepData || !stepData.missingNumbers) {
+        allCorrect = false; 
+    } else {
+        for (const num of stepData.missingNumbers) {
+            if (inputValues[num] === undefined || parseInt(inputValues[num]) !== num) {
+                allCorrect = false;
+                break;
             }
         }
     }
-];
+    nextButton.disabled = !allCorrect;
+    console.log(`Completion check: All correct = ${allCorrect}, Next button disabled = ${!allCorrect}`);
+}
 
-// Track user input for missing numbers
-let inputValues = {};
-let selectedInputBox = null;
+// --- UI Update Functions ---
+function updateNavigationButtons() {
+     const nextButton = document.getElementById('next-step-button'); // Use correct ID
+     const prevButton = document.querySelector('.btn-prev-step'); // Use class for prev
+     if(prevButton) {
+         prevButton.disabled = (currentWarmUpStep <= 0);
+         // Add listener if not already added (or manage listeners in DOMContentLoaded)
+     } else {
+         console.warn("Previous button (.btn-prev-step) not found.");
+     }
+     // Next button state is managed by checkCompletion
+     if(!nextButton) {
+         console.warn("Next button (#next-step-button) not found.");
+     }
+}
 
-// --- Helper Functions (Audio, etc.) ---
-function getAudioFilename(stepIndex, partKey) {
-    const key = `${stepIndex}-${partKey}`;
-    const filename = audioFilenameMap[key];
-    if (!filename) {
-        console.warn(`Audio mapping not found for key: ${key}`);
-        return null;
+function updateProgressBar() {
+    const progressBar = document.querySelector('.progress-bar');
+    if(progressBar) {
+        // Assuming Warm-up is the first of 5 sections
+        const overallProgress = 0; // Warm-up itself is 0% of the total lesson initially
+        progressBar.style.width = `${overallProgress}%`; 
+        // If warm-up had multiple steps, calculate internal progress differently
+        // const internalProgress = warmUpSteps.length > 0 ? ((currentWarmUpStep + 1) / warmUpSteps.length) * (100/5) : 0; 
+    } else {
+        console.warn("Progress bar (.progress-bar) not found.");
     }
-    return filename;
+}
+
+function updateLessonCounter() {
+    const lessonCounter = document.querySelector('.lesson-counter');
+    if(lessonCounter) {
+        // Reflect the overall lesson progress
+        lessonCounter.textContent = `Step 1 of 5: Warm-up`; 
+    } else {
+        console.warn("Lesson counter (.lesson-counter) not found.");
+    }
+}
+
+// --- Audio Functions ---
+function playCurrentAudio() {
+    currentAudioFilename = warmUpSteps[currentWarmUpStep]?.audio || null;
+    if (currentAudioFilename) {
+        playAudio(currentAudioFilename);
+    } else {
+        console.log("No audio for current warm-up step.");
+    }
 }
 
 function stopAudio(clearCallback = true) {
@@ -133,14 +232,11 @@ function stopAudio(clearCallback = true) {
         narrationAudio.pause();
         narrationAudio.currentTime = 0;
         console.log("Stopped audio playback.");
-        // Optionally clear the callback if stopping manually mid-sequence
         if (clearCallback) {
             narrationAudio.onended = null;
             narrationAudio.onerror = null;
         }
     }
-    
-    // Also clear any pending callbacks if stopping explicitly
     if (clearCallback) {
         narrationAudio.onended = null;
         narrationAudio.onerror = null;
@@ -148,337 +244,147 @@ function stopAudio(clearCallback = true) {
 }
 
 function playAudio(filename, onEndedCallback = null) {
-    // --- Listener Setup ---
     const handleAudioEnd = () => {
         console.log("Audio ended:", filename);
-        cleanupListeners(); // Remove listeners
-        if (typeof onEndedCallback === 'function') {
-            console.log("Executing onEndedCallback.");
-            onEndedCallback(); // Execute callback only on natural end
-        }
+        cleanupListeners();
+        if (typeof onEndedCallback === 'function') onEndedCallback();
     };
-    
     const handleAudioError = (e) => {
         console.error("Audio error:", filename, e);
-        cleanupListeners(); // Remove listeners
-        if (e && e.name === 'NotAllowedError') {
-            console.warn("Autoplay failed, user interaction needed.");
-        } else {
-            console.error("Audio playback failed for other reasons.");
-        }
+        cleanupListeners();
+        if (e && e.name === 'NotAllowedError') console.warn("Autoplay failed, user interaction needed.");
+        else if (e && e.name === 'NotSupportedError') console.error("Audio format may not be supported or file is missing/corrupt.");
+        else console.error("Audio playback failed for other reasons.");
     };
-    
     const cleanupListeners = () => {
         narrationAudio.onended = null;
         narrationAudio.onerror = null;
     };
-    // --- End Listener Setup ---
 
     if (!filename) {
-        console.log("No audio filename provided or available for current step.");
-        if (typeof onEndedCallback === 'function') {
-            console.log("No audio, executing callback immediately.");
-            onEndedCallback(); // Execute callback if no audio needed
-        }
+        console.log("No audio filename provided.");
+        if (typeof onEndedCallback === 'function') onEndedCallback();
         return;
     }
     
-    const audioPath = `voice/${filename}`;
-    console.log(`Attempting to play audio:`, audioPath);
+    const audioPath = filename.startsWith('voice/') ? filename : `voice/${filename}`;
+    console.log(`Attempting to play audio: ${audioPath}`);
 
-    // Stop previous audio WITHOUT clearing potential new listeners/callbacks
-    stopAudio(false); // Don't clear callback when stopping for new track
-
-    // Assign new listeners
-    cleanupListeners(); // Clear any stray listeners first
+    stopAudio(false); 
+    cleanupListeners(); 
     narrationAudio.onended = handleAudioEnd;
     narrationAudio.onerror = handleAudioError;
-
     narrationAudio.src = audioPath;
-    console.log("Audio source set to:", audioPath);
     narrationAudio.currentTime = 0;
 
-    // --- Attempt to play ---
     const playPromise = narrationAudio.play();
     if (playPromise !== undefined) {
-        playPromise.then(() => {
-            console.log("Audio playback started:", audioPath);
-        }).catch(handleAudioError);
+        playPromise.then(() => console.log("Audio playback started:", audioPath))
+                   .catch(handleAudioError);
     } else {
-        console.warn("Audio play() did not return a promise.");
+         console.warn("Audio play() did not return a promise (may indicate immediate failure).");
+         // Try loading manually to see if it triggers error event
+         narrationAudio.load();
     }
 }
 
-// --- Core Functions ---
-
-// Modified loadSubStep to pass config to sketch
-function loadSubStep(stepIndex) {
-    if (stepIndex < 0 || stepIndex >= subSteps.length) {
-        console.error("Invalid step index:", stepIndex);
-        if (p5Instance) {
-            p5Instance.remove();
-            p5Instance = null;
-        }
-        instructionElement.innerHTML = "End of 'Warm-Up' section.";
-        titleElement.textContent = "Finished!";
-        const container = document.getElementById('canvas-container');
-        if (container) container.innerHTML = '';
-        return;
-    }
-
-    console.log(`Loading sub-step: ${stepIndex}`);
-    currentSubStep = stepIndex;
-    const stepData = subSteps[currentSubStep];
-
-    // Remove previous p5 instance
-    if (p5Instance) {
-        p5Instance.remove();
-        p5Instance = null;
-    }
-    
-    // Make sure canvas container and check area are clear
-    canvasContainer.innerHTML = '';
-    checkArea.innerHTML = '';
-    
-    // Stop any playing audio
-    stopAudio(true);
-    
-    // Update general UI elements (Title, Feedback, etc.)
-    titleElement.textContent = stepData.title;
-    instructionElement.innerHTML = ''; // Setup will set
-    feedbackArea.textContent = '';
-    feedbackArea.className = 'feedback';
-    
-    if (lessonCounterElement) {
-        lessonCounterElement.textContent = `Warm-up - Step ${stepIndex + 1} of ${subSteps.length}`;
-    }
-    
-    nextButton.disabled = true;
-
-    // Create new p5 instance, passing the config
-    if (stepData.p5config && typeof p5 !== 'undefined') {
-        console.log("Creating new p5 instance with config:", stepData.p5config);
-        try {
-            // Pass the step-specific config to the sketch function generator
-            p5Instance = new p5(clockSketch(stepData.p5config));
-            console.log("p5 instance created successfully:", p5Instance);
-
-            // Call the step's setup function, passing the new instance
-            if (typeof stepData.setup === 'function') {
-                setTimeout(() => {
-                    if (p5Instance && currentSubStep === stepIndex) {
-                        console.log(`Calling setup function for step ${currentSubStep}`);
-                        stepData.setup(p5Instance); // Pass instance to setup
-                    } else {
-                        console.warn(`p5 instance changed/removed before setup for step ${stepIndex} could run.`);
-                    }
-                }, 50); // Short delay for init
-            }
-        } catch (error) {
-            console.error(`Error creating p5 instance for step ${currentSubStep}:`, error);
-            p5Instance = null;
-            feedbackArea.textContent = "Error loading interactive element.";
-            feedbackArea.className = 'feedback feedback-incorrect';
-        }
-    } else {
-        // Handle steps without p5 config or if p5 isn't loaded
-        console.log(`No p5 config for step ${currentSubStep}, or p5 library not loaded.`);
-        nextButton.disabled = false; // Enable next if no interaction
-    }
-
-    // Update button states
-    prevButton.disabled = (currentSubStep === 0);
-}
-
-// --- Handle Interaction Result (for input validation) ---
-function handleInteractionResult(boxNumber, inputValue, isCorrect) {
-    if (!p5Instance || currentSubStep !== 0) return; // Updated index check since step 1 is now index 0
-    
-    const step = subSteps[currentSubStep];
-    
-    if (isCorrect) {
-        console.log(`Input Correct! Box: ${boxNumber}, Value: ${inputValue}`);
-        feedbackArea.textContent = "Great job! That's correct!";
-        feedbackArea.className = 'feedback feedback-correct';
-        playAudio(getAudioFilename(currentSubStep, 'feedback-correct'));
-        
-        // Check if all inputs are correct
-        checkAllInputsComplete();
-    } else {
-        console.log(`Input Incorrect! Box: ${boxNumber}, Value: ${inputValue}`);
-        feedbackArea.textContent = "Not quite right. Try again! Remember, the number should match its position on the clock.";
-        feedbackArea.className = 'feedback feedback-incorrect';
-        playAudio(getAudioFilename(currentSubStep, 'feedback-incorrect'));
-    }
-}
-
-function checkAllInputsComplete() {
-    const step = subSteps[currentSubStep];
-    const missingNumbers = step.missingNumbers;
-    
-    // Check if all missing numbers have correct inputs
-    const allCorrect = missingNumbers.every(num => 
-        inputValues[num] !== undefined && parseInt(inputValues[num]) === num
-    );
-    
-    if (allCorrect) {
-        feedbackArea.textContent = "Amazing! You fixed all the missing numbers on our clock! Now it's complete!";
-        feedbackArea.className = 'feedback feedback-correct';
-        playAudio(getAudioFilename(currentSubStep, 'complete'));
-        
-        // Enable next button
-        nextButton.disabled = false;
-    }
-}
-
-// --- p5.js Sketch Function (with config) ---
+// --- p5.js Sketch Definition ---
 function clockSketch(config) {
     return function(p) {
-        // Local state variables
-        let stepConfig = config;
+        // Local state variables from config
         let localMissingNumbers = config.missingNumbers || [];
-        let localSelectedInputBox = null;
-        let localInteractionEnabled = true;
+        let initialTime = config.initialTime || '12:00';
+        let showHands = config.showClockHands;
         
-        // --- p5.js Setup ---
         p.setup = () => {
-            // Get container dimensions for responsive canvas
             const container = document.getElementById('canvas-container');
-            if (!container) {
-                console.error("Canvas container not found!");
-                return;
-            }
             const containerWidth = container.offsetWidth;
             const containerHeight = container.offsetHeight;
             const canvasSize = p.min(containerWidth, containerHeight);
             
-            console.log(`Container size: ${containerWidth}x${containerHeight}, Canvas size: ${canvasSize}`);
+            console.log(`p5 setup: Container ${containerWidth}x${containerHeight}, Canvas: ${canvasSize}`);
+            
+            if (canvasSize <= 0) {
+                console.error("p5 setup: Zero canvas size.");
+                return; 
+            }
             
             let canvas = p.createCanvas(canvasSize, canvasSize);
             canvas.parent('canvas-container');
-            clockDiameter = canvasSize * 0.95; // Match learn-it.js size (95% of canvas)
+            clockDiameter = canvasSize * 0.95; 
             
             p.angleMode(p.DEGREES);
             p.textAlign(p.CENTER, p.CENTER);
             p.textFont('Arial');
-            p.noLoop(); // Static display
+            p.noLoop(); // Only redraw when needed
             p.redraw();
         };
 
-        // --- p5.js Draw ---
         p.draw = () => {
             p.background(bgColor);
             p.translate(p.width / 2, p.height / 2);
             
-            // Draw clock face
             drawClockFace(p);
             
-            // Draw hands if enabled
-            if (stepConfig.showHands) {
-                drawClockHands(p, stepConfig.initialTime);
+            if (showHands) {
+                // Parse time string 'H:MM'
+                 let [h, m] = initialTime.split(':').map(Number);
+                 h = isNaN(h) ? 12 : h; // Default hour
+                 m = isNaN(m) ? 0 : m;  // Default minute
+                 drawClockHands(p, { h: h, m: m });
             }
             
-            // Draw numbers
-            if (stepConfig.showAllNumbers) {
-                drawAllNumbers(p);
-            } else if (stepConfig.showMissingNumbers) {
-                drawNumbersAndInputBoxes(p, localMissingNumbers);
-            }
+            drawNumbersAndInputBoxes(p, localMissingNumbers); // Always draw numbers/inputs
             
-            // Draw center dot
             drawCenterDot(p);
         };
 
-        // --- p5.js Event Handlers ---
         p.mouseClicked = () => {
-            if (!localInteractionEnabled) return;
             let boxSelected = false;
-            for (const num of stepConfig.missingNumbers) {
+            const radius = clockDiameter * 0.38;
+            const circleDiameterInput = clockDiameter * 0.12; 
+            
+            for (const num of localMissingNumbers) {
                 const angle = p.map(num, 0, 12, -90, 270);
-                const numberRadius = clockDiameter * 0.38;
-                const x = p.cos(angle) * numberRadius;
-                const y = p.sin(angle) * numberRadius;
-                const circleDiameter = clockDiameter * 0.12;
-                // Check if click is within the circle bounds
-                if (p.dist(p.mouseX - p.width/2, p.mouseY - p.height/2, x, y) < circleDiameter / 2) {
-                    console.log(`Clicked on input box for number ${num}`);
-                    selectedInputBox = num;
+                const x = p.cos(angle) * radius;
+                const y = p.sin(angle) * radius;
+                
+                if (p.dist(p.mouseX - p.width/2, p.mouseY - p.height/2, x, y) < circleDiameterInput / 2) {
+                    console.log(`Clicked input box for: ${num}`);
+                    selectedInputBox = num; // Update global selected box
                     boxSelected = true;
-                    break; // Only select one box at a time
+                    break; 
                 }
             }
             if (!boxSelected) {
                 selectedInputBox = null; // Deselect if clicking elsewhere
+                console.log("Clicked outside input boxes, deselected.");
             }
-            p.redraw(); // Redraw to show selection highlight
+            p.redraw(); // Redraw to show selection change
         };
         
-        // --- Helper function to check if mouse is over a number position ---
-        function isMouseOverNumber(p, num) {
-            const angle = num * 30 - 90;
-            const radius = clockDiameter * 0.35;
-            const x = p.cos(angle) * radius;
-            const y = p.sin(angle) * radius;
-            return p.dist(p.mouseX - p.width / 2, p.mouseY - p.height / 2, x, y) < clockDiameter * 0.09;
-        }
-        
-        // --- External interface methods ---
-        p.initializeInputBoxes = (missingNums) => {
-            localMissingNumbers = missingNums;
-            for (const num of missingNums) {
-                inputValues[num] = undefined;
-            }
-            p.redraw();
-        };
-        
-        p.handleKeyInput = (key, boxNum) => {
-            if (boxNum !== null && /^[0-9]$/.test(key)) {
-                const numericInput = parseInt(key);
-                const isCorrect = (numericInput === boxNum);
-                inputValues[boxNum] = key;
-                p.redraw();
-                return isCorrect;
-            }
-            return false;
-        };
-        
-        // --- Clean up ---
         p.remove = function() {
-            console.log(`Removing p5 instance for step ${config.stepIndex}.`);
+            console.log("p5 instance remove() called.");
             p.noLoop();
         };
-        
-        return p;
     };
 }
 
-// --- Drawing Functions ---
+// --- Drawing Functions (Keep existing: drawClockFace, drawCenterDot, drawClockHands, drawHand) ---
 function drawClockFace(p) {
     p.strokeWeight(clockDiameter * 0.04);
     p.stroke(clockRimColor);
     p.fill(clockFaceColor);
     p.ellipse(0, 0, clockDiameter, clockDiameter);
-
     // Draw tick marks
     const tickRadius = clockDiameter * 0.45;
     p.stroke(numberColor);
     for (let i = 0; i < 60; i++) {
         const angle = p.map(i, 0, 60, -90, 270);
-        const startRadius = tickRadius * 0.95;
-        let endRadius = tickRadius;
-        let tickWeight = 1;
-
-        if (i % 5 === 0) { // Hour marks are thicker and longer
-            tickWeight = 3;
-            endRadius = tickRadius * 1.03;
-        }
-
-        p.strokeWeight(tickWeight);
-        const x1 = p.cos(angle) * startRadius;
-        const y1 = p.sin(angle) * startRadius;
-        const x2 = p.cos(angle) * endRadius;
-        const y2 = p.sin(angle) * endRadius;
-        p.line(x1, y1, x2, y2);
+        const startRadius = tickRadius * (i % 5 === 0 ? 0.92 : 0.95); // Longer hour marks
+        const endRadius = tickRadius * (i % 5 === 0 ? 1.03 : 1.0);
+        p.strokeWeight(i % 5 === 0 ? 3 : 1);
+        p.line(p.cos(angle) * startRadius, p.sin(angle) * startRadius, p.cos(angle) * endRadius, p.sin(angle) * endRadius);
     }
 }
 
@@ -489,15 +395,13 @@ function drawCenterDot(p) {
 }
 
 function drawClockHands(p, timeConfig) {
-    const hour = timeConfig ? timeConfig.h : 1;
-    const minute = timeConfig ? timeConfig.m : 0;
-    
-    // Draw hour hand
-    const hourAngle = p.map(hour % 12 + minute / 60, 0, 12, 0, 360) - 90;
+    const hour = timeConfig.h;
+    const minute = timeConfig.m;
+    // Hour hand
+    const hourAngle = p.map(hour % 12 + minute / 60, 0, 12, -90, 270);
     drawHand(p, hourAngle, hourHandColor, hourHandLength, hourHandWidth);
-    
-    // Draw minute hand
-    const minuteAngle = p.map(minute, 0, 60, 0, 360) - 90;
+    // Minute hand
+    const minuteAngle = p.map(minute, 0, 60, -90, 270);
     drawHand(p, minuteAngle, minuteHandColor, minuteHandLength, minuteHandWidth);
 }
 
@@ -506,78 +410,53 @@ function drawHand(p, angle, color, lengthMultiplier, weight) {
     p.rotate(angle);
     p.stroke(color);
     p.strokeWeight(weight);
-    p.strokeCap(p.ROUND); // Rounded end for hands
+    p.strokeCap(p.ROUND); 
     p.line(0, 0, clockDiameter * lengthMultiplier, 0);
     p.pop();
 }
 
-function drawAllNumbers(p) {
-    p.textFont('Arial', clockDiameter * 0.13);
+// Modified drawing function for numbers/inputs
+function drawNumbersAndInputBoxes(p, missingNumbers) {
+    p.textSize(clockDiameter * 0.10); // Slightly smaller text size
+    p.textAlign(p.CENTER, p.CENTER);
     p.textStyle(p.BOLD);
+    const radius = clockDiameter * 0.38; // Position radius
     
     for (let i = 1; i <= 12; i++) {
-        const angle = i * 30 - 90;
-        const radius = clockDiameter * 0.35;
+        const angle = p.map(i, 0, 12, -90, 270);
         const x = p.cos(angle) * radius;
         const y = p.sin(angle) * radius;
         
-        // Draw all numbers
-        p.noStroke();
-        p.fill(numberColor);
-        p.text(i, x, y);
-    }
-    p.textStyle(p.NORMAL);
-}
-
-function drawNumbersAndInputBoxes(p, missingNumbers) {
-    p.textSize(clockDiameter * 0.10);
-    p.textAlign(p.CENTER, p.CENTER);
-    p.textStyle(p.BOLD);
-
-    for (let i = 1; i <= 12; i++) {
-        const angle = p.map(i, 0, 12, -90, 270);
-        const numberRadius = clockDiameter * 0.38;
-        const x = p.cos(angle) * numberRadius;
-        const y = p.sin(angle) * numberRadius;
-
         if (missingNumbers.includes(i)) {
-            // Draw a circle placeholder instead of a rectangle
-            const circleDiameter = clockDiameter * 0.12; // Size of the circle
+            const circleDiameterInput = clockDiameter * 0.12; 
             p.noStroke();
             
             // Highlight if selected
             if (selectedInputBox === i) {
                 p.fill(200, 200, 255); // Light blue highlight
             } else {
-                p.fill(inputBoxColor); // Default grey placeholder color
+                p.fill(inputBoxColor);
             }
-            p.ellipse(x, y, circleDiameter);
+            p.ellipse(x, y, circleDiameterInput);
 
-            // Determine correctness directly
+            // Check correctness and draw feedback border
             let feedbackColor = null;
             if (inputValues[i] !== undefined && inputValues[i] !== '') {
                 const isCorrect = (parseInt(inputValues[i]) === i);
                 feedbackColor = isCorrect ? correctColor : incorrectColor;
-
-                // Draw entered text inside the circle
+                // Draw entered text
                 p.fill(0); // Black text
                 p.text(inputValues[i], x, y);
             } else if (selectedInputBox === i) {
-                // Maybe show a blinking cursor simulation if selected and empty
-                // if (p.frameCount % 60 < 30) { // <<< Comment out this block
-                //     p.fill(0); 
-                //     p.rect(x - circleDiameter * 0.05, y - circleDiameter * 0.2, circleDiameter * 0.1, circleDiameter * 0.4);
-                // } // <<< End comment out
+                 // Optionally add visual cue for selected empty box (no cursor needed)
             }
-
-            // Draw feedback indicator (like a border) if needed
+             // Draw feedback border if applicable
             if (feedbackColor) {
                 p.strokeWeight(3);
                 p.stroke(feedbackColor);
                 p.noFill();
-                p.ellipse(x, y, circleDiameter + 4);
+                p.ellipse(x, y, circleDiameterInput + 4); // Slightly larger ellipse for border
             }
-
         } else {
             // Draw the number normally
             p.noStroke();
@@ -585,50 +464,39 @@ function drawNumbersAndInputBoxes(p, missingNumbers) {
             p.text(i, x, y);
         }
     }
-    p.textStyle(p.NORMAL); // Reset text style
+    p.textStyle(p.NORMAL);
 }
 
-// --- Keyboard Input Handler ---
-function handleKeyboardInput(key) {
-    if (currentSubStep !== 0 || selectedInputBox === null) return; // Updated index check
-    
-    if (/^[0-9]$/.test(key)) {
-        // Use p5 instance to handle the input
-        if (p5Instance) {
-            const isCorrect = p5Instance.handleKeyInput(key, selectedInputBox);
-            handleInteractionResult(selectedInputBox, key, isCorrect);
-        }
-    }
+// Add function to clear feedback
+function clearFeedback() {
+    const feedbackArea = document.getElementById('feedback-area');
+    feedbackArea.textContent = "";
+    feedbackArea.className = "feedback";
 }
 
-// --- DOMContentLoaded ---
+// Update the click handler to clear feedback when selecting a new input box
+function handleClockClick(x, y) {
+    clearFeedback(); // Clear any existing feedback
+    // ... rest of the click handling code ...
+}
+
+// --- DOMContentLoaded setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Warm-up page loaded.");
-
-    // DOM Elements
-    const progressBar = document.querySelector('.progress-bar');
-    const nextButton = document.getElementById('next-warmup-button');
-    const prevButton = document.getElementById('prev-warmup-button');
-    const lessonCounter = document.querySelector('.lesson-counter');
-    const instructionText = document.getElementById('warm-up-instruction');
-    const canvasContainer = document.getElementById('canvas-container');
+    console.log("Warm-up page DOM loaded.");
+    
+    // --- Get DOM Elements ---
+    const startLessonButton = document.getElementById('start-lesson-button');
+    const initialTitle = document.getElementById('initial-lesson-title');
+    const initialIntro = document.getElementById('initial-lesson-intro');
+    const professorImg = document.getElementById('professor-img');
+    const warmUpContent = document.getElementById('warm-up-content');
+    const actualSkipButton = document.getElementById('skip-button'); 
+    const actualNextButton = document.getElementById('next-step-button'); // Use correct ID
+    const actualPrevButton = document.querySelector('.btn-prev-step'); // Use class
     const audioButton = document.getElementById('footer-audio-button');
-    const audioIcon = audioButton ? audioButton.querySelector('i') : null;
-    let currentAudio = null;
-    let p5Instance = null; // To hold the p5 instance
-
-    // State
-    let currentWarmUpStep = 0;
-    const warmUpSteps = [
-        {
-            instruction: "Let's warm up! Some numbers are missing from the clock. Click a circle and type the correct number.",
-            missingNumbers: [1, 4, 8],
-            showClockHands: true, // Display static hands
-            time: '1:00', // Example time for static display
-            audio: 'voice/warmup_intro.mp3' 
-        },
-        // Add more warm-up steps here if needed
-    ];
+    // Add other elements if needed (progressBar, lessonCounter)
+    const progressBar = document.querySelector('.progress-bar');
+    const lessonCounter = document.querySelector('.lesson-counter');
 
     // --- Help Modal Logic ---
     const helpModal = document.getElementById('help-modal');
@@ -636,33 +504,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeHelpButton = document.getElementById('close-help-modal-button');
 
     const openModal = () => {
-        if (helpModal) {
-            helpModal.classList.remove('hidden');
-        }
+        if (helpModal) helpModal.classList.remove('hidden');
     };
-
     const closeModal = () => {
-        if (helpModal) {
-            helpModal.classList.add('hidden');
-        }
+        if (helpModal) helpModal.classList.add('hidden');
     };
-
-    if (helpButton) {
-        helpButton.addEventListener('click', openModal);
-    }
-
-    if (closeHelpButton) {
-        closeHelpButton.addEventListener('click', closeModal);
-    }
-
+    if (helpButton) helpButton.addEventListener('click', openModal);
+    if (closeHelpButton) closeHelpButton.addEventListener('click', closeModal);
     if (helpModal) {
         helpModal.addEventListener('click', (event) => {
-            if (event.target === helpModal) {
-                closeModal();
-            }
+            if (event.target === helpModal) closeModal();
         });
     }
-
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && helpModal && !helpModal.classList.contains('hidden')) {
             closeModal();
@@ -670,58 +523,81 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // --- End Help Modal Logic ---
 
-    // --- Existing Initialization & Event Listeners ---
-    loadWarmUpStep(currentWarmUpStep);
-    updateNavigationButtons();
-    updateProgressBar();
-    updateLessonCounter();
-    playCurrentAudio();
+    // --- Initialization (UI only) ---
+    updateNavigationButtons(); // Set initial button states
+    updateProgressBar(); // Set initial progress
+    updateLessonCounter(); // Set initial counter text
 
-    if (nextButton) {
-        nextButton.addEventListener('click', () => {
-            if (currentWarmUpStep < warmUpSteps.length - 1) {
-                currentWarmUpStep++;
-                loadWarmUpStep(currentWarmUpStep);
-                updateNavigationButtons();
-                updateProgressBar();
-                updateLessonCounter();
-                playCurrentAudio();
-            }
-        });
-    }
-
-    if (prevButton) {
-        prevButton.addEventListener('click', () => {
-            if (currentWarmUpStep > 0) {
-                currentWarmUpStep--;
-                loadWarmUpStep(currentWarmUpStep);
-                updateNavigationButtons();
-                updateProgressBar();
-                updateLessonCounter();
-                playCurrentAudio();
-            }
-        });
-    }
-    
-    // Keyboard listener for input
-    document.addEventListener('keydown', (event) => {
-        if (/^[0-9]$/.test(event.key) && selectedInputBox !== null) {
-            handleKeyboardInput(event.key); // Ensure selectedInputBox is checked here too
-        }
-    });
-
-    // Audio button listener
-    if (audioButton) {
-        console.log("Footer audio button found.");
-        audioButton.addEventListener('click', () => {
-            console.log("Footer audio button clicked.");
-            console.log("Current audio filename to play:", currentAudioFilename);
-            stopAudio(true); // Stop current and clear pending callback
-            playAudio(currentAudioFilename); // Replay from beginning
+    // --- Start Button Logic ---
+    if (startLessonButton && initialTitle && initialIntro && professorImg && warmUpContent && actualPrevButton && actualNextButton && actualSkipButton) {
+        startLessonButton.addEventListener('click', () => {
+            console.log("Start Learning button clicked.");
+            // Hide initial content
+            startLessonButton.style.display = 'none'; 
+            initialTitle.style.display = 'none';
+            initialIntro.style.display = 'none';
+            professorImg.style.display = 'none';
+            // Show main content and nav buttons
+            warmUpContent.classList.remove('hidden'); 
+            actualNextButton.style.display = 'inline-flex';
+            actualPrevButton.style.display = 'inline-flex'; 
+            actualSkipButton.style.display = 'inline-flex';
+            // Load the first step (which includes audio)
+            loadWarmUpStep(0); 
         });
     } else {
-        console.error("Footer audio button not found!");
+        console.error("Warm-up Start Error: Check IDs for start button, initial content, main content, and nav buttons in warm-up.html.");
     }
 
-    console.log("Warm-up page fully initialized.");
+    // --- Other Event Listeners ---
+    // Next Button
+    if (actualNextButton) {
+        actualNextButton.addEventListener('click', () => {
+            console.log("Next button clicked.");
+            loadWarmUpStep(currentWarmUpStep + 1); // Function handles index check and navigation
+        });
+                } else {
+         console.warn("Next button #next-step-button not found.");
+    }
+    // Previous Button
+    if (actualPrevButton) { 
+        actualPrevButton.addEventListener('click', () => {
+             console.log("Previous button clicked.");
+             if (currentWarmUpStep > 0) { // Only go back if not on first step
+                 loadWarmUpStep(currentWarmUpStep - 1);
+             }
+             // Optionally add navigation back to index.html or disable if currentWarmUpStep is 0
+        });
+            } else {
+        console.warn("Previous button .btn-prev-step not found.");
+    }
+    // Skip Button (Add logic if needed, otherwise it does nothing now)
+    if (actualSkipButton) {
+        actualSkipButton.addEventListener('click', () => {
+            console.log("Skip button clicked - Add functionality if required.");
+            // Example: Go directly to next section
+            // window.location.href = 'learn-it.html'; 
+        });
+    } else {
+        console.warn("Skip button #skip-button not found.");
+    }
+    // Keyboard Input
+    document.addEventListener('keydown', (event) => {
+        // Only handle input if an input box is selected
+        if (selectedInputBox !== null && /^[0-9]$/.test(event.key)) { 
+            handleKeyboardInput(event.key);
+        }
+    });
+    // Footer Audio Button
+    if (audioButton) {
+        audioButton.addEventListener('click', () => {
+            console.log("Footer audio button clicked.");
+             stopAudio(true); // Stop if playing
+             playCurrentAudio(); // Replay current step's audio
+        });
+    } else {
+        console.warn("Footer audio button #footer-audio-button not found.");
+    }
+    
+    console.log("Warm-up page event listeners attached.");
 }); 

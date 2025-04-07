@@ -1793,3 +1793,62 @@ body {
 .hidden {
     display: none !important; /* Use !important to override potential conflicts */
 }
+
+/* Content left/right specific to warm-up */
+#warm-up-content .content-left {
+    /* flex-basis: 55%; Remove specific basis */
+    flex: 1 1 300px; /* Allow grow/shrink, basis 300px */
+    /* Keep other styles: display, justify, align */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#warm-up-content .content-right {
+    /* flex-basis: 40%; Remove specific basis */
+    flex: 1 1 250px; /* Allow grow/shrink, basis 250px */
+    min-width: 250px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    padding: 15px; 
+    text-align: left; 
+    overflow: visible; /* Ensure content isn't clipped */
+}
+
+/* General styles for title/instruction */
+#warm-up-instruction {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    color: var(--text-secondary); /* Explicitly set color */
+    visibility: visible; /* Ensure visible */
+    opacity: 1; /* Ensure opaque */
+}
+
+/* Add basic styles for feedback area */
+#feedback-area {
+    min-height: 2em; /* Ensure it has some height */
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px; /* Add some space above it */
+    visibility: visible; /* Ensure it's not hidden by default */
+    opacity: 1;
+    transition: all 0.3s ease; /* Add transition for feedback classes */
+}
+
+/* Ensure feedback visibility when classes are added */
+#feedback-area.feedback-correct,
+#feedback-area.feedback-incorrect {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Existing feedback color styles should still apply */
+.feedback-correct {
+    color: var(--success); /* Ensure text color is set */
+}
+.feedback-incorrect {
+    color: var(--error); /* Ensure text color is set */
+}

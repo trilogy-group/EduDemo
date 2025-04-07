@@ -172,7 +172,12 @@ const subSteps = [
                         console.log("Cleared highlight for number:", currentHighlightNumber);
                         setTimeout(() => {
                             currentHighlightNumber++;
-                            highlightNext();
+                            // Add 1-second pause between numbers 1 and 2
+                            if (currentHighlightNumber === 2) {
+                                setTimeout(highlightNext, 600); // 1-second pause
+                            } else {
+                                highlightNext();
+                            }
                         }, delayBetweenHighlights);
                     }, highlightDuration);
                 }
