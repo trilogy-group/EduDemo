@@ -70,8 +70,9 @@ body {
 
 /* --- Add Character Guide Style --- */
 .character-guide-img {
-    height: 40px; /* Adjust size as needed */
-    width: auto;
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
     margin-right: 15px; /* Space between image and icon */
 }
 /* --- End Add --- */
@@ -87,8 +88,8 @@ body {
 
 /* Specific style for the Professor image when used as a header icon */
 .header-icon.professor-icon {
-    height: 28px; /* <<< Set explicit height for the image */
-    width: auto;  /* <<< Let width adjust automatically */
+    width: 40px;
+    height: 40px;
     font-size: initial; /* Reset font-size for image tag */
     color: initial; /* Reset color for image tag */
     vertical-align: middle; /* Ensure vertical alignment */
@@ -1851,4 +1852,26 @@ body {
 }
 .feedback-incorrect {
     color: var(--error); /* Ensure text color is set */
+}
+
+/* Professor image styles */
+.professor-icon,
+#professor-img,
+#professor-do-it-img,
+.character-guide-img {
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
+}
+
+/* Keep header icon smaller */
+.header-icon.professor-icon {
+    width: 40px;
+    height: 40px;
+}
+
+/* Keep favicon size */
+link[rel="icon"] {
+    width: 32px;
+    height: 32px;
 }
