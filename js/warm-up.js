@@ -146,7 +146,7 @@ function handleKeyboardInput(key) {
              feedbackArea.textContent = "Not quite right... Try again!";
              feedbackArea.className = "feedback feedback-incorrect";
              // Play incorrect answer audio
-             playAudio('voice/try_again.mp3');
+             playAudio('voice/not_quite_right_try_again.mp3');
          }
          
          if (p5Instance) {
