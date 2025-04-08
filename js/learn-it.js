@@ -52,10 +52,14 @@ const audioFilenameMap = {
     '1-instruction3': 'easy_way_to_remember_hour_hand.mp3',
     '1-check1': 'click_on_the_hour_hand_the.mp3', // Check 1 instruction
     '1-check2': 'now_click_on_the_minute_hand.mp3', // Check 2 instruction
+    '1-feedback-correct': 'correct.mp3',
+    '1-feedback-incorrect': 'not_quite_right_try_again.mp3',
 
     // Learn It Step 2 (Direction)
     '2-instruction': 'watch_how_the_hands_move_they.mp3',
     '2-check': 'which_arrow_shows_the_clockwise_direction.mp3',
+    '2-feedback-correct': 'perfect_thats_clockwise.mp3',
+    '2-feedback-incorrect': 'not_quite_remember_clockwise_follows_the.mp3',
 };
 
 // --- Helper Functions to Setup Check Phases ---

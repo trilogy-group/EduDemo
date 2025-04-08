@@ -45,7 +45,7 @@ const audioFilenameMap = {
     
     // Try It Step 1 (Minute Hand)
     '1-instruction': 'now_find_the_minute_hand_its.mp3',
-    '1-feedback-correct': 'click_the_minute_hand.mp3',
+    '1-feedback-correct': 'correct.mp3',
     '1-feedback-incorrect': 'careful_the_minute_hand_is_the.mp3',
     
     // Try It Step 2 (Clockwise Motion)

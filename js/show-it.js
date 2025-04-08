@@ -41,25 +41,25 @@ const minuteHandWidth = 8; // Minute hand width
 
 // --- Audio Filename Map ---
 const audioFilenameMap = {
-    'intro': 'show_it_welcome_to_clock_expert.mp3',
+    'intro': 'this_is_how_a_clock_looks_like.mp3',
     '0-instruction': 'click_the_hour_hand.mp3',
     '0-feedback-correct': 'correct.mp3',
-    '0-feedback-incorrect': 'incorrect.mp3',
+    '0-feedback-incorrect': 'not_quite_right_try_again.mp3',
     
     '1-instruction': 'click_the_minute_hand.mp3',
     '1-feedback-correct': 'correct.mp3',
-    '1-feedback-incorrect': 'incorrect.mp3',
+    '1-feedback-incorrect': 'not_quite_right_try_again.mp3',
     
     '2-instruction': 'which_hand_is_longer.mp3',
     '2-feedback-correct': 'correct.mp3',
-    '2-feedback-incorrect': 'incorrect.mp3',
+    '2-feedback-incorrect': 'not_quite_right_try_again.mp3',
     
     '3-instruction': 'is_this_clockwise.mp3',
     '3-feedback-correct': 'correct.mp3',
-    '3-feedback-incorrect': 'incorrect.mp3',
+    '3-feedback-incorrect': 'not_quite_right_try_again.mp3',
     
-    'results-good': 'great_job_you_know_your_clock.mp3',
-    'results-needs-work': 'lets_review_clock_parts_again.mp3'
+    'results-good': 'wow_youre_becoming_a_clock_expert.mp3',
+    'results-needs-work': 'next_time_well_start_learning_what.mp3'
 };
 
 // --- Assessment Questions (Show It) ---
