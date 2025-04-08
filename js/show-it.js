@@ -19,7 +19,7 @@ let userAnswers = [];
 let p5Instance = null;
 let narrationAudio = new Audio();
 let currentAudioFilename = null;
-let clockDiameter;
+let clockDiameter = 300; // Reduce clock size from default (was likely 400 or larger)
 
 // Color definitions
 const bgColor = '#FFFFFF';
@@ -246,10 +246,15 @@ function loadQuestion(questionIndex) {
     // Ensure content-right is displayed properly
     contentRight.style.display = 'block';
     
-    // Reset layout structure first
+    // Reset layout structure - Move checkArea to content-right
     contentLeft.innerHTML = '';
     contentLeft.appendChild(container);
-    contentLeft.appendChild(checkArea);
+    
+    // Make sure checkArea is in the content-right
+    if (checkArea.parentNode) {
+        checkArea.parentNode.removeChild(checkArea);
+    }
+    contentRight.appendChild(checkArea);
 
     stopAudio(true);
     
@@ -277,83 +282,61 @@ function loadQuestion(questionIndex) {
             p5Instance = new p5(sketch(question.p5config));
             console.log("p5 instance created successfully:", p5Instance);
 
-            // Add choice buttons for multiple choice and yes/no questions
-            if (question.type === 'choice' || question.type === 'yes-no') {
-                // Add a wrapper for better layout
-                const wrapper = document.createElement('div');
-                wrapper.className = 'canvas-check-wrapper';
-                
-                // Rebuild structure
-                contentLeft.innerHTML = '';
-                contentLeft.appendChild(wrapper);
-                wrapper.appendChild(container);
-                wrapper.appendChild(checkArea);
-                
-                // Now add the appropriate buttons
-                if (question.type === 'choice') {
-                    createChoiceButtons(question.choices);
-                    } else {
-                    createYesNoButtons();
-                }
+            // Show animation for clockwise question
+            if (question.type === 'yes-no' && question.p5config.animateHands) {
+                setTimeout(() => {
+                    if (p5Instance) p5Instance.startAnimation();
+                }, 500);
             }
             
-            // Play audio instruction
-            setTimeout(() => {
-                const instructionAudioFile = getAudioFilename(currentQuestion, 'instruction');
-                currentAudioFilename = instructionAudioFile;
-                playAudio(instructionAudioFile);
-            }, 500);
-            
             // Enable interaction for hand questions
-            if (question.type === 'hand' && p5Instance && question.p5config.interactionTarget) {
+            if (question.type === 'hand' && p5Instance) {
                 p5Instance.setInteraction(true, question.p5config.interactionTarget);
             }
             
-            // Start animation if needed
-            if (question.p5config.animateHands && p5Instance) {
-                p5Instance.startAnimation();
-            }
-            
-        } catch (error) {
-            console.error(`Error creating p5 instance for question ${currentQuestion}:`, error);
-            p5Instance = null;
-            feedbackArea.textContent = "Error loading interactive element.";
-            feedbackArea.className = 'feedback feedback-incorrect';
+        } catch (e) {
+            console.error("Error creating p5 instance:", e);
         }
     }
-
-    // Enable next button only for navigation between questions, not for indicating answers
-    nextButton.disabled = false;
     
-    // Show navigation buttons - this is a test, but we still need navigation
-    prevButton.style.display = 'inline-flex'; 
-    skipButton.style.display = 'inline-flex';
+    // Set up the check area based on question type
+    if (question.type === 'choice') {
+        createChoiceButtons(question);
+    } else if (question.type === 'yes-no') {
+        createYesNoButtons();
+    }
+    
+    // Play audio instruction
+    currentAudioFilename = getAudioFilename(currentQuestion, 'instruction');
+    playAudio(currentAudioFilename);
+    
+    // Enable navigation for assessment
+    nextButton.style.display = 'inline-flex'; 
+    nextButton.disabled = true;
+    prevButton.style.display = 'inline-flex';
 }
 
-function createChoiceButtons(choices) {
+function createChoiceButtons(question) {
     checkArea.innerHTML = '';
     const buttonsWrapper = document.createElement('div');
-    buttonsWrapper.className = 'direction-buttons-wrapper'; // Use direction buttons wrapper for consistent styling
+    buttonsWrapper.className = 'choice-buttons-wrapper';
     
-    choices.forEach(choice => {
-        // Create container for each button (like in learn-it)
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'direction-btn-container';
-        
-        const button = document.createElement('button');
-        button.id = `${choice.id}-btn`;
-        button.className = 'direction-btn'; // Use direction button class for consistent styling
-        button.innerHTML = choice.text; // Set text directly
-        button.setAttribute('aria-label', choice.text);
-        button.addEventListener('click', () => {
-            handleAnswer(choice.id);
+    // Create buttons for each choice
+    if (question.choices && question.choices.length) {
+        question.choices.forEach(choice => {
+            const button = document.createElement('button');
+            button.id = `${choice.id}-btn`;
+            button.className = 'choice-btn';
+            button.textContent = choice.text;
+            button.addEventListener('click', () => {
+                handleAnswer(choice.id);
+            });
+            
+            buttonsWrapper.appendChild(button);
         });
         
-        buttonContainer.appendChild(button);
-        buttonsWrapper.appendChild(buttonContainer);
-    });
-    
-    checkArea.appendChild(buttonsWrapper);
+        checkArea.appendChild(buttonsWrapper);
+    }
 }
 
 function createYesNoButtons() {
@@ -492,106 +475,69 @@ function showResults() {
     const totalQuestions = questions.length;
     const scorePercent = Math.round((userScore / totalQuestions) * 100);
     const passed = userScore >= 3; // Pass threshold is 3 out of 4
+    const highScore = scorePercent >= 90; // New criteria for showing Finish button
     
     // Create a more professional, compact results display
     scoreDisplay.innerHTML = `
-        <div class="results-card ${passed ? 'results-passed' : 'results-failed'}">
+        <div class="results-card ${passed ? 'results-passed' : 'results-failed'}" style="text-align: center;">
             <h2>Assessment Complete</h2>
             
-            <div class="results-summary">
+            <div class="results-summary" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
                 <div class="score-badge">
                     <span class="score-number">${userScore}/${totalQuestions}</span>
                     <span class="score-percent">${scorePercent}%</span>
                 </div>
                 
-                <div class="status-container">
+                <div class="status-container" style="display: flex; align-items: center; gap: 15px;">
                     <div class="score-status ${passed ? 'success' : 'warning'}">
                         ${passed ? 'PASS' : 'NEEDS REVIEW'}
                     </div>
                     ${passed ? 
-                        `<div class="success-message"><i class="fas fa-trophy"></i> Clock Expert Badge Earned!</div>` : 
+                        `<div class="success-message" style="display: inline-flex; align-items: center;"><i class="fas fa-trophy"></i> Clock Expert Badge Earned!</div>` : 
                         `<div class="review-message"><i class="fas fa-info-circle"></i> More practice needed</div>`
                     }
                 </div>
             </div>
         </div>
         
+        ${scorePercent > 0 ? `
         <div class="results-details">
             <div class="results-details-header">
-                <h3>Question Review</h3>
+                <h3 style="font-size: 140%;">Question Review</h3>
                 ${passed ? '' : '<p class="review-hint">Review these questions to improve your understanding</p>'}
             </div>
             
             <div class="two-column-grid">
-                <div class="column">
-                    ${userAnswers.slice(0, Math.ceil(userAnswers.length/2)).map((answer, index) => {
-                        const question = questions[index];
-                        return `
-                        <div class="question-card ${answer.isCorrect ? 'correct' : 'incorrect'}">
-                            <div class="question-card-header">
-                                <span class="question-number">Q${index + 1}</span>
-                                <span class="result-icon">${answer.isCorrect ? 
-                                    '<i class="fas fa-check"></i>' : 
-                                    '<i class="fas fa-times"></i>'}</span>
-                            </div>
-                            
-                            <div class="question-card-body">
-                                <div class="question-title">${question.title.replace(/^Question \d+: /, '')}</div>
-                                <div class="answer-info">
-                                    <div class="answer-given">Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong></div>
-                                    ${answer.isCorrect ? '' : 
-                                       `<div class="correct-answer">Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong></div>`
-                                    }
-                                </div>
+                ${userAnswers.map((answer, index) => {
+                    const question = questions[index];
+                    return `
+                    <div class="question-card ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="question-card-header">
+                            <span class="question-number" style="font-size: 140%;">Q${index + 1}</span>
+                            <span class="result-icon">${answer.isCorrect ? 
+                                '<i class="fas fa-check"></i>' : 
+                                '<i class="fas fa-times"></i>'}</span>
+                        </div>
+                        
+                        <div class="question-card-body">
+                            <div class="question-title">${question.title.replace(/^Question \d+: /, '')}</div>
+                            <div class="answer-info">
+                                <div class="answer-given">Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong></div>
+                                ${answer.isCorrect ? '' : 
+                                   `<div class="correct-answer">Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong></div>`
+                                }
                             </div>
                         </div>
-                        `;
-                    }).join('')}
-                </div>
-                <div class="column">
-                    ${userAnswers.slice(Math.ceil(userAnswers.length/2)).map((answer, index) => {
-                        const actualIndex = index + Math.ceil(userAnswers.length/2);
-                        const question = questions[actualIndex];
-                        return `
-                        <div class="question-card ${answer.isCorrect ? 'correct' : 'incorrect'}">
-                            <div class="question-card-header">
-                                <span class="question-number">Q${actualIndex + 1}</span>
-                                <span class="result-icon">${answer.isCorrect ? 
-                                    '<i class="fas fa-check"></i>' : 
-                                    '<i class="fas fa-times"></i>'}</span>
-                            </div>
-                            
-                            <div class="question-card-body">
-                                <div class="question-title">${question.title.replace(/^Question \d+: /, '')}</div>
-                                <div class="answer-info">
-                                    <div class="answer-given">Your answer: <strong>${getAnswerText(answer.userAnswer, question.type)}</strong></div>
-                                    ${answer.isCorrect ? '' : 
-                                       `<div class="correct-answer">Correct: <strong>${getAnswerText(question.correctAnswer, question.type)}</strong></div>`
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        `;
-                    }).join('')}
-                </div>
+                    </div>
+                    `;
+                }).join('')}
             </div>
         </div>
+        ` : ''}
     `;
     
     // Simplified remediation area
-    remediationMessage.innerHTML = !passed ? `
-        <div class="action-prompt">
-            <p>Choose an option to continue:</p>
-            <div class="remediation-actions">
-                <button class="btn btn-secondary" onclick="window.location.href='learn-it.html'">
-                    <i class="fas fa-book-open"></i> Review Lesson
-                </button>
-                <button class="btn btn-secondary" onclick="window.location.href='try-it.html'">
-                    <i class="fas fa-dumbbell"></i> Practice More
-                </button>
-            </div>
-        </div>
-    ` : '';
+    remediationMessage.innerHTML = '';
     
     // Update navigation buttons - move to the navigation-buttons area
     const navigationButtons = document.querySelector('.navigation-buttons');
@@ -602,14 +548,11 @@ function showResults() {
     tryAgainButton.className = 'btn btn-secondary';
     tryAgainButton.innerHTML = '<i class="fas fa-redo"></i> Try Again';
     tryAgainButton.addEventListener('click', () => {
-        // Reset the quiz
-        userScore = 0;
-        userAnswers = [];
-        resultsArea.classList.add('hidden');
-        loadQuestion(0);
+        // Reload the page instead of just resetting variables
+        window.location.reload();
     });
     
-    // Finish button on right
+    // Finish button on right - only show if score is 90% or higher
     const finishButton = document.createElement('button');
     finishButton.className = 'btn btn-primary';
     finishButton.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish Lesson';
@@ -619,7 +562,38 @@ function showResults() {
     
     // Add buttons to navigation area
     navigationButtons.appendChild(tryAgainButton);
-    navigationButtons.appendChild(finishButton);
+    if (highScore) {
+        navigationButtons.appendChild(finishButton);
+    } else {
+        // Replace message with Review Lesson and Practice More buttons
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'options-container';
+        optionsContainer.style.display = 'flex';
+        optionsContainer.style.gap = '15px';
+        optionsContainer.style.alignItems = 'center';
+        
+        const optionsText = document.createElement('span');
+        optionsText.textContent = 'Choose an option to continue:';
+        optionsContainer.appendChild(optionsText);
+        
+        const reviewButton = document.createElement('button');
+        reviewButton.className = 'btn btn-secondary';
+        reviewButton.innerHTML = '<i class="fas fa-book-open"></i> Review Lesson';
+        reviewButton.addEventListener('click', () => {
+            window.location.href = 'learn-it.html';
+        });
+        
+        const practiceButton = document.createElement('button');
+        practiceButton.className = 'btn btn-secondary';
+        practiceButton.innerHTML = '<i class="fas fa-dumbbell"></i> Practice More';
+        practiceButton.addEventListener('click', () => {
+            window.location.href = 'try-it.html';
+        });
+        
+        optionsContainer.appendChild(reviewButton);
+        optionsContainer.appendChild(practiceButton);
+        navigationButtons.appendChild(optionsContainer);
+    }
     
     // Hide previous/skip buttons
     prevButton.style.display = 'none';
@@ -946,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const skipButtonActual = document.getElementById('skip-button');
     const prevButtonActual = document.querySelector('.btn-prev-step');
     const nextButtonActual = document.getElementById('next-step-button');
-    const professorImg = document.getElementById('professor-img');
+    const professorImg = document.getElementById('professor-show-it-img');
     const showItContent = document.getElementById('show-it-content');
     const initialTitle = document.getElementById('initial-lesson-title');
     const initialIntro = document.getElementById('initial-lesson-intro');

@@ -175,10 +175,27 @@ body {
     flex-grow: 1; 
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Reduced gap slightly */
-    overflow: hidden; 
+    gap: 15px;
+    overflow: visible;
+    position: relative;
+    min-height: 500px;
 }
 
+/* Navigation Buttons */
+.navigation-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    gap: 10px;
+    z-index: 10;
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+/* Activity area */
 .activity-area {
     background-color: var(--card-background);
     border-radius: 15px;
@@ -186,11 +203,14 @@ body {
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    justify-content: center; /* Center content vertically */
-    flex-grow: 1; /* Allow height to be flexible */
-    overflow: hidden;
-    padding: 25px 20px; /* Increased top padding */
-    text-align: center; /* Center text elements by default */
+    justify-content: center;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: visible;
+    padding: 25px 20px;
+    text-align: center;
+    margin-bottom: 10px;
+    min-height: 350px;
 }
 
 /* Style the content wrapper inside activity-area */
@@ -233,14 +253,15 @@ body {
 }
 
 .content-right #embedded-check-area {
-    flex-grow: 1; /* Allow this area to take available vertical space */
-    min-height: 50px;
     width: 100%;
-    flex-shrink: 0;
+    min-height: 40px; /* Reduced from 50px */
     display: flex;
-    flex-direction: column; /* Keep column direction */
-    justify-content: center; /* Vertically center the content (e.g., mcq-button-container) */
-    align-items: center; /* Horizontally center the content */
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-top: 0;
+    padding-top: 0;
+    margin-bottom: 0; /* Ensure no extra space at bottom */
 }
 
 /* Update canvas container globally within content-left */
@@ -351,14 +372,6 @@ body {
 }
 
 /* Buttons */
-.navigation-buttons {
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;
-    flex-shrink: 0; /* Prevent shrinking */
-    padding-top: 0; /* Gap is handled by lesson-main */
-}
-
 .btn {
     padding: 12px 25px;
     font-size: 18px;
@@ -447,7 +460,13 @@ body {
     padding: 15px 25px;
     background-color: var(--card-background);
     border-top: 1px solid var(--border-light);
-    flex-shrink: 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    position: relative;
+    margin-top: 0; /* Changed from 20px */
+    bottom: auto;
+    left: auto;
+    right: auto;
 }
 
 .step-indicators {
@@ -1193,7 +1212,7 @@ body {
     font-size: 2rem; /* Larger title */
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 15px;
+    margin-bottom: 10px; /* Reduce from 15px */
 }
 
 #initial-lesson-intro,
@@ -1201,7 +1220,7 @@ body {
 #initial-do-it-intro { /* Added do-it intro paragraph */
     font-size: 1.1rem;
     color: var(--text-secondary);
-    margin-bottom: 30px;
+    margin-bottom: 20px; /* Reduce from 30px */
     max-width: 600px;
     line-height: 1.6;
 }
@@ -1216,9 +1235,9 @@ body {
 }
 
 /* Ensure professor is visible initially in activity area for intros */
-.activity-area > #professor-image {
-    /* Styles if needed, but visibility is handled by JS adding/removing hidden class */
-    margin-bottom: 20px; /* Space below professor if shown with intro text */
+.activity-area > #professor-image,
+#professor-show-it-img {
+    margin-bottom: 10px; /* Reduce from 20px */
 }
 
 /* Style for professor image within the intro section */
@@ -1253,747 +1272,215 @@ body {
     /* Add specific positioning styles if needed, but flexbox in .navigation-buttons should handle it */
 }
 
-/* Navigation Buttons Container */
-.navigation-buttons {
-    display: flex;
-    justify-content: space-between; /* Keep this for when real buttons show */
-    align-items: center;
-    flex-shrink: 0; 
-    padding-top: 0; 
+/* Feedback area specific */
+#feedback-area {
+    min-height: 1.2em;
+    padding: 4px;
+    text-align: center;
+    font-weight: bold;
+    margin: 5px 0 15px 0;
+    visibility: visible;
+    opacity: 1;
+    transition: all 0.3s ease;
 }
 
-/* Initially, the start button might be the only visible element */
-/* If the container needs specific alignment for just the start button, add rules here */
-/* Example: .navigation-buttons:has(#start-do-it-button:not([style*="display: none"])) { justify-content: center; } */
-/* Note: :has() is not universally supported yet, JS handles the hiding/showing */
+/* Show It page styles */
+#show-it-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px 0;
+    flex-wrap: wrap;
+}
 
-/* Styles for choice buttons in show-it section */
+#show-it-content .content-left {
+    flex-basis: 55%;
+    flex-grow: 1;
+    min-width: 300px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20px; /* Add padding at the bottom */
+}
+
+#show-it-content .content-right {
+    flex-basis: 40%;
+    flex-grow: 1;
+    min-width: 250px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 15px 15px 25px 15px; /* Increased bottom padding */
+    text-align: left;
+}
+
+#show-it-title {
+    flex-shrink: 0;
+    margin: 10px 0 15px 0;
+    font-size: 1.3rem;
+    text-align: left;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    line-height: 1.3;
+}
+
+#show-it-instruction {
+    flex-shrink: 0;
+    margin-bottom: 10px;
+    max-width: 100%;
+    line-height: 1.5;
+    text-align: left;
+    padding: 0;
+}
+
+/* Improved styles for choice buttons */
 .choice-buttons-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-top: 15px;
+    gap: 12px;
+    margin-top: 10px;
     width: 100%;
-}
-
-/* Make both types of button wrappers use horizontal layout */
-.yes-no-buttons-wrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 20px;
-    margin-top: 15px;
-    width: 100%;
+    align-items: flex-start;
 }
 
 .choice-btn {
-    min-width: 150px;
-    padding: 12px 25px;
-    background-color: var(--accent-blue);
-    color: white;
-    border: none;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: var(--card-background);
+    color: var(--primary-purple);
+    border: 2px solid var(--primary-purple);
     border-radius: 10px;
     font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    text-align: center;
+    text-align: left;
 }
 
 .choice-btn:hover {
-    background-color: var(--accent-blue-hover);
-    transform: scale(1.02);
+    background-color: #f5f3ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.choice-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+.choice-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.choice-btn.correct-choice {
-    background-color: var(--success);
+/* Make the canvas container height taller */
+#show-it-content #canvas-container {
+    width: 320px;
+    height: 360px; /* Increased from 320px to 360px */
+    max-width: 100%;
+    cursor: pointer;
+    margin-bottom: 15px; /* Add margin at the bottom */
 }
 
-.choice-btn.incorrect-choice {
-    background-color: var(--error);
+/* Ensure buttons in navigation are visible and properly sized */
+#next-step-button, .btn-prev-step, #skip-button, #start-lesson-button {
+    min-width: 120px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 5px;
 }
 
-/* Styles for results section */
-#results-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    text-align: center;
+/* Fix activity area height for show-it */
+.activity-area {
     padding: 20px;
+    overflow-y: visible;
+    overflow-x: hidden;
+    max-height: none;
 }
 
-#score-display {
-    margin: 20px 0;
-}
-
-.score-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 20px 0;
-    max-width: 400px;
-}
-
-.question-result {
+/* Make sure navigation buttons are always visible */
+.navigation-buttons {
+    position: absolute;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
-    border-radius: 8px;
-    background-color: #f5f5f5;
+    padding: 8px 0;
+    gap: 10px;
+    z-index: 20;
+    top: 20px; /* Position from top */
+    left: 0;
+    right: 0;
 }
 
-.question-result.correct {
-    background-color: rgba(92, 184, 92, 0.2);
-    border-left: 4px solid var(--success);
+/* Fix results area styling */
+#results-area {
+    padding: 20px;
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
 }
 
-.question-result.incorrect {
-    background-color: rgba(255, 92, 92, 0.2);
-    border-left: 4px solid var(--error);
-}
-
-.remediation-actions {
+/* Fix two-column grid for results */
+.two-column-grid {
     display: flex;
+    flex-wrap: wrap;
     gap: 15px;
-    margin-top: 20px;
 }
 
-.btn-review {
+.two-column-grid .column {
+    flex: 1 1 45%;
+    min-width: 300px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #show-it-content {
+        flex-direction: column;
+    }
+    
+    #show-it-content .content-left,
+    #show-it-content .content-right {
+        flex-basis: 100%;
+        width: 100%;
+    }
+    
+    .navigation-buttons {
+        justify-content: center;
+    }
+    
+    .navigation-buttons .btn {
+        flex: 1 1 auto;
+        min-width: 100px;
+        font-size: 16px;
+        padding: 10px 15px;
+    }
+}
+
+/* Remove fixed positioning for Start Quiz button */
+#start-lesson-button {
+    display: inline-flex;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
     background-color: var(--primary-purple);
     color: white;
     border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-review:hover {
-    background-color: var(--primary-purple-hover);
-}
-
-.certificate {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: rgba(255, 202, 40, 0.2);
-    border: 2px solid var(--accent-yellow);
-}
-
-.certificate i {
-    font-size: 3rem;
-    color: var(--accent-yellow);
-}
-
-/* Styles for selected answers in show-it section */
-.selected-choice {
-    background-color: var(--accent-blue-hover);
-    font-weight: bold;
-}
-
-/* Score status display */
-.score-status {
-    display: inline-block;
-    font-weight: bold;
-    font-size: 1.2rem;
-    padding: 8px 20px;
-    border-radius: 6px;
-    margin: 15px 0;
-}
-
-.score-status.success {
-    background-color: rgba(40, 204, 113, 0.2);
-    color: var(--success);
-    border: 2px solid var(--success);
-}
-
-.score-status.warning {
-    background-color: rgba(255, 202, 40, 0.2);
-    color: var(--warning);
-    border: 2px solid var(--warning);
-}
-
-/* Results page styling */
-.results-card {
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    background-color: #fefefe;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.results-card h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.4rem;
-    text-align: center;
-    color: var(--text-primary);
-}
-
-.results-summary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-    padding: 5px 0;
-}
-
-.results-passed {
-    border-top: 4px solid var(--success);
-}
-
-.results-failed {
-    border-top: 4px solid var(--warning);
-}
-
-.score-badge {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--primary-purple);
-}
-
-.score-number {
-    font-size: 20px;
-    line-height: 1;
-}
-
-.score-percent {
-    font-size: 13px;
-}
-
-.status-container {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: flex-start;
-}
-
-.score-status {
-    display: inline-block;
-    font-weight: bold;
-    font-size: 1rem;
-    padding: 5px 15px;
-    border-radius: 4px;
-}
-
-.score-status.success {
-    background-color: rgba(40, 204, 113, 0.15);
-    color: var(--success);
-    border: 1px solid var(--success);
-}
-
-.score-status.warning {
-    background-color: rgba(255, 202, 40, 0.15);
-    color: var(--warning);
-    border: 1px solid var(--warning);
-}
-
-.success-message, .review-message {
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.success-message {
-    color: var(--success);
-}
-
-.review-message {
-    color: var(--warning);
-}
-
-.results-details {
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #e0e0e0;
-    max-height: 400px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.results-details-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 15px;
-    flex-shrink: 0;
-}
-
-.results-details h3 {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: 1.2rem;
-}
-
-.review-hint {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    margin: 0;
-    font-style: italic;
-}
-
-.question-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 12px;
-    max-height: 250px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 10px;
-    -webkit-overflow-scrolling: touch; /* For better mobile scrolling */
-}
-
-/* Add scrollbar styling for better appearance */
-.question-grid::-webkit-scrollbar {
-    width: 8px;
-}
-
-.question-grid::-webkit-scrollbar-track {
-    background: #f0f0f0;
-    border-radius: 4px;
-}
-
-.question-grid::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
-}
-
-.question-grid::-webkit-scrollbar-thumb:hover {
-    background-color: #aaa;
-}
-
-.question-card {
-    border-radius: 3px;
-    padding: 6px 10px;
-    margin: 0;
-    box-shadow: none;
-    background-color: #fafafa;
-    width: 100%;
-}
-
-.question-card.correct {
-    border-left: 4px solid #5cb85c;
-}
-
-.question-card.incorrect {
-    border-left: 4px solid #e63946;
-}
-
-.question-card-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 3px;
-}
-
-.question-number {
-    font-weight: bold;
-    font-size: 0.98rem;
-}
-
-.question-title {
-    font-weight: bold;
-    margin-bottom: 3px;
-    font-size: 0.75rem;
-}
-
-.answer-info {
-    font-size: 0.65rem;
-}
-
-.answer-given, .correct-answer {
-    margin: 1px 0;
-}
-
-.action-prompt {
-    text-align: center;
-    padding: 15px;
-    margin-top: 10px;
-}
-
-.action-prompt p {
-    margin-top: 0;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.remediation-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 10px;
-}
-
-@media (max-width: 768px) {
-    .results-summary {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .status-container {
-        align-items: center;
-    }
-    
-    .question-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Special container for results page - allows scrolling */
-.activity-area-results {
-    background-color: var(--card-background);
-    border-radius: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    flex-grow: 1; /* Allow height to be flexible */
-    overflow: visible; /* Allow content to be visible/scrollable */
-    padding: 25px 20px;
-    width: 100%;
-}
-
-/* Warm-up Number Placeholder Style */
-.number-placeholder-circle {
-    /* p5.js handles drawing, but we can define cursor */
-    cursor: text; /* Indicate it's clickable for text input */
-}
-
-/* Add styles for the new Help Modal */
-.modal {
-    position: fixed; /* Stay in place */
-    z-index: 1000; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
-    display: flex; /* Use flexbox for centering */
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: auto; /* Auto margins for centering */
-    padding: 30px;
-    border: 1px solid #888;
-    width: 80%; /* Could be more specific */
-    max-width: 600px; /* Max width */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-    position: relative; /* For positioning the close button */
-}
-
-.modal-content h2 {
-    margin-top: 0;
-    color: var(--primary-color);
-}
-
-.modal-content h3 {
-    color: var(--secondary-color);
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-.modal-content ul {
-    list-style: none; 
-    padding-left: 0;
-}
-
-.modal-content li {
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
-
-.modal-content strong {
-    color: var(--accent-color);
-}
-
-.modal-content i {
-    margin-right: 5px; /* Space next to icons */
-    color: var(--dark-gray);
-}
-
-.close-button {
-    color: #aaa;
-    position: absolute; /* Position relative to modal-content */
-    top: 10px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Utility class to hide elements */
-.hidden {
-    display: none !important; /* Use !important to override potential conflicts */
-}
-
-/* Content left/right specific to warm-up */
-#warm-up-content .content-left {
-    /* flex-basis: 55%; Remove specific basis */
-    flex: 1 1 300px; /* Allow grow/shrink, basis 300px */
-    /* Keep other styles: display, justify, align */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#warm-up-content .content-right {
-    /* flex-basis: 40%; Remove specific basis */
-    flex: 1 1 250px; /* Allow grow/shrink, basis 250px */
-    min-width: 250px; 
-    display: flex;
-    flex-direction: column;
-    justify-content: center; 
-    padding: 15px; 
-    text-align: left; 
-    overflow: visible; /* Ensure content isn't clipped */
-}
-
-/* General styles for title/instruction */
-#warm-up-instruction {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
-    color: var(--text-secondary); /* Explicitly set color */
-    visibility: visible; /* Ensure visible */
-    opacity: 1; /* Ensure opaque */
-}
-
-/* Add basic styles for feedback area */
-#feedback-area {
-    min-height: 2em; /* Ensure it has some height */
-    padding: 10px;
-    text-align: center;
-    font-weight: bold;
-    margin-top: 10px; /* Add some space above it */
-    visibility: visible; /* Ensure it's not hidden by default */
-    opacity: 1;
-    transition: all 0.3s ease; /* Add transition for feedback classes */
-}
-
-/* Ensure feedback visibility when classes are added */
-#feedback-area.feedback-correct,
-#feedback-area.feedback-incorrect {
-    visibility: visible;
-    opacity: 1;
-}
-
-/* Existing feedback color styles should still apply */
-.feedback-correct {
-    color: var(--success); /* Ensure text color is set */
-}
-.feedback-incorrect {
-    color: var(--error); /* Ensure text color is set */
-}
-
-/* Results Display Styling */
-.activity-area.results-view {
-    padding: 2px;
-    overflow-y: visible;
-    justify-content: flex-start;
-    align-items: flex-start;
-    max-height: none;
-    gap: 2px;
-    width: 100%;
-}
-
-#results-area {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.results-card {
-    background-color: white;
-    border-radius: 4px;
-    padding: 3px;
-    margin: 0;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    width: 100%;
-}
-
-.results-card h2 {
-    margin: 0 0 3px 0;
-    font-size: 1.1rem;
-}
-
-.results-summary {
-    display: flex;
+    border-radius: 8px; /* Original border-radius */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease; /* Original transition */
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin: 2px 0;
-    flex-wrap: wrap;
+    min-width: 150px;
 }
 
-.score-badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 1px solid var(--primary-purple);
-    color: var(--primary-purple);
-    font-weight: bold;
+#start-lesson-button:hover {
+    background-color: var(--primary-purple-hover);
+    transform: translateY(-2px); /* Original transform */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
 }
-
-.score-number {
-    font-size: 15px;
-    line-height: 1;
-}
-
-.score-percent {
-    font-size: 10px;
-}
-
-.success-message {
-    font-size: 11px;
-}
-
-.results-details {
-    background-color: white;
-    border-radius: 4px;
-    padding: 3px;
-    margin: 0;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 100%;
-}
-
-.results-details-header {
-    margin: 0 0 2px 0;
-}
-
-.results-details-header h3 {
-    font-size: 0.9rem;
-    margin: 0 0 1px 0;
-}
-
-.question-card {
-    border-radius: 3px;
-    padding: 3px 6px;
-    margin: 0;
-    box-shadow: none;
-    background-color: #fafafa;
-    width: 100%;
-}
-
-.question-card-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1px;
-}
-
-.question-title {
-    font-weight: bold;
-    margin-bottom: 1px;
-    font-size: 0.75rem;
-}
-
-.answer-info {
-    font-size: 0.65rem;
-}
-
-.answer-given, .correct-answer {
-    margin: 0;
-}
-
-/* Responsive adjustments for the four column grid */
-@media (max-width: 1024px) {
-    .two-column-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .two-column-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.two-column-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-    width: 100%;
-}
-
-.question-card.correct {
-    border-left: 2px solid #5cb85c;
-}
-
-.question-card.incorrect {
-    border-left: 2px solid #e63946;
-}
-
-.question-number {
-    font-weight: bold;
-    font-size: 0.65rem;
-}
-
-.result-icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    font-size: 0.8rem;
-}
-
-.correct .result-icon {
-    background-color: var(--success);
-    color: white;
-}
-
-.incorrect .result-icon {
-    background-color: var(--error);
-    color: white;
-}
-
-.question-card-body {
-    padding: 5px;
-}
-
-.correct-answer {
-    color: var(--success);
-}
-

@@ -10,7 +10,7 @@ let currentWarmUpStep = 0; // Start at the first step
 // Define warmUpSteps globally
 const warmUpSteps = [
     {
-        instruction: "Let's warm up! Some numbers are missing from the clock. Click a circle and type the correct number.",
+        instruction: "Click on the empty circles and type the correct number that belongs there.",
         missingNumbers: [1, 4, 8],
         showClockHands: true,
         time: '1:00', 

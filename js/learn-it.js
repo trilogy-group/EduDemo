@@ -139,8 +139,8 @@ function cleanupCheckLayout() {
 const subSteps = [
     { // 0: Face & Numbers
         title: "Learn It: The Clock Face",
-        instruction: "This is a <strong>clock face</strong>! It helps us tell time. Look at the numbers. They go in order all the way around, starting from <span id='num-1'>1</span>, then <span id='num-2'>2</span>, <span id='num-3-dots'>3...</span> up to 12 at the very top.",
-        instructionCheck: "Quick check! The numbers go in order. Click the number that comes <strong>right after</strong> the number 8.",
+        instruction: "Look at the clock face and notice how the numbers go in order around the circle, from 1 to 12.",
+        instructionCheck: "Click the number that comes right after 8.",
         checkType: 'number',
         correctValue: 9,
         feedbackCorrect: "Correct! 9 comes right after 8.",
@@ -196,11 +196,11 @@ const subSteps = [
     },
     { // 1: The Hands
         title: "Learn It: The Hands",
-        instruction1: "See these pointers? They are called hands! This short, blue hand is the <strong>Hour Hand</strong>. It tells us the hour.",
-        instruction2: "This long, red hand is the <strong>Minute Hand</strong>. It tells us the minutes.",
-        instruction3: "Easy way to remember: Hour hand is short, Minute hand is long!",
-        check1: "Click on the <strong>Hour Hand</strong> (the short one).",
-        check2: "Now, click on the <strong>Minute Hand</strong> (the long one).",
+        instruction1: "The short blue hand is the Hour Hand. It tells us the hour.",
+        instruction2: "The long red hand is the Minute Hand. It tells us the minutes.",
+        instruction3: "Remember: Hour hand is short, Minute hand is long.",
+        check1: "Click on the Hour Hand (the short one).",
+        check2: "Click on the Minute Hand (the long one).",
         checkType: 'hand',
         checks: [
             { instruction: "Click on the <strong>Hour Hand</strong> (the short one).", targetValue: 'hour', feedbackCorrect: "You got it! That's the short hour hand.", feedbackIncorrect: "Oops! Remember, the hour hand is the *short* one. Click the short hand." },
@@ -258,7 +258,7 @@ const subSteps = [
     },
     { // 2: Clockwise Direction
         title: "Learn It: Clockwise Direction",
-        instruction: "Watch how the hands move! They always go around in the same direction, past 1, 2, 3... This special direction is called <strong>Clockwise</strong>.",
+        instruction: "The clock hands always move in a direction called Clockwise, following the numbers 1, 2, 3...",
         instructionCheck: "Which arrow shows the clockwise direction?",
         checkType: 'direction',
         correctValue: 'clockwise',
