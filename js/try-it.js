@@ -67,7 +67,7 @@ const subSteps = [
         checkType: 'hand',
         targetValue: 'hour',
         feedbackCorrect: "You got it! That's the short hour hand.",
-        feedbackIncorrect: "Hmm, that's the long hand. The hour hand is the <em>shorter</em> one. Click the short hand.",
+        feedbackIncorrect: "Hmm, that's the long hand. The hour hand is the shorter one. Click the short hand.",
         p5config: {
             stepIndex: 0,
             showNumbers: true,
