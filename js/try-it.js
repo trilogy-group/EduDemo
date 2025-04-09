@@ -562,7 +562,7 @@ function clockSketch(config) {
                 
                 if (localHandAnimationActive) {
                     // Regular animation for step 2
-                    const speed = 1;
+                    const speed = 0.3;
                     localHandAngleOffset += speed;
                     mAngle = (localHandAngleOffset % 360) * 6 - 90;
                     hAngle = ((localHandAngleOffset / 12) % 360) * 30 - 90;

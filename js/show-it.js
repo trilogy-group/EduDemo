@@ -284,49 +284,111 @@ function loadQuestion(questionIndex) {
         progressBar.style.width = `${progressPercentage}%`;
     }
 
-    // Define callback to show text and setup interaction
+    // Clear feedback area
+    if (feedbackArea) {
+        feedbackArea.textContent = '';
+        feedbackArea.className = 'feedback';
+    }
+    
+    // Disable next button until correct answer (handled later)
+    // if (nextButton) nextButton.disabled = true;
+
+    // Enable/disable previous button
+    if (prevButton) {
+        prevButton.disabled = (questionIndex === 0); 
+    }
+    
+    // Always clear check area - it gets repopulated by callback
+    if (checkArea) {
+        checkArea.innerHTML = '';
+    }
+    
+    // --- Create/Update p5 Instance Immediately ---
+    if (question.p5config) {
+        if (p5Instance) {
+            try { p5Instance.remove(); } catch (e) { console.error("Error removing previous p5:", e); }
+            p5Instance = null;
+        }
+        // Clear container explicitly
+        if (canvasContainer) {
+            const existingCanvases = canvasContainer.querySelectorAll('canvas');
+            existingCanvases.forEach(canvas => canvas.remove());
+            canvasContainer.innerHTML = '';
+        } else {
+            console.error("Canvas container not found before p5 creation!");
+        }
+        
+        // Use minimal timeout for DOM readiness
+        setTimeout(() => {
+            if (canvasContainer && currentQuestion === questionIndex) { // Check if still on the same question
+                try {
+                    p5Instance = new p5(sketch(question.p5config), canvasContainer);
+                    console.log("p5 instance created successfully:", p5Instance);
+
+                    // Start animation immediately if needed
+                    if (question.p5config.animateHands && p5Instance && typeof p5Instance.startAnimation === 'function') {
+                        console.log("Starting animation immediately after p5 creation.");
+                        p5Instance.startAnimation();
+                    }
+                    
+                    // Enable interaction for hand questions immediately *after* instance created
+                    if (question.type === 'hand' && p5Instance && typeof p5Instance.setInteraction === 'function') {
+                        console.log("Enabling p5 interaction immediately for hand question.");
+                        p5Instance.setInteraction(true, question.p5config.interactionTarget);
+                    }
+                    
+                } catch (e) {
+                    console.error("Error creating p5 instance (timeout):", e);
+                }
+            }
+        }, 10); // Minimal delay
+    } else {
+         // If no p5 needed, ensure previous instance is removed and container is clear
+        if (p5Instance) {
+            try { p5Instance.remove(); } catch (e) { console.error("Error removing previous p5:", e); }
+            p5Instance = null;
+        }
+         if (canvasContainer) canvasContainer.innerHTML = '';
+    }
+    // --- End p5 Instance Creation ---
+
+    // Define callback to show text and create buttons (p5 already handled)
     const showTextAndSetupCallback = () => {
-         if (instructionElement) {
+         // Check if still on the correct question
+         if (currentQuestion !== questionIndex) {
+             console.log(`Callback for question ${questionIndex} ignored, current question is ${currentQuestion}`);
+             return;
+         }
+    
+        if (instructionElement) {
              instructionElement.innerHTML = instructionText;
              instructionElement.style.visibility = 'visible';
              console.log("Instruction text visible for question:", questionIndex);
-         }
-         
-        // Create new p5 instance for clock *after* text potentially visible
-        if (question.p5config && typeof p5 !== 'undefined') {
-            console.log("Creating new p5 instance with config:", question.p5config);
-            try {
-                p5Instance = new p5(sketch(question.p5config), canvasContainer);
-                console.log("p5 instance created successfully:", p5Instance);
-
-                // Start animation immediately if needed
-                if (question.p5config.animateHands && p5Instance && typeof p5Instance.startAnimation === 'function') {
-                     console.log("Starting animation immediately after p5 creation.");
-                     p5Instance.startAnimation();
-                }
-                
-                // Enable interaction for hand questions
-                if (question.type === 'hand' && p5Instance) {
-                    p5Instance.setInteraction(true, question.p5config.interactionTarget);
-                }
-                
-            } catch (e) {
-                console.error("Error creating p5 instance:", e);
-            }
         }
+        
+        // REMOVED p5 creation/setup logic from here
         
         // Set up the check area based on question type *after* text visible
-        if (question.type === 'choice') {
-            createChoiceButtons(question);
-        } else if (question.type === 'yes-no') {
-            createYesNoButtons();
+        setTimeout(() => { // Use timeout to ensure DOM updates
+             // Check question index again inside timeout
+             if (currentQuestion === questionIndex) {
+                 if (question.type === 'choice') {
+                    createChoiceButtons(question);
+                } else if (question.type === 'yes-no') {
+                    createYesNoButtons();
+                }
+             } else {
+                 console.log(`Button creation for question ${questionIndex} skipped, current question is ${currentQuestion}`);
+             }
+        }, 10);
+         
+        // Enable navigation after setup (buttons appear after audio)
+        if (nextButton) {
+             nextButton.style.display = 'inline-flex'; 
+             nextButton.disabled = true; // Will be enabled by handleAnswer
         }
-        
-        // Enable navigation after setup
-        nextButton.style.display = 'inline-flex'; 
-        nextButton.disabled = true; // Will be enabled by handleAnswer
-        prevButton.style.display = 'inline-flex';
-        skipButton.style.display = 'inline-flex'; // Ensure skip is visible
+        if (prevButton) prevButton.style.display = 'inline-flex';
+        if (skipButton) skipButton.style.display = 'inline-flex'; // Ensure skip is visible
     };
     
     // Play audio instruction
@@ -690,7 +752,7 @@ function sketch(config) {
             if (stepConfig.showHands) {
                  let hAngle, mAngle;
                  if (localHandAnimationActive) {
-                     const speed = 1;
+                     const speed = 0.3;
                      localHandAngleOffset += speed;
                      mAngle = (localHandAngleOffset % 360) * 6 - 90;
                      hAngle = ((localHandAngleOffset / 12) % 360) * 30 - 90;

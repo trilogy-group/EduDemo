@@ -826,9 +826,12 @@ function handleInteractionResult(isCorrect) {
              }, 1500); // 1.5 second pause before starting next check audio
         } else {
             // Single check passed, or last part of multi-check passed
-            console.log(`Correct final check for step ${currentSubStep}. Attempting to enable Next button.`); // Log before enabling
-            nextButton.disabled = false; // Enable Next button immediately for ALL steps
-            console.log(`Next button disabled state: ${nextButton.disabled}`); // Log after enabling
+            console.log(`Correct final check for step ${currentSubStep}. Playing correct audio before enabling Next.`); 
+            // Play correct sound and enable Next button in callback
+            playAudio('correct.mp3', () => {
+                nextButton.disabled = false; 
+                console.log("Correct audio finished, Next button enabled.");
+            });
 
             // Optional: clear p5 click feedback after a delay
             setTimeout(() => {
