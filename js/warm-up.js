@@ -9,12 +9,19 @@ let currentWarmUpStep = 0; // Start at the first step
 
 // Define warmUpSteps globally
 const warmUpSteps = [
-    {
+    { // Step 0: Intro Animation
+        instruction: "Learn the clock parts: <strong>face</strong>, <strong>numbers</strong>, <strong>hands</strong>, and <strong>clockwise direction</strong>.",
+        showClockHands: true,
+        animateHands: true, // Add flag for animation
+        audio: 'welcome_time_explorers_together_we_ll_learn.mp3'
+    },
+    { // Step 1: Original Number Check (Now index 1)
         instruction: "Click on the empty circles and type the correct number that belongs there.",
         missingNumbers: [1, 4, 8],
         showClockHands: true,
+        animateHands: false, // Not animated
         time: '1:00', 
-        audio: 'voice/welcome_time_explorers_lets_quickly_check.mp3'
+        audio: 'lets_quickly_check.mp3' // Updated audio file
     },
     // Add more warm-up steps here if needed
 ];
@@ -53,11 +60,14 @@ function loadWarmUpStep(stepIndex) {
 
     stopAudio(true); // Stop previous audio
 
-    // Update instruction text
     const instructionElement = document.getElementById('warm-up-instruction');
+    const instructionText = stepData.instruction || ""; // Store the text
+    
+    // Hide text initially
     if (instructionElement) {
-        instructionElement.innerHTML = stepData.instruction || "";
-        console.log("Instruction element found. InnerHTML set to:", instructionElement.innerHTML);
+        instructionElement.innerHTML = ''; // Clear content
+        instructionElement.style.visibility = 'hidden';
+        console.log("Instruction element hidden initially.");
     } else {
         console.error("Instruction element #warm-up-instruction not found!");
     }
@@ -84,6 +94,33 @@ function loadWarmUpStep(stepIndex) {
     updateNavigationButtons();
     updateProgressBar();
     updateLessonCounter();
+
+    // --- Audio and Text Visibility Logic --- 
+    const nextButton = document.getElementById('next-step-button');
+    
+    // Define the callback to show text and potentially enable Next button
+    const showTextAndEnableNextCallback = () => {
+        if (instructionElement) {
+            instructionElement.innerHTML = instructionText; // Set text content
+            instructionElement.style.visibility = 'visible';
+            console.log("Instruction text made visible.");
+        }
+        // Only enable Next button for step 0 after audio
+        if (stepIndex === 0 && nextButton && currentWarmUpStep === 0) { 
+            nextButton.disabled = false;
+            console.log("Intro audio finished, Next button enabled.");
+        }
+    };
+    
+    // Play audio with the combined callback
+    playCurrentAudio(showTextAndEnableNextCallback);
+    
+    // Ensure completion check runs for non-intro steps *after* audio might start
+    // (Completion check handles Next button enablement for step 1)
+    if (stepIndex !== 0) {
+         checkCompletion(); 
+    }
+    // --- End Audio and Text Visibility Logic ---
 }
 
 function initP5(stepData) {
@@ -95,7 +132,8 @@ function initP5(stepData) {
             const config = { // Prepare config for clockSketch
                 missingNumbers: stepData.missingNumbers || [],
                 initialTime: stepData.time || '12:00',
-                showClockHands: stepData.showClockHands !== undefined ? stepData.showClockHands : true
+                showClockHands: stepData.showClockHands !== undefined ? stepData.showClockHands : true,
+                animateHands: stepData.animateHands || false
             };
             try {
                 // Create the p5 instance
@@ -104,7 +142,6 @@ function initP5(stepData) {
                 
                 // Initialize inputs and play audio *after* p5 setup is likely underway
                 initializeStepInputs(stepData); 
-                playCurrentAudio();         
             } catch (error) {
                 console.error("Error creating p5 instance:", error);
             }
@@ -218,12 +255,18 @@ function updateLessonCounter() {
 }
 
 // --- Audio Functions ---
-function playCurrentAudio() {
+function playCurrentAudio(onEndedCallback = null) {
     currentAudioFilename = warmUpSteps[currentWarmUpStep]?.audio || null;
     if (currentAudioFilename) {
-        playAudio(currentAudioFilename);
+        playAudio(currentAudioFilename, onEndedCallback);
     } else {
         console.log("No audio for current warm-up step.");
+        // If no audio, execute the callback immediately to show text/enable button
+        if(typeof onEndedCallback === 'function') {
+             console.log("No audio, running callback immediately.");
+             // Use setTimeout to ensure it runs after the current execution stack clears
+             setTimeout(onEndedCallback, 0);
+        }
     }
 }
 
@@ -255,6 +298,8 @@ function playAudio(filename, onEndedCallback = null) {
         if (e && e.name === 'NotAllowedError') console.warn("Autoplay failed, user interaction needed.");
         else if (e && e.name === 'NotSupportedError') console.error("Audio format may not be supported or file is missing/corrupt.");
         else console.error("Audio playback failed for other reasons.");
+        // If an error occurs, still call the callback to potentially unblock the flow
+        if (typeof onEndedCallback === 'function') onEndedCallback(); 
     };
     const cleanupListeners = () => {
         narrationAudio.onended = null;
@@ -270,12 +315,15 @@ function playAudio(filename, onEndedCallback = null) {
     const audioPath = filename.startsWith('voice/') ? filename : `voice/${filename}`;
     console.log(`Attempting to play audio: ${audioPath}`);
 
-    stopAudio(false); 
-    cleanupListeners(); 
+    // --- Modification Start ---
+    // Stop previous audio *before* setting new source
+    stopAudio(true); // Ensure previous listeners are cleared
+    // --- Modification End ---
+    
     narrationAudio.onended = handleAudioEnd;
     narrationAudio.onerror = handleAudioError;
     narrationAudio.src = audioPath;
-    narrationAudio.currentTime = 0;
+    narrationAudio.currentTime = 0; // Ensure playback starts from beginning
 
     const playPromise = narrationAudio.play();
     if (playPromise !== undefined) {
@@ -290,11 +338,14 @@ function playAudio(filename, onEndedCallback = null) {
 
 // --- p5.js Sketch Definition ---
 function clockSketch(config) {
+    let handAngleOffset = 0; // For animation
+
     return function(p) {
         // Local state variables from config
         let localMissingNumbers = config.missingNumbers || [];
         let initialTime = config.initialTime || '12:00';
         let showHands = config.showClockHands;
+        let animateHands = config.animateHands || false; // Get animation flag
         
         p.setup = () => {
             const container = document.getElementById('canvas-container');
@@ -316,7 +367,13 @@ function clockSketch(config) {
             p.angleMode(p.DEGREES);
             p.textAlign(p.CENTER, p.CENTER);
             p.textFont('Arial');
-            p.noLoop(); // Only redraw when needed
+            
+            // Only loop if animating
+            if (animateHands) {
+                p.loop();
+            } else {
+                p.noLoop();
+            }
             p.redraw();
         };
 
@@ -327,19 +384,36 @@ function clockSketch(config) {
             drawClockFace(p);
             
             if (showHands) {
-                // Parse time string 'H:MM'
-                 let [h, m] = initialTime.split(':').map(Number);
-                 h = isNaN(h) ? 12 : h; // Default hour
-                 m = isNaN(m) ? 0 : m;  // Default minute
-                 drawClockHands(p, { h: h, m: m });
+                if (animateHands) {
+                    // Animation logic
+                    const speed = 0.5; // Degrees per frame for minute hand rotation
+                    handAngleOffset += speed;
+                    
+                    // Calculate total continuous minutes based on angle offset
+                    // 6 degrees = 1 minute
+                    const totalMinutesElapsed = (handAngleOffset / 6);
+                    
+                    // Continuous values (hour can exceed 12, minute wraps 0-59)
+                    const continuous_h = totalMinutesElapsed / 60;
+                    const continuous_m = totalMinutesElapsed % 60;
+                    
+                    drawClockHands(p, { h: continuous_h, m: continuous_m });
+                } else {
+                    // Static display logic
+                    let [h, m] = initialTime.split(':').map(Number);
+                    h = isNaN(h) ? 12 : h; 
+                    m = isNaN(m) ? 0 : m;  
+                    drawClockHands(p, { h: h, m: m });
+                }
             }
             
-            drawNumbersAndInputBoxes(p, localMissingNumbers); // Always draw numbers/inputs
-            
+                drawNumbersAndInputBoxes(p, localMissingNumbers);
             drawCenterDot(p);
         };
 
         p.mouseClicked = () => {
+             if (animateHands) return; // Don't handle clicks during animation step
+             
             let boxSelected = false;
             const radius = clockDiameter * 0.38;
             const circleDiameterInput = clockDiameter * 0.12; 
@@ -362,6 +436,18 @@ function clockSketch(config) {
             }
             p.redraw(); // Redraw to show selection change
         };
+        
+        // Add startAnimation and stopAnimation methods
+        p.startAnimation = () => {
+             if (!animateHands) return;
+             handAngleOffset = 0;
+             p.loop();
+         };
+         
+         p.stopAnimation = () => {
+             if (!animateHands) return;
+             p.noLoop();
+         };
         
         p.remove = function() {
             console.log("p5 instance remove() called.");
@@ -397,12 +483,18 @@ function drawCenterDot(p) {
 function drawClockHands(p, timeConfig) {
     const hour = timeConfig.h;
     const minute = timeConfig.m;
-    // Hour hand
-    const hourAngle = p.map(hour % 12 + minute / 60, 0, 12, -90, 270);
-    drawHand(p, hourAngle, hourHandColor, hourHandLength, hourHandWidth);
-    // Minute hand
+
+    // Minute hand angle (always based on 0-59)
     const minuteAngle = p.map(minute, 0, 60, -90, 270);
     drawHand(p, minuteAngle, minuteHandColor, minuteHandLength, minuteHandWidth);
+
+    // Hour hand angle:
+    // For animation, hour might be > 12, representing total hours elapsed.
+    // For static, hour is the specific hour (1-12).
+    // Calculate angle directly: 30 degrees per hour, offset by -90.
+    // The fractional part of 'hour' correctly positions it between numbers.
+    const hourAngle = (hour * 30) - 90;
+    drawHand(p, hourAngle, hourHandColor, hourHandLength, hourHandWidth);
 }
 
 function drawHand(p, angle, color, lengthMultiplier, weight) {
@@ -486,9 +578,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Get DOM Elements ---
     const startLessonButton = document.getElementById('start-lesson-button');
-    const initialTitle = document.getElementById('initial-lesson-title');
-    const initialIntro = document.getElementById('initial-lesson-intro');
-    const professorImg = document.getElementById('professor-img');
+    const introSection = document.getElementById('intro-section'); // Get the new wrapper div
+    // const initialTitle = document.getElementById('initial-lesson-title'); // Removed
+    // const initialIntro = document.getElementById('initial-lesson-intro'); // Removed
+    // const professorImg = document.getElementById('professor-img'); // Removed
     const warmUpContent = document.getElementById('warm-up-content');
     const actualSkipButton = document.getElementById('skip-button'); 
     const actualNextButton = document.getElementById('next-step-button'); // Use correct ID
@@ -529,24 +622,26 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLessonCounter(); // Set initial counter text
 
     // --- Start Button Logic ---
-    if (startLessonButton && initialTitle && initialIntro && professorImg && warmUpContent && actualPrevButton && actualNextButton && actualSkipButton) {
+    if (startLessonButton && introSection && warmUpContent && actualPrevButton && actualNextButton && actualSkipButton) {
         startLessonButton.addEventListener('click', () => {
             console.log("Start Learning button clicked.");
             // Hide initial content
             startLessonButton.style.display = 'none'; 
-            initialTitle.style.display = 'none';
-            initialIntro.style.display = 'none';
-            professorImg.style.display = 'none';
+            introSection.style.display = 'none'; // Hide the wrapper div
+            // initialTitle.style.display = 'none'; // Removed
+            // initialIntro.style.display = 'none'; // Removed
+            // professorImg.style.display = 'none'; // Removed
             // Show main content and nav buttons
             warmUpContent.classList.remove('hidden'); 
             actualNextButton.style.display = 'inline-flex';
             actualPrevButton.style.display = 'inline-flex'; 
             actualSkipButton.style.display = 'inline-flex';
-            // Load the first step (which includes audio)
+            
+            // Load the intro animation step (index 0)
             loadWarmUpStep(0); 
         });
     } else {
-        console.error("Warm-up Start Error: Check IDs for start button, initial content, main content, and nav buttons in warm-up.html.");
+        console.error("Warm-up Start Error: Check IDs for start button, intro-section, warm-up-content, and nav buttons in warm-up.html.");
     }
 
     // --- Other Event Listeners ---
@@ -554,29 +649,53 @@ document.addEventListener('DOMContentLoaded', () => {
     if (actualNextButton) {
         actualNextButton.addEventListener('click', () => {
             console.log("Next button clicked.");
-            loadWarmUpStep(currentWarmUpStep + 1); // Function handles index check and navigation
+            // Check if we are on the intro step (0) before moving
+            if (currentWarmUpStep === 0) {
+                 // Stop animation before moving to step 1
+                 if (p5Instance && p5Instance.stopAnimation) {
+                     p5Instance.stopAnimation();
+                 }
+                 loadWarmUpStep(1); // Explicitly load step 1
+            } else {
+                 // For other steps, proceed normally
+                 loadWarmUpStep(currentWarmUpStep + 1); 
+            }
         });
-                } else {
+    } else {
          console.warn("Next button #next-step-button not found.");
     }
     // Previous Button
     if (actualPrevButton) { 
         actualPrevButton.addEventListener('click', () => {
              console.log("Previous button clicked.");
-             if (currentWarmUpStep > 0) { // Only go back if not on first step
+             if (currentWarmUpStep > 0) { 
+                 // If going back from step 1, stop any potential animation from step 0
+                 if (currentWarmUpStep === 1 && p5Instance && p5Instance.stopAnimation) {
+                     p5Instance.stopAnimation();
+                 }
                  loadWarmUpStep(currentWarmUpStep - 1);
              }
-             // Optionally add navigation back to index.html or disable if currentWarmUpStep is 0
+             // Add logic here if you want to go back to the initial welcome screen from step 0
         });
-            } else {
+    } else {
         console.warn("Previous button .btn-prev-step not found.");
     }
-    // Skip Button (Add logic if needed, otherwise it does nothing now)
+    // Skip Button (Modified to skip intro animation)
     if (actualSkipButton) {
         actualSkipButton.addEventListener('click', () => {
-            console.log("Skip button clicked - Add functionality if required.");
-            // Example: Go directly to next section
-            // window.location.href = 'learn-it.html'; 
+            console.log("Skip button clicked.");
+            if (currentWarmUpStep === 0) {
+                 // If on intro animation, skip directly to step 1
+                 stopAudio(true); // Stop intro audio
+                 if (p5Instance && p5Instance.stopAnimation) {
+                     p5Instance.stopAnimation();
+                 }
+                 loadWarmUpStep(1);
+            } else {
+                 // For other steps, skip to the next section
+                 console.log("Skipping to learn-it.html");
+                 window.location.href = 'learn-it.html';
+            }
         });
     } else {
         console.warn("Skip button #skip-button not found.");

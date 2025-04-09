@@ -77,13 +77,13 @@
 
         <main class="lesson-main">
             <div class="activity-area">
-                <!-- Initial Content: Title, Intro, Professor Image -->
-                <h1 id="initial-lesson-title">Let's Practice Together!</h1>
-                <p id="initial-lesson-intro">Watch as I show you how to read a clock, then you'll get to try it yourself!</p>
-                <img id="professor-show-it-img" src="img/professor/professor_tempo_240x240.png" alt="Professor Tempo" style="max-width: 240px; margin-bottom: 20px;">
+                <!-- Initial Content: Title, Intro, Professor Image - hidden by default now -->
+                <h1 id="initial-lesson-title" class="hidden">Let's Practice Together!</h1>
+                <p id="initial-lesson-intro" class="hidden">Watch as I show you how to read a clock, then you'll get to try it yourself!</p>
+                <img id="professor-show-it-img" src="img/professor/professor_tempo_240x240.png" alt="Professor Tempo" style="max-width: 240px; margin-bottom: 20px; display: none;">
                 
-                <!-- Content wrapper - initially hidden with class -->
-                <div id="show-it-content" class="hidden">
+                <!-- Content wrapper - now visible by default -->
+                <div id="show-it-content">
                     <!-- Left side content (clock) -->
                     <div class="content-left">
                         <div id="canvas-container" class="clock-container">
@@ -120,15 +120,15 @@
             </div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" style="display: none;"><i class="fas fa-arrow-left"></i> Previous Step</button>
+                <button class="btn btn-prev-step" style="display: inline-flex;"><i class="fas fa-arrow-left"></i> Previous Step</button>
                 
-                <!-- Start button initially in place of Skip -->
-                <button id="start-lesson-button" class="btn btn-secondary"><i class="fas fa-play"></i> Start Quiz!</button> 
+                <!-- Start button hidden now -->
+                <button id="start-lesson-button" class="btn btn-secondary" style="display: none;"><i class="fas fa-play"></i> Start Quiz!</button> 
                 
-                <!-- Skip button hidden for assessment -->
-                <button class="btn btn-skip" id="skip-button" style="display: none;"><i class="fas fa-forward"></i> Skip</button>
+                <!-- Skip button visible for assessment -->
+                <button class="btn btn-skip" id="skip-button" style="display: inline-flex;"><i class="fas fa-forward"></i> Skip</button>
                 
-                <button class="btn btn-primary btn-next-step" id="next-step-button" disabled style="display: none;"><i class="fas fa-arrow-right"></i> Next Step</button>
+                <button class="btn btn-primary btn-next-step" id="next-step-button" disabled style="display: inline-flex;"><i class="fas fa-arrow-right"></i> Next Step</button>
             </div>
         </main>
 

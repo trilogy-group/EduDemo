@@ -3,16 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <!-- Minimal styles or remove CSS link if truly no content shown -->
-    <!-- <link rel="stylesheet" href="css/style.css"> --> 
-    <script>
-        // Immediately redirect to the warm-up page
-        window.location.replace('warm-up.html');
-    </script>
-    <noscript>
-        <meta http-equiv="refresh" content="0;url=warm-up.html">
-    </noscript>
+    <title>Time - Lesson 1: Meet the Clock!</title>
+    <link rel="stylesheet" href="css/style.css">
     <!-- Favicon Link -->
     <link rel="icon" type="image/png" href="img/professor/professor_tempo_32x32.png">
     <!-- Using Font Awesome for icons -->
@@ -21,46 +13,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+    <script>
+        // Default page to load
+        window.onload = function() {
+            document.getElementById('lesson-frame').src = 'warm-up.html';
+        };
+    </script>
 </head>
 <body>
-    <!-- Fallback content in case JavaScript is disabled or slow -->
-    <p>Redirecting to the lesson...</p>
-    <p>If you are not redirected automatically, <a href="warm-up.html">click here</a>.</p>
-
-    <div class="lesson-container">
-        <header class="lesson-header">
-            <div class="header-left">
-                <img src="img/professor/professor_tempo_48x48.png" alt="Professor Tempo" class="header-icon professor-icon" id="professor-image">
-                <span class="header-title">TI Education</span>
-            </div>
-            <div class="header-right">
-                <span class="user-name">Jimmy</span>
-                <div class="avatar-initial">J</div>
-            </div>
-        </header>
-
-        <div class="lesson-progress-area">
-             <div class="lesson-info">
-                 <h1 class="lesson-title">Time - Lesson 1: Meet the Clock!</h1>
-                 <span class="lesson-counter">Step 1 of 5: Introduction</span>
-             </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 0%;"></div>
-            </div>
-        </div>
-
-        <main class="lesson-main">
-            <div class="activity-area">
-                <!-- Initial Content: Title, Intro, Professor Image -->
-                <h1 id="initial-lesson-title">Welcome to Time Lesson 1!</h1>
-                <p id="initial-lesson-intro">Let's learn how to tell time with Professor Tempo!</p>
-                <img id="professor-index-img" src="img/professor/professor_tempo_240x240.png" alt="Professor Tempo" style="max-width: 240px; margin-bottom: 20px;">
-            </div>
-        </main>
-    </div>
-
-    <!-- Removed all previous body content -->
-    <!-- <div class="lesson-container"> ... </div> -->
-    <!-- Removed script links for main.js, stepNavigation.js -->
+    <!-- Using an iframe to load all content -->
+    <iframe id="lesson-frame" title="Lesson Content" allowfullscreen></iframe>
 </body>
 </html> 

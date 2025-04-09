@@ -39,13 +39,8 @@
 
         <main class="lesson-main">
             <div class="activity-area">
-                <!-- Initial Content: Title, Intro, Professor Image -->
-                <h1 id="initial-lesson-title">Try It Out!</h1>
-                <p id="initial-lesson-intro">Now it's your turn to practice what you've learned about clocks!</p>
-                <img id="professor-img" src="img/professor/professor_tempo_240x240.png" alt="Professor Tempo" style="max-width: 240px; margin-bottom: 20px;">
-                
-                <!-- Content wrapper - initially hidden with class -->
-                <div id="try-it-content" class="hidden">
+                <!-- Content wrapper - now displayed immediately -->
+                <div id="try-it-content">
                     <!-- Right side content (text) -->
                     <div class="content-right">
                         <h2 id="try-it-title">Try It: Guided Hand Spotting</h2>
@@ -74,15 +69,9 @@
             </div>
 
             <div class="navigation-buttons">
-                <button class="btn btn-prev-step" style="display: none;"><i class="fas fa-arrow-left"></i> Previous Step</button>
-                
-                <!-- Start button initially in place of Skip -->
-                <button id="start-lesson-button" class="btn btn-secondary"><i class="fas fa-play"></i> Start Practice!</button> 
-                
-                <!-- Actual Skip button, initially hidden -->
+                <button class="btn btn-prev-step"><i class="fas fa-arrow-left"></i> Previous Step</button>
                 <button class="btn btn-skip" id="skip-button" style="display: none;"><i class="fas fa-forward"></i> Skip</button>
-                
-                <button class="btn btn-primary btn-next-step" id="next-step-button" disabled style="display: none;"><i class="fas fa-arrow-right"></i> Next Step</button>
+                <button class="btn btn-primary btn-next-step" id="next-step-button" disabled><i class="fas fa-arrow-right"></i> Next Step</button>
             </div>
         </main>
 

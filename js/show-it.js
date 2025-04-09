@@ -226,6 +226,7 @@ function loadQuestion(questionIndex) {
     console.log(`Loading question: ${questionIndex}`);
     currentQuestion = questionIndex;
     const question = questions[currentQuestion];
+    const instructionText = question.instruction || ""; // Store text
 
     // Remove previous p5 instance
     if (p5Instance) {
@@ -233,87 +234,110 @@ function loadQuestion(questionIndex) {
         p5Instance = null;
     }
     
-    // Get layout elements
+    // Get layout elements & references
     const showItContent = document.getElementById('show-it-content');
     const contentLeft = showItContent.querySelector('.content-left');
     const contentRight = showItContent.querySelector('.content-right');
-    
-    // Clear containers but preserve structure
     const container = document.getElementById('canvas-container');
+    const instructionElement = document.getElementById('show-it-instruction'); // Get instruction element
+    const titleElement = document.getElementById('show-it-title'); // Get title element
+
+    // --- Prepare UI --- 
+    stopAudio(true); // Stop previous audio
+    
+    // Clear containers/feedback
     if (container) container.innerHTML = '';
     else { console.error("Canvas container not found!"); return; }
-    
-    // Ensure content-right is displayed properly
-    contentRight.style.display = 'block';
-    
-    // Reset layout structure - Move checkArea to content-right
-    contentLeft.innerHTML = '';
-    contentLeft.appendChild(container);
-    
-    // Make sure checkArea is in the content-right
-    if (checkArea.parentNode) {
-        checkArea.parentNode.removeChild(checkArea);
-    }
-    contentRight.appendChild(checkArea);
-
-    stopAudio(true);
-    
-    // Update UI elements
-    titleElement.textContent = question.title;
-    instructionElement.innerHTML = question.instruction;
+    checkArea.innerHTML = '';
     feedbackArea.textContent = '';
     feedbackArea.className = 'feedback';
-    checkArea.innerHTML = '';
+    
+    // Hide instruction text initially
+    if (instructionElement) {
+        instructionElement.innerHTML = '';
+        instructionElement.style.visibility = 'hidden';
+    }
+    if (titleElement && question.title) titleElement.textContent = question.title;
+    
+    // Ensure content areas are visible
+    contentRight.style.display = 'block';
+    
+    // Reset layout structure (if modified by previous steps)
+    // Ensure checkArea is in content-right for buttons
+    if (question.type === 'choice' || question.type === 'yes-no') {
+        if (checkArea.parentNode !== contentRight) {
+             if (checkArea.parentNode) checkArea.parentNode.removeChild(checkArea);
+             contentRight.appendChild(checkArea);
+        }
+    } else {
+         // Assuming checkArea is not needed or handled elsewhere for 'hand' type
+         if (checkArea.parentNode) checkArea.parentNode.removeChild(checkArea);
+    }
+
+    // Update lesson counter/progress bar
     if (lessonCounterElement) {
         lessonCounterElement.textContent = `Show It - Question ${questionIndex + 1} of ${questions.length}`;
     }
-
-    // Update progress bar
     const progressBar = document.querySelector('.progress-bar');
     if (progressBar) {
         const progressPercentage = (currentQuestion / questions.length) * 20 + 80; // 80% to 100%
         progressBar.style.width = `${progressPercentage}%`;
     }
 
-    // Create new p5 instance for clock
-    if (question.p5config && typeof p5 !== 'undefined') {
-        console.log("Creating new p5 instance with config:", question.p5config);
-        try {
-            p5Instance = new p5(sketch(question.p5config));
-            console.log("p5 instance created successfully:", p5Instance);
+    // Define callback to show text and setup interaction
+    const showTextAndSetupCallback = () => {
+         if (instructionElement) {
+             instructionElement.innerHTML = instructionText;
+             instructionElement.style.visibility = 'visible';
+             console.log("Instruction text visible for question:", questionIndex);
+         }
+         
+        // Create new p5 instance for clock *after* text potentially visible
+        if (question.p5config && typeof p5 !== 'undefined') {
+            console.log("Creating new p5 instance with config:", question.p5config);
+            try {
+                p5Instance = new p5(sketch(question.p5config), canvasContainer);
+                console.log("p5 instance created successfully:", p5Instance);
 
-            // Show animation for clockwise question
-            if (question.type === 'yes-no' && question.p5config.animateHands) {
-                setTimeout(() => {
-                    if (p5Instance) p5Instance.startAnimation();
-                }, 500);
+                // Start animation immediately if needed
+                if (question.p5config.animateHands && p5Instance && typeof p5Instance.startAnimation === 'function') {
+                     console.log("Starting animation immediately after p5 creation.");
+                     p5Instance.startAnimation();
+                }
+                
+                // Enable interaction for hand questions
+                if (question.type === 'hand' && p5Instance) {
+                    p5Instance.setInteraction(true, question.p5config.interactionTarget);
+                }
+                
+            } catch (e) {
+                console.error("Error creating p5 instance:", e);
             }
-            
-            // Enable interaction for hand questions
-            if (question.type === 'hand' && p5Instance) {
-                p5Instance.setInteraction(true, question.p5config.interactionTarget);
-            }
-            
-        } catch (e) {
-            console.error("Error creating p5 instance:", e);
         }
-    }
-    
-    // Set up the check area based on question type
-    if (question.type === 'choice') {
-        createChoiceButtons(question);
-    } else if (question.type === 'yes-no') {
-        createYesNoButtons();
-    }
+        
+        // Set up the check area based on question type *after* text visible
+        if (question.type === 'choice') {
+            createChoiceButtons(question);
+        } else if (question.type === 'yes-no') {
+            createYesNoButtons();
+        }
+        
+        // Enable navigation after setup
+        nextButton.style.display = 'inline-flex'; 
+        nextButton.disabled = true; // Will be enabled by handleAnswer
+        prevButton.style.display = 'inline-flex';
+        skipButton.style.display = 'inline-flex'; // Ensure skip is visible
+    };
     
     // Play audio instruction
     currentAudioFilename = getAudioFilename(currentQuestion, 'instruction');
-    playAudio(currentAudioFilename);
-    
-    // Enable navigation for assessment
-    nextButton.style.display = 'inline-flex'; 
-    nextButton.disabled = true;
-    prevButton.style.display = 'inline-flex';
+    if (currentAudioFilename) {
+        playAudio(currentAudioFilename, showTextAndSetupCallback);
+    } else {
+         console.log("No audio for question:", questionIndex);
+         // Run callback immediately if no audio
+         setTimeout(showTextAndSetupCallback, 0);
+    }
 }
 
 function createChoiceButtons(question) {
@@ -634,11 +658,14 @@ function sketch(config) {
                 console.error("Canvas container not found!");
                 return;
             }
-            const containerWidth = container.offsetWidth;
-            const containerHeight = container.offsetHeight;
-            const canvasSize = p.min(containerWidth, containerHeight);
-            
-            console.log(`Container size: ${containerWidth}x${containerHeight}, Canvas size: ${canvasSize}`);
+            // <<< Temporarily forcing fixed size >>>
+            const canvasSize = 300; 
+            console.warn(`FORCED Canvas size: ${canvasSize}`); // Log forced size
+            // let containerWidth = container.offsetWidth;
+            // let containerHeight = container.offsetHeight;
+            // let canvasSize;
+            // if (containerWidth > 0 && containerHeight > 0) { ... } else { ... } // Original logic commented out
+            // console.log(`Container size: ${containerWidth}x${containerHeight}, Canvas size: ${canvasSize}`);
             
             let canvas = p.createCanvas(canvasSize, canvasSize);
             canvas.parent('canvas-container');
@@ -762,7 +789,7 @@ function sketch(config) {
         p.startAnimation = () => {
             if (!localHandAnimationActive) {
                 localHandAnimationActive = true;
-                console.log(`p5 startAnimation for question ${stepConfig.stepIndex}`);
+                console.log(`<<< p5 startAnimation INVOKED for question ${stepConfig.stepIndex} >>>`);
                 p.loop();
             }
         };
@@ -927,75 +954,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log("DOM Loaded.");
 
-    // --- Start Button Listener ---
-    if (startButton && nextButtonActual && professorImg && showItContent && initialTitle && initialIntro) {
-        console.log("Attaching Start button listener.");
-        startButton.addEventListener('click', () => {
-            console.log("Start button clicked.");
-            startButton.style.display = 'none'; 
-            initialTitle.classList.add('hidden'); 
-            initialIntro.classList.add('hidden'); 
-            professorImg.classList.add('hidden');
-            showItContent.classList.remove('hidden'); 
-            
-            // Show navigation buttons
-            prevButtonActual.style.display = 'inline-flex';
-            skipButtonActual.style.display = 'inline-flex'; 
-            nextButtonActual.style.display = 'inline-flex';
+    // --- Auto-start quiz instead of waiting for button click ---
+    if (nextButtonActual && showItContent && initialTitle && initialIntro && professorImg) {
+        console.log("Auto-starting quiz");
+        // Hide intro elements
+        startButton.style.display = 'none';
+        initialTitle.classList.add('hidden');
+        initialIntro.classList.add('hidden');
+        professorImg.classList.add('hidden');
+        showItContent.classList.remove('hidden');
+        
+        // Show navigation buttons
+        prevButtonActual.style.display = 'inline-flex';
+        skipButtonActual.style.display = 'inline-flex'; 
+        nextButtonActual.style.display = 'inline-flex';
+        
+        // Start first question immediately
+        setTimeout(() => {
             loadQuestion(0);
-        });
+        }, 100); // Small delay to ensure DOM is ready
+    }
+    
+    // Setup next button
+    nextButtonActual.addEventListener('click', () => {
+        if (nextButtonActual.disabled) return;
         
-        // Setup next button
-        nextButtonActual.addEventListener('click', () => {
-            if (nextButtonActual.disabled) return;
-            
+        stopAudio(true);
+        
+        // If results are showing, finish the lesson
+        if (!resultsArea.classList.contains('hidden')) {
+            window.location.href = 'completed.html'; // Return to home/next lesson
+            return;
+        }
+        
+        // Move to next question
+        if (currentQuestion < questions.length - 1) {
+            loadQuestion(currentQuestion + 1);
+        } else {
+            showResults();
+        }
+    });
+    
+    // Setup previous button
+    prevButtonActual.addEventListener('click', () => {
+        if (currentQuestion > 0) {
             stopAudio(true);
-            
-            // If results are showing, finish the lesson
-            if (!resultsArea.classList.contains('hidden')) {
-                window.location.href = 'completed.html'; // Return to home/next lesson
-                return;
-            }
-            
-            // Move to next question
-            if (currentQuestion < questions.length - 1) {
-                loadQuestion(currentQuestion + 1);
-            } else {
-                showResults();
-            }
-        });
-        
-        // Setup previous button
-        prevButtonActual.addEventListener('click', () => {
-            if (currentQuestion > 0) {
-                stopAudio(true);
-                loadQuestion(currentQuestion - 1);
-                } else {
-                // If on first question, go back to intro
-                showItContent.classList.add('hidden');
-                resultsArea.classList.add('hidden');
-                initialTitle.classList.remove('hidden');
-                initialIntro.classList.remove('hidden');
-                professorImg.classList.remove('hidden');
-                startButton.style.display = 'inline-flex';
-                prevButtonActual.style.display = 'none';
-                skipButtonActual.style.display = 'none';
-                nextButtonActual.style.display = 'none';
-            }
-        });
-        
-        // Setup skip button
-         skipButtonActual.addEventListener('click', () => {
-             stopAudio(true);
-            // Skip to next question
-            if (currentQuestion < questions.length - 1) {
-                loadQuestion(currentQuestion + 1);
-    } else {
-                showResults();
-            }
-        });
-        
-        // Footer Audio Button Listener
+            loadQuestion(currentQuestion - 1);
+        }
+    });
+    
+    // Setup skip button
+    skipButtonActual.addEventListener('click', () => {
+        stopAudio(true);
+        // Skip to next question
+        if (currentQuestion < questions.length - 1) {
+            loadQuestion(currentQuestion + 1);
+        } else {
+            showResults();
+        }
+    });
+    
+    // Footer Audio Button Listener
     if (footerAudioButton) {
         console.log("Attaching Footer audio button listener.");
         footerAudioButton.addEventListener('click', () => {
@@ -1004,7 +1023,6 @@ document.addEventListener('DOMContentLoaded', () => {
             stopAudio(true);
             playAudio(currentAudioFilename);
         });
-        }
     } else {
         console.error("One or more required elements not found!");
     }

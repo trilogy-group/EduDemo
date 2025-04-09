@@ -18,6 +18,14 @@ let currentAudioFilename = null; // Store current audio filename
 let clockDiameter; // Will be calculated during setup
 let dragableArrow = null; // For the draggable arrow in step 3
 
+// --- Global State Object ---
+const globalState = {
+    audioEnabled: true,
+    currentSubStep: 0,
+    completedSubSteps: [],
+    p5Instance: null
+};
+
 // --- Clock Style Constants ---
 const bgColor = '#FFFFFF';
 const clockFaceColor = '#FDF8E1';
@@ -358,7 +366,7 @@ function createYesNoButtons() {
 
 // Handle Yes/No button responses
 function handleYesNoResponse(isYes) {
-    if (currentSubStep !== 2) return;
+    if (globalState.currentSubStep !== 2) return;
     
     const isCorrect = (isYes === true); // "yes" is the correct answer
     handleInteractionResult(isCorrect);
@@ -366,88 +374,81 @@ function handleYesNoResponse(isYes) {
 
 // --- Core Functions ---
 
-// Load a substep
-function loadSubStep(stepIndex) {
-    if (stepIndex < 0 || stepIndex >= subSteps.length) {
-        console.error("Invalid step index:", stepIndex);
-        if (p5Instance) {
-            p5Instance.remove();
-            p5Instance = null;
-        }
+// Load a specific sub-step
+function loadSubStep(index) {
+    if (index < 0 || index >= subSteps.length) {
+        console.error("Invalid sub-step index:", index);
+        // Navigate to next section or handle completion
+        window.location.href = 'do-it.html'; 
         return;
     }
-    
-    console.log(`Loading Try It sub-step: ${stepIndex}`);
-    currentSubStep = stepIndex;
+    console.log(`Loading sub-step ${index}`);
+    currentSubStep = index;
     const stepData = subSteps[currentSubStep];
+    const instructionElement = document.getElementById('try-it-instruction');
+    const instructionText = stepData.instruction || ""; // Store text
+
+    stopAudio(true); // Stop previous audio
     
-    // Remove previous p5 instance
-    if (p5Instance) {
-        p5Instance.remove();
-        p5Instance = null;
+    // Hide text initially
+    if (instructionElement) {
+        instructionElement.innerHTML = "";
+        instructionElement.style.visibility = 'hidden';
     }
-    
-    // Clear containers
-    canvasContainer.innerHTML = '';
+    if (titleElement && stepData.title) {
+        titleElement.textContent = stepData.title;
+    }
+    feedbackArea.textContent = '';
+    feedbackArea.className = 'feedback';
     checkArea.innerHTML = '';
-    
-    // Ensure checkArea is in the correct location based on the step
-    const contentLeft = document.querySelector('.content-left');
-    const contentRight = document.querySelector('.content-right');
-    
-    // For step 2, checkArea should be in content-right
-    // For all other steps, checkArea should be in content-left
-    if (stepIndex === 2) {
-        if (checkArea.parentNode === contentLeft) {
-            contentLeft.removeChild(checkArea);
-            contentRight.appendChild(checkArea);
+    cleanupCheckLayout(); // Ensure layout is reset if needed
+
+    // Initialize p5 instance
+    initializeP5(stepData);
+
+    // Update nav buttons
+    updateNavigationButtons();
+    if(prevButton) prevButton.disabled = (index === 0);
+    nextButton.disabled = true; // Always disable initially
+
+    // Define callback to show text
+    const showTextCallback = () => {
+        if (instructionElement) {
+             instructionElement.innerHTML = instructionText; // Set the stored text
+             instructionElement.style.visibility = 'visible';
+             console.log("Instruction text made visible for step:", index);
         }
+        // Call the step-specific setup logic AFTER text is visible
+        if (typeof stepData.setup === 'function') {
+             stepData.setup(p5Instance);
+        } else {
+             console.warn("No setup function defined for step:", index);
+             // If no setup, might need to enable next based on step type
+             // For Try It, setup usually handles this.
+        }
+    };
+
+    // Play audio for the step using getAudioFilename
+    const audioFile = getAudioFilename(index, 'instruction');
+    currentAudioFilename = audioFile; // Store for potential replay
+    if (audioFile) {
+        playAudio(audioFile, showTextCallback);
     } else {
-        if (checkArea.parentNode === contentRight) {
-            contentRight.removeChild(checkArea);
-            contentLeft.appendChild(checkArea);
-        }
+        console.log("No instruction audio for step:", index);
+        // If no audio, run callback immediately to show text
+        setTimeout(showTextCallback, 0); 
     }
     
-    // Stop any playing audio
-    stopAudio(true);
-    
-    // Update counter
-    if (lessonCounterElement) {
-        lessonCounterElement.textContent = `Try It - Step ${stepIndex + 1} of ${subSteps.length}`;
-    }
-    
-    // Create new p5 instance
-    if (stepData.p5config && typeof p5 !== 'undefined') {
-        console.log("Creating new p5 instance with config:", stepData.p5config);
-        
-        try {
-            p5Instance = new p5(clockSketch(stepData.p5config));
-            
-            // Call the step's setup function
-            if (typeof stepData.setup === 'function') {
-                setTimeout(() => {
-                    if (p5Instance && currentSubStep === stepIndex) {
-                        stepData.setup(p5Instance);
-                    }
-                }, 50);
-            }
-        } catch (error) {
-            console.error(`Error creating p5 instance:`, error);
-            feedbackArea.textContent = "Error loading interactive element.";
-            feedbackArea.className = 'feedback feedback-incorrect';
-        }
-    }
-    
-    // Update navigation buttons
-    prevButton.disabled = (currentSubStep === 0);
+    // Update lesson counter & progress
+    updateLessonCounter();
+    updateProgressBar();
 }
 
 // Handle interaction results
 function handleInteractionResult(isCorrect) {
-    if (currentSubStep < 0 || currentSubStep >= subSteps.length) return;
+    if (globalState.currentSubStep < 0 || globalState.currentSubStep >= subSteps.length) return;
     
-    const stepData = subSteps[currentSubStep];
+    const stepData = subSteps[globalState.currentSubStep];
     
     if (isCorrect) {
         console.log("Correct interaction!");
@@ -456,8 +457,13 @@ function handleInteractionResult(isCorrect) {
         feedbackArea.textContent = stepData.feedbackCorrect;
         feedbackArea.className = 'feedback feedback-correct';
         
+        // Add to completed steps if not already there
+        if (!globalState.completedSubSteps.includes(globalState.currentSubStep)) {
+            globalState.completedSubSteps.push(globalState.currentSubStep);
+        }
+        
         // Play feedback audio
-        playAudio(getAudioFilename(currentSubStep, 'feedback-correct'));
+        playAudio(getAudioFilename(globalState.currentSubStep, 'feedback-correct'));
         
         // Enable next button
         nextButton.disabled = false;
@@ -474,7 +480,7 @@ function handleInteractionResult(isCorrect) {
         feedbackArea.className = 'feedback feedback-incorrect';
         
         // Play feedback audio
-        playAudio(getAudioFilename(currentSubStep, 'feedback-incorrect'));
+        playAudio(getAudioFilename(globalState.currentSubStep, 'feedback-incorrect'));
         
         // For p5 instance, re-enable interaction after a delay
         if (p5Instance && stepData.checkType === 'hand') {
@@ -1002,98 +1008,239 @@ function drawArrow(p, x, y, size, direction, isHovered, isClicked, isCorrect) {
     p.pop();
 }
 
-// --- Event Listeners ---
-document.addEventListener('DOMContentLoaded', () => {
-    const footerAudioButton = document.getElementById('footer-audio-button');
-    const startLessonButton = document.getElementById('start-lesson-button');
-    const skipButtonActual = document.getElementById('skip-button');
-    const prevButtonActual = document.querySelector('.btn-prev-step');
-    const nextButtonActual = document.getElementById('next-step-button');
-    const professorImg = document.getElementById('professor-img');
-    const tryItContent = document.getElementById('try-it-content');
-    const initialTitle = document.getElementById('initial-lesson-title');
-    const initialIntro = document.getElementById('initial-lesson-intro');
-    
-    console.log("DOM Loaded for Try It section.");
-    
-    // --- Start Button Listener ---
-    if (startLessonButton && skipButtonActual && prevButtonActual && nextButtonActual && 
-        professorImg && tryItContent && initialTitle && initialIntro) {
-        
-        console.log("Attaching Start button listener.");
-        
-        startLessonButton.addEventListener('click', () => {
-            console.log("Start button clicked.");
-            startLessonButton.style.display = 'none';
-            
-            // Hide intro content
-            initialTitle.classList.add('hidden');
-            initialIntro.classList.add('hidden');
-            professorImg.classList.add('hidden');
-            
-            // Show main content
-            tryItContent.classList.remove('hidden');
-            
-            // Show navigation buttons
-            skipButtonActual.style.display = 'inline-flex';
-            prevButtonActual.style.display = 'inline-flex';
-            nextButtonActual.style.display = 'inline-flex';
-            
-            // Load first step
-            loadSubStep(0);
+// Event listeners - DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function() {
+    // Setup Help Modal
+    const helpButton = document.getElementById("help-button");
+    const helpModal = document.getElementById("help-modal");
+    const closeModalButton = document.getElementById("close-help-modal-button");
+
+    if (helpButton && helpModal && closeModalButton) {
+        helpButton.addEventListener("click", function() {
+            helpModal.classList.remove("hidden");
         });
-        
-        // --- Next Button Listener ---
-        nextButtonActual.addEventListener('click', () => {
-            console.log("Next button clicked.");
-            
-            if (currentSubStep < subSteps.length - 1) {
-                loadSubStep(currentSubStep + 1);
-            } else {
-                // Navigate to next page when all steps are completed
-                window.location.href = 'do-it.html';
+
+        closeModalButton.addEventListener("click", function() {
+            helpModal.classList.add("hidden");
+        });
+
+        // Close modal when clicking outside of modal content
+        window.addEventListener("click", function(event) {
+            if (event.target === helpModal) {
+                helpModal.classList.add("hidden");
             }
-        });
-        
-        // --- Previous Button Listener ---
-        prevButtonActual.addEventListener('click', () => {
-            console.log("Previous button clicked.");
-            
-            if (currentSubStep > 0) {
-                loadSubStep(currentSubStep - 1);
-            } else {
-                // Navigate to previous page
-                window.location.href = 'learn-it.html';
-            }
-        });
-        
-        // --- Skip Button Listener ---
-        skipButtonActual.addEventListener('click', () => {
-            console.log("Skip button clicked.");
-            
-            // Enable next button even if activity not completed
-            nextButtonActual.disabled = false;
-            
-            // Stop animations if playing
-            if (p5Instance) {
-                p5Instance.stopAnimation();
-                p5Instance.setInteraction(false, null);
-            }
-        });
-        
-    } else {
-        console.error("One or more required initial elements not found!");
-    }
-    
-    // --- Footer Audio Button Listener ---
-    if (footerAudioButton) {
-        footerAudioButton.addEventListener('click', () => {
-            console.log("Footer audio button clicked.");
-            
-            stopAudio(true);
-            playAudio(currentAudioFilename);
         });
     } else {
-        console.error("Footer audio button not found!");
+        console.error("Help modal elements not found.");
     }
-}); 
+
+    // Setup audio button
+    const audioButton = document.getElementById("footer-audio-button");
+    if (audioButton) {
+        audioButton.addEventListener("click", function() {
+            // Toggle audio state
+            globalState.audioEnabled = !globalState.audioEnabled;
+            
+            // Update button icon
+            const icon = audioButton.querySelector("i");
+            if (icon) {
+                if (globalState.audioEnabled) {
+                    icon.className = "fas fa-volume-up";
+                } else {
+                    icon.className = "fas fa-volume-mute";
+                    stopAudio(); // Stop any playing audio
+                }
+            }
+        });
+    } else {
+        console.error("Audio button not found.");
+    }
+
+    // Setup navigation buttons
+    const prevButton = document.querySelector(".btn-prev-step");
+    const nextButton = document.getElementById("next-step-button");
+    const skipButton = document.getElementById("skip-button");
+
+    if (prevButton && nextButton && skipButton) {
+        prevButton.addEventListener("click", loadPreviousSubStep);
+        nextButton.addEventListener("click", loadNextSubStep);
+        skipButton.addEventListener("click", loadNextSubStep);
+    } else {
+        console.error("Navigation buttons not found.");
+    }
+
+    // Initialize the lesson directly
+    initializeLesson();
+});
+
+// Initialize the lesson
+function initializeLesson() {
+    console.log("Initializing lesson...");
+    // Reset any global state if needed
+    resetState();
+    
+    // Ensure Skip button is visible
+    const skipButton = document.getElementById('skip-button');
+    if (skipButton) {
+        skipButton.style.display = 'inline-flex'; // Ensure it's visible
+    } else {
+        console.warn("Skip button not found during initialization!");
+    }
+    
+    // Load the first subStep
+    loadSubStep(0);
+    
+    // Play welcome audio if needed
+    if (globalState.audioEnabled) {
+        playAudio("welcome_to_try_it");
+    }
+}
+
+// Reset state for lesson initialization
+function resetState() {
+    globalState.currentSubStep = 0;
+    globalState.completedSubSteps = [];
+    
+    // Reset the p5 instance if it exists
+    if (globalState.p5Instance) {
+        globalState.p5Instance.remove();
+        globalState.p5Instance = null;
+    }
+    
+    // Clear feedback area
+    const feedbackArea = document.getElementById("feedback-area");
+    if (feedbackArea) {
+        feedbackArea.innerHTML = "";
+        feedbackArea.className = "feedback";
+    }
+}
+
+// Load a specific sub-step
+function loadSubStep(index) {
+    console.log(`Loading sub-step ${index}`);
+    globalState.currentSubStep = index;
+    
+    // Get the current sub-step data
+    const subStep = subSteps[index];
+    
+    // Update the instruction text
+    const instructionElement = document.getElementById("try-it-instruction");
+    if (instructionElement && subStep.instruction) {
+        instructionElement.innerHTML = subStep.instruction;
+    }
+    
+    // Update navigation buttons based on current step
+    updateNavigationButtons();
+    
+    // Display appropriate feedback
+    clearFeedback();
+    
+    // Initialize p5 instance if needed
+    initializeP5(subStep);
+    
+    // Play audio for the step
+    if (globalState.audioEnabled && subStep.audioFile) {
+        playAudio(subStep.audioFile);
+    }
+}
+
+// Load next sub-step
+function loadNextSubStep() {
+    console.log("Loading next sub-step");
+    
+    // First, ensure any existing p5 instance is properly removed
+    if (p5Instance) {
+        p5Instance.remove();
+        p5Instance = null;
+    }
+    
+    if (globalState.currentSubStep < subSteps.length - 1) {
+        loadSubStep(globalState.currentSubStep + 1);
+    } else {
+        // Navigate to next page when all steps are completed
+        window.location.href = 'do-it.html';
+    }
+}
+
+// Load previous sub-step
+function loadPreviousSubStep() {
+    console.log("Loading previous sub-step");
+    
+    // First, ensure any existing p5 instance is properly removed
+    if (p5Instance) {
+        p5Instance.remove();
+        p5Instance = null;
+    }
+    
+    if (globalState.currentSubStep > 0) {
+        loadSubStep(globalState.currentSubStep - 1);
+    } else {
+        // Navigate to previous page
+        window.location.href = 'learn-it.html';
+    }
+}
+
+// Update navigation buttons based on current step
+function updateNavigationButtons() {
+    const nextButton = document.getElementById("next-step-button");
+    const skipButton = document.getElementById("skip-button");
+    
+    if (nextButton && skipButton) {
+        const isCompleted = globalState.completedSubSteps.includes(globalState.currentSubStep);
+        
+        // Enable/disable next button based on completion status
+        nextButton.disabled = !isCompleted;
+
+    }
+}
+
+// Display appropriate feedback
+function clearFeedback() {
+    // Implementation of clearFeedback function
+    const feedbackArea = document.getElementById('feedback-area');
+    if (feedbackArea) {
+        feedbackArea.textContent = '';
+        feedbackArea.className = 'feedback';
+    }
+}
+
+// Initialize p5 instance if needed
+function initializeP5(subStep) {
+    if (!subStep.p5config) return;
+    
+    // Remove any existing p5 instance
+    if (p5Instance) {
+        p5Instance.remove();
+        p5Instance = null;
+    }
+    
+    // Make sure to remove any existing canvas elements
+    const existingCanvases = canvasContainer.querySelectorAll('canvas');
+    existingCanvases.forEach(canvas => canvas.remove());
+    
+    // Clear the canvas container
+    canvasContainer.innerHTML = '';
+    
+    // Create a new p5 instance with this step's configuration
+    try {
+        // Short delay to ensure DOM is ready
+        setTimeout(() => {
+            p5Instance = new p5(clockSketch(subStep.p5config), canvasContainer);
+            globalState.p5Instance = p5Instance;
+            
+            // Call the step's setup function once the p5 instance is ready
+            setTimeout(() => {
+                if (p5Instance && typeof subStep.setup === 'function') {
+                    subStep.setup(p5Instance);
+                }
+            }, 50);
+        }, 20);
+    } catch (error) {
+        console.error("Error creating p5 instance:", error);
+        const feedbackArea = document.getElementById('feedback-area');
+        if (feedbackArea) {
+            feedbackArea.textContent = "Error loading interactive element.";
+            feedbackArea.className = 'feedback feedback-incorrect';
+        }
+    }
+} 
