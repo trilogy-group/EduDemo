@@ -531,7 +531,13 @@ function playAudio(filename, onEndedCallback = null) {
     if (playPromise !== undefined) {
         playPromise.then(() => {
             console.log("Audio playback started:", audioPath);
-        }).catch(handleAudioError);
+        }).catch(e => {
+            console.error("Audio play failed:", filename, e);
+            if (typeof onEndedCallback === 'function') {
+                console.log("Calling onEndedCallback despite audio playback failure.");
+                onEndedCallback();
+            }
+        });
     } else {
        console.warn("Audio play() did not return a promise.");
        // Rely on events
@@ -830,7 +836,7 @@ function handleInteractionResult(isCorrect) {
             // Play correct sound and enable Next button in callback
             playAudio('correct.mp3', () => {
                 nextButton.disabled = false; 
-                console.log("Correct audio finished, Next button enabled.");
+                console.log("Callback executed after audio attempt, Next button enabled.");
             });
 
             // Optional: clear p5 click feedback after a delay

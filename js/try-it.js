@@ -15,16 +15,9 @@ let currentSubStep = -1; // Start at -1 before first load
 let p5Instance = null; // Holds the current p5 instance
 let narrationAudio = new Audio(); // Audio object for narration
 let currentAudioFilename = null; // Store current audio filename
+let isAudioGloballyEnabled = true; // <<< ADDED global audio toggle flag
 let clockDiameter; // Will be calculated during setup
 let dragableArrow = null; // For the draggable arrow in step 3
-
-// --- Global State Object ---
-const globalState = {
-    audioEnabled: true,
-    currentSubStep: 0,
-    completedSubSteps: [],
-    p5Instance: null
-};
 
 // --- Clock Style Constants ---
 const bgColor = '#FFFFFF';
@@ -44,8 +37,8 @@ const minuteHandLength = 0.40;
 const hourHandWidth = 10;
 const minuteHandWidth = 8;
 
-// --- Audio Filename Map ---
-const audioFilenameMap = {
+// --- Audio Mapping ---
+const audioMap = {
     // Try It Step 0 (Hour Hand)
     '0-instruction': 'find_the_hour_hand_remember_its.mp3',
     '0-feedback-correct': 'you_got_it_thats_the_short.mp3',
@@ -56,15 +49,14 @@ const audioFilenameMap = {
     '1-feedback-correct': 'correct.mp3',
     '1-feedback-incorrect': 'careful_the_minute_hand_is_the.mp3',
     
-    // Try It Step 2 (Clockwise Motion)
-    '2-instruction': 'are_they_moving_clockwise_click_yes.mp3',
-    '2-feedback-correct': 'correct_they_are_moving_clockwise.mp3',
-    '2-feedback-incorrect': 'look_closely_they_are_following_the.mp3',
+    // Try It Step 2 (Clockwise Arrow Click) - REPURPOSED
+    '2-instruction-arrow': 'click_the_arrow_that_shows_clockwise.mp3', // Use existing correct filename
+    '2-feedback-correct': 'perfect_thats_clockwise.mp3', // Use feedback from original step 3
+    '2-feedback-incorrect': 'not_quite_remember_clockwise_follows_the.mp3', // Use feedback from original step 3
+    // Removed old step 2 keys: '2-instruction', '2-feedback-correct', '2-feedback-incorrect'
     
-    // Try It Step 3 (Drag Arrow)
-    '3-instruction': 'which_way_is_clockwise_drag_the.mp3',
-    '3-feedback-correct': 'perfect_thats_clockwise.mp3',
-    '3-feedback-incorrect': 'not_quite_remember_clockwise_follows_the.mp3'
+    // Removed keys for old Step 3 (Drag Arrow - which was actually click arrow)
+    // '3-instruction', '3-feedback-correct', '3-feedback-incorrect'
 };
 
 // --- Lesson Content: Define SubSteps ---
@@ -149,23 +141,24 @@ const subSteps = [
             nextButton.disabled = true;
         }
     },
-    { // 2: Clockwise Motion Identification
-        title: "Clockwise Motion",
-        instruction: "Are they moving <strong>Clockwise</strong>? Click Yes or No.",
-        checkType: 'yesno',
-        correctValue: 'yes',
-        feedbackCorrect: "Correct! They are moving clockwise.",
-        feedbackIncorrect: "Look closely! They are following the numbers 1, 2, 3... That <em>is</em> clockwise.",
+    { // 2: Click Clockwise Arrow - REPURPOSED from original step 3
+        title: "Click the Clockwise Arrow",
+        instruction: "Which arrow shows the clockwise direction? Click it.",
+        checkType: 'arrow', // Changed from yesno
+        correctValue: 'clockwise', // Changed from yes
+        feedbackCorrect: "Perfect! That's clockwise!", // Used original step 3 feedback
+        feedbackIncorrect: "Not quite. Clockwise follows the numbers around... like the arrow near 4.", // Used original step 3 feedback
         p5config: {
             stepIndex: 2,
             showNumbers: true,
             showHands: true,
-            initialTime: { h: 12, m: 0 },
-            animateHands: true,
-            showDirectionArrows: false
+            initialTime: { h: 3, m: 0 }, // Use time from original step 3
+            animateHands: false, // Changed from true
+            showDirectionArrows: true, // Changed from false
+            interactionTarget: { type: 'arrow', value: 'clockwise' } // Added interaction target
         },
         setup: (instance) => {
-            console.log("Running setup for Try It Step 2");
+            console.log("Running setup for Try It Step 2 (Arrow Click)");
             const stepData = subSteps[2];
             
             // Update UI
@@ -174,73 +167,37 @@ const subSteps = [
             feedbackArea.textContent = '';
             feedbackArea.className = 'feedback';
             
-            // Clear the default check area
-            checkArea.innerHTML = '';
-            
-            // Move the check area to the content-right div for this step
+            // REMOVED logic to move checkArea and create Yes/No buttons
+            checkArea.innerHTML = ''; // Ensure check area is clear
+            // Restore checkArea to content-left if it was moved by previous step 2 setup
             const contentLeft = document.querySelector('.content-left');
-            const contentRight = document.querySelector('.content-right');
-            
-            // If checkArea is in content-left, move it to content-right
-            if (checkArea.parentNode === contentLeft) {
-                contentLeft.removeChild(checkArea);
-                contentRight.appendChild(checkArea);
+            if (checkArea.parentNode !== contentLeft) {
+                 if(checkArea.parentNode) checkArea.parentNode.removeChild(checkArea);
+                 if(contentLeft) contentLeft.appendChild(checkArea);
             }
-            
-            // Ensure instruction area has some spacing at the bottom
-            instructionElement.style.marginBottom = '20px';
-            
-            // Create Yes/No buttons in check area
-            createYesNoButtons();
-            
-            // Play instruction audio
-            const instructionAudioFile = getAudioFilename(2, 'instruction');
+
+            // Play instruction audio and enable interaction in callback
+            const instructionAudioFile = getAudioFilename(2, 'instruction-arrow');
+            console.log(`Attempting to play audio for step 2: ${instructionAudioFile}`); 
+            // <<< ADDED: Log state BEFORE calling playAudio >>>
+            console.log(`<<< BEFORE playAudio: currentSubStep=${currentSubStep}, instanceExists=${!!instance} >>>`);
             currentAudioFilename = instructionAudioFile;
-            playAudio(instructionAudioFile);
+            // Use playAudio WITH a callback to enable interaction
+            playAudio(instructionAudioFile, () => {
+                 console.log(`<<< Entered playAudio callback for Step 2 >>>`);
+                 // Use global p5Instance directly in the callback
+                 console.log(`<<< Callback Check: currentSubStep=${currentSubStep}, globalP5InstanceExists=${!!p5Instance} >>>`);
+                 // Check if still on the correct step AND global instance exists
+                 if (currentSubStep === 2 && p5Instance) { 
+                     console.log("Audio finished for step 2, ENABLING arrow interaction via global p5Instance.");
+                     p5Instance.setInteraction(true, stepData.p5config.interactionTarget); // Use global p5Instance
+                 } else {
+                     console.log("Interaction enabling SKIPPED for step 2 (step changed or global p5Instance lost).");
+                 }
+            });
             
-            // Start the animation
-            if (instance) {
-                instance.startAnimation();
-            }
-            
-            // Disable next button until correct answer
-            nextButton.disabled = true;
-        }
-    },
-    { // 3: Drag Arrow in Clockwise Direction
-        title: "Drag the Arrow Clockwise",
-        instruction: "Which way is clockwise? Click the arrow to show the clock moving in the clockwise direction.",
-        checkType: 'arrow',
-        feedbackCorrect: "Perfect! That's clockwise!",
-        feedbackIncorrect: "Not quite. Remember, clockwise follows the numbers around...",
-        p5config: {
-            stepIndex: 3,
-            showNumbers: true,
-            showHands: true,
-            initialTime: { h: 3, m: 0 },
-            animateHands: false,
-            showDirectionArrows: true,
-            interactionTarget: { type: 'arrow', value: 'clockwise' }
-        },
-        setup: (instance) => {
-            console.log("Running setup for Try It Step 3");
-            const stepData = subSteps[3];
-            
-            // Update UI
-            titleElement.textContent = stepData.title;
-            instructionElement.innerHTML = stepData.instruction;
-            feedbackArea.textContent = '';
-            feedbackArea.className = 'feedback';
-            
-            // Enable arrow interaction
-            if (instance) {
-                instance.setInteraction(true, stepData.p5config.interactionTarget);
-            }
-            
-            // Play instruction audio
-            const instructionAudioFile = getAudioFilename(3, 'instruction');
-            currentAudioFilename = instructionAudioFile;
-            playAudio(instructionAudioFile);
+            // REMOVED animation start
+            // if (instance) instance.startAnimation();
             
             // Disable next button until correct answer
             nextButton.disabled = true;
@@ -250,15 +207,30 @@ const subSteps = [
 
 // --- Helper Functions ---
 
-// Get audio filename from the map based on step index and part key
-function getAudioFilename(stepIndex, partKey) {
-    const key = `${stepIndex}-${partKey}`;
-    const filename = audioFilenameMap[key];
-    if (!filename) {
-        console.warn(`Audio mapping not found for key: ${key}`);
-        return null;
+// Placeholder for updateLessonCounter
+function updateLessonCounter() {
+    // TODO: Implement counter update logic if needed for Try It page
+    if (lessonCounterElement) {
+         lessonCounterElement.textContent = `Step ${currentSubStep + 1} of ${subSteps.length}: Try It`;
+    } else {
+        // console.log(`Update lesson counter: Step ${currentSubStep + 1} / ${subSteps.length}`);
     }
-    return filename;
+}
+
+// Placeholder for updateProgressBar
+function updateProgressBar() {
+    // TODO: Implement progress bar logic if needed for Try It page
+    // console.log("Update progress bar (placeholder)");
+}
+
+// Get audio filename from the map based on step index and part key
+function getAudioFilename(stepIndex, key) {
+    const baseKey = `${stepIndex}-${key}`; // e.g., '0-instruction', '1-feedback-correct'
+    if (audioMap[baseKey]) {
+        return audioMap[baseKey];
+    }
+    console.warn(`Audio key not found in audioMap: ${baseKey}`);
+    return null; // Return null if no mapping found
 }
 
 // Control audio playback
@@ -276,6 +248,14 @@ function stopAudio(clearCallback = true) {
 }
 
 function playAudio(filename, onEndedCallback = null) {
+    if (!isAudioGloballyEnabled) {
+        console.log("Audio globally disabled. Skipping playback.");
+        if (typeof onEndedCallback === 'function') {
+            // Still call callback immediately if audio is disabled
+            onEndedCallback(); 
+        }
+        return;
+    }
     if (!filename) {
         console.log("No audio filename provided.");
         if (typeof onEndedCallback === 'function') {
@@ -285,40 +265,54 @@ function playAudio(filename, onEndedCallback = null) {
     }
     
     const audioPath = `voice/${filename}`;
-    console.log(`Playing audio: ${audioPath}`);
-    
-    // Stop previous audio without clearing callbacks
-    stopAudio(false);
-    
-    // Clear any existing listeners
+    console.log(`Attempting to play audio: ${audioPath}`);
+    stopAudio(false); // Stop previous audio
+
+    // Flag to ensure callback is only called once per playAudio call
+    let callbackCalled = false; 
+
+    // Single handler for ending/error/catch
+    const handleEndOfPlayback = (origin) => {
+        if (!callbackCalled) {
+            callbackCalled = true; // Set flag immediately
+            console.log(`Audio ended/failed (${filename}), origin: ${origin}. Calling callback.`);
+            // Clear listeners *inside* handler to be safe
+            narrationAudio.onended = null;
+            narrationAudio.onerror = null;
+            if (typeof onEndedCallback === 'function') {
+                onEndedCallback();
+            }
+        } else {
+            console.log(`Callback for ${filename} already called, ignoring duplicate ${origin} event.`);
+        }
+    };
+
+    // Clear listeners before setting new ones
     narrationAudio.onended = null;
     narrationAudio.onerror = null;
     
-    // Set up new listeners
-    narrationAudio.onended = () => {
-        console.log("Audio ended:", filename);
-        narrationAudio.onended = null;
-        narrationAudio.onerror = null;
-        if (typeof onEndedCallback === 'function') {
-            onEndedCallback();
-        }
-    };
-    
+    // Set up new listeners using the single handler
+    narrationAudio.onended = () => handleEndOfPlayback('ended');
     narrationAudio.onerror = (e) => {
-        console.error("Audio error:", filename, e);
-        narrationAudio.onended = null;
-        narrationAudio.onerror = null;
+        console.error("Audio error event triggered:", filename, e);
+        handleEndOfPlayback('error'); 
     };
     
-    // Set source and play
     narrationAudio.src = audioPath;
     narrationAudio.currentTime = 0;
     
     const playPromise = narrationAudio.play();
     if (playPromise !== undefined) {
-        playPromise.catch(e => {
-            console.error("Audio play failed:", e);
+        playPromise.then(() => {
+            // Optional: Log successful start if needed, but not critical
+            // console.log("Audio playback initiated successfully for:", filename);
+        }).catch(e => {
+            console.error("Audio play() promise rejected:", filename, e);
+            handleEndOfPlayback('catch'); 
         });
+    } else {
+         // If play() doesn't return a promise, rely on onerror/onended
+         console.warn("Audio play() did not return a promise.");
     }
 }
 
@@ -366,9 +360,8 @@ function createYesNoButtons() {
 
 // Handle Yes/No button responses
 function handleYesNoResponse(isYes) {
-    if (globalState.currentSubStep !== 2) return;
-    
-    const isCorrect = (isYes === true); // "yes" is the correct answer
+    if (currentSubStep !== 2) return;
+    const isCorrect = (isYes === true);
     handleInteractionResult(isCorrect);
 }
 
@@ -401,7 +394,7 @@ function loadSubStep(index) {
     feedbackArea.textContent = '';
     feedbackArea.className = 'feedback';
     checkArea.innerHTML = '';
-    cleanupCheckLayout(); // Ensure layout is reset if needed
+    // cleanupCheckLayout(); // Ensure layout is reset if needed - REMOVED, function not defined here
 
     // Initialize p5 instance
     initializeP5(stepData);
@@ -446,9 +439,9 @@ function loadSubStep(index) {
 
 // Handle interaction results
 function handleInteractionResult(isCorrect) {
-    if (globalState.currentSubStep < 0 || globalState.currentSubStep >= subSteps.length) return;
+    if (currentSubStep < 0 || currentSubStep >= subSteps.length) return;
     
-    const stepData = subSteps[globalState.currentSubStep];
+    const stepData = subSteps[currentSubStep];
     
     if (isCorrect) {
         console.log("Correct interaction!");
@@ -457,20 +450,15 @@ function handleInteractionResult(isCorrect) {
         feedbackArea.textContent = stepData.feedbackCorrect;
         feedbackArea.className = 'feedback feedback-correct';
         
-        // Add to completed steps if not already there
-        if (!globalState.completedSubSteps.includes(globalState.currentSubStep)) {
-            globalState.completedSubSteps.push(globalState.currentSubStep);
-        }
-        
         // Play feedback audio
-        playAudio(getAudioFilename(globalState.currentSubStep, 'feedback-correct'));
+        playAudio(getAudioFilename(currentSubStep, 'feedback-correct'));
         
         // Enable next button
         nextButton.disabled = false;
         
         // For p5 instance, disable further interaction
-        if (p5Instance && stepData.checkType === 'hand') {
-            p5Instance.setInteraction(false, null);
+        if (p5Instance) {
+             p5Instance.setInteraction(false, null);
         }
     } else {
         console.log("Incorrect interaction.");
@@ -480,16 +468,17 @@ function handleInteractionResult(isCorrect) {
         feedbackArea.className = 'feedback feedback-incorrect';
         
         // Play feedback audio
-        playAudio(getAudioFilename(globalState.currentSubStep, 'feedback-incorrect'));
+        playAudio(getAudioFilename(currentSubStep, 'feedback-incorrect'));
         
         // For p5 instance, re-enable interaction after a delay
-        if (p5Instance && stepData.checkType === 'hand') {
-            setTimeout(() => {
-                if (p5Instance) {
-                    p5Instance.resetClickFeedback();
-                    p5Instance.setInteraction(true, stepData.p5config.interactionTarget);
-                }
-            }, 2000);
+        if (p5Instance) {
+             p5Instance.resetClickFeedback();
+             // Interaction might already be enabled, but ensure it is for the correct target
+             setTimeout(() => {
+                  if (p5Instance && currentSubStep === stepData.p5config.stepIndex) { // Check step again
+                      p5Instance.setInteraction(true, stepData.p5config.interactionTarget);
+                  }
+              }, 1500); 
         }
     }
 }
@@ -696,7 +685,15 @@ function clockSketch(config) {
         };
         
         p.mousePressed = () => {
-            if (!localInteractionEnabled || directionAnimationActive) return;
+            console.log(`<<< p.mousePressed triggered >>> InteractionEnabled: ${localInteractionEnabled}`); // Log entry and state
+            if (localInteractionTarget) { // Log target only if it exists
+                console.log(`<<< Target: type=${localInteractionTarget.type}, value=${localInteractionTarget.value} >>>`);
+            }
+
+            if (!localInteractionEnabled || directionAnimationActive) {
+                console.log("mousePressed ignored (interaction disabled or animation active)");
+                return;
+            }
             
             // Clear previous feedback
             if (feedbackArea.textContent) {
@@ -721,37 +718,28 @@ function clockSketch(config) {
             }
             
             // Process arrow clicks for step 3
-            if (localHoveredArrow && localInteractionTarget?.type === 'arrow') {
-                console.log(`Clicked on ${localHoveredArrow} arrow`);
-                
-                // Immediately determine if the answer is correct
-                const isCorrect = (localHoveredArrow === 'clockwise');
-                
-                // Update feedback immediately
-                localClickFeedback = { 
-                    number: null, 
-                    hand: null, 
-                    arrow: localHoveredArrow, 
-                    correct: isCorrect 
-                };
-                
-                // Show feedback right away
-                handleInteractionResult(isCorrect);
-                
-                // Start direction animation
-                directionAnimationActive = true;
-                directionAnimationDirection = localHoveredArrow;
-                directionAnimationSpeed = 3; // Adjust speed as needed
-                animationStartTime = Date.now(); // Store the current time
-                localHandAngleOffset = 0; // Reset animation offset
-                
-                // Ensure we're looping to animate
-                p.loop();
+            if (localInteractionTarget?.type === 'arrow') { 
+                console.log(`<<< Checking arrow click. Hovered Arrow: ${localHoveredArrow} >>>`); 
+                if (localHoveredArrow) {
+                    console.log(`Clicked on ${localHoveredArrow} arrow`);
+                    const isCorrect = (localHoveredArrow === localInteractionTarget.value);
+                    localClickFeedback = { arrow: localHoveredArrow, correct: isCorrect }; // Store feedback state
+                    
+                    handleInteractionResult(isCorrect); // Call main handler for feedback/button state
+                    
+                    p.redraw(); // Redraw to show click feedback on the arrow
+                } else {
+                    // Clicked on canvas but not on an arrow
+                    console.log("mousePressed on canvas, but not on an arrow target.");
+                }
             }
         };
         
         // --- External Control Methods ---
         p.setInteraction = (enabled, target) => {
+             // <<< Added Detailed Log >>>
+             console.log(`<<< p.setInteraction called. Enabled: ${enabled}, Target: ${JSON.stringify(target)} >>>`); 
+             // <<< End Added Log >>>
             if (localInteractionEnabled !== enabled || 
                 JSON.stringify(localInteractionTarget) !== JSON.stringify(target)) {
                 
@@ -1037,18 +1025,26 @@ document.addEventListener("DOMContentLoaded", function() {
     // Setup audio button
     const audioButton = document.getElementById("footer-audio-button");
     if (audioButton) {
+        // Set initial icon state based on the flag
+        const icon = audioButton.querySelector("i");
+        if (icon) {
+             icon.className = isAudioGloballyEnabled ? "fas fa-volume-up" : "fas fa-volume-mute";
+        }
+        
         audioButton.addEventListener("click", function() {
-            // Toggle audio state
-            globalState.audioEnabled = !globalState.audioEnabled;
+            // Toggle global audio state
+            isAudioGloballyEnabled = !isAudioGloballyEnabled;
             
             // Update button icon
             const icon = audioButton.querySelector("i");
             if (icon) {
-                if (globalState.audioEnabled) {
+                if (isAudioGloballyEnabled) {
                     icon.className = "fas fa-volume-up";
+                    // Optional: If unmuting, maybe replay current instruction audio?
+                    // if (currentAudioFilename) playAudio(currentAudioFilename); 
                 } else {
                     icon.className = "fas fa-volume-mute";
-                    stopAudio(); // Stop any playing audio
+                    stopAudio(); // Stop any playing audio when muting
                 }
             }
         });
@@ -1076,88 +1072,89 @@ document.addEventListener("DOMContentLoaded", function() {
 // Initialize the lesson
 function initializeLesson() {
     console.log("Initializing lesson...");
-    // Reset any global state if needed
-    resetState();
-    
-    // Ensure Skip button is visible
+    // Removed resetState call
     const skipButton = document.getElementById('skip-button');
     if (skipButton) {
-        skipButton.style.display = 'inline-flex'; // Ensure it's visible
-    } else {
-        console.warn("Skip button not found during initialization!");
+        skipButton.style.display = 'inline-flex'; 
     }
-    
-    // Load the first subStep
     loadSubStep(0);
-    
-    // Play welcome audio if needed
-    if (globalState.audioEnabled) {
-        playAudio("welcome_to_try_it");
-    }
-}
-
-// Reset state for lesson initialization
-function resetState() {
-    globalState.currentSubStep = 0;
-    globalState.completedSubSteps = [];
-    
-    // Reset the p5 instance if it exists
-    if (globalState.p5Instance) {
-        globalState.p5Instance.remove();
-        globalState.p5Instance = null;
-    }
-    
-    // Clear feedback area
-    const feedbackArea = document.getElementById("feedback-area");
-    if (feedbackArea) {
-        feedbackArea.innerHTML = "";
-        feedbackArea.className = "feedback";
-    }
+    // Removed audio enabled check
 }
 
 // Load a specific sub-step
 function loadSubStep(index) {
     console.log(`Loading sub-step ${index}`);
-    globalState.currentSubStep = index;
-    
-    // Get the current sub-step data
-    const subStep = subSteps[index];
-    
-    // Update the instruction text
+    currentSubStep = index;
+    const stepData = subSteps[currentSubStep];
     const instructionElement = document.getElementById("try-it-instruction");
-    if (instructionElement && subStep.instruction) {
-        instructionElement.innerHTML = subStep.instruction;
-    }
+    const instructionText = stepData.instruction || ""; // Store text
+
+    stopAudio(true); // Stop previous audio
     
-    // Update navigation buttons based on current step
+    // Hide text initially
+    if (instructionElement) {
+        instructionElement.innerHTML = "";
+        instructionElement.style.visibility = 'hidden';
+    }
+    if (titleElement && stepData.title) {
+        titleElement.textContent = stepData.title;
+    }
+    feedbackArea.textContent = '';
+    feedbackArea.className = 'feedback';
+    checkArea.innerHTML = '';
+    // cleanupCheckLayout(); // Ensure layout is reset if needed - REMOVED, function not defined here
+
+    // Initialize p5 instance
+    initializeP5(stepData);
+
+    // Update nav buttons
     updateNavigationButtons();
-    
-    // Display appropriate feedback
-    clearFeedback();
-    
-    // Initialize p5 instance if needed
-    initializeP5(subStep);
-    
-    // Play audio for the step
-    if (globalState.audioEnabled && subStep.audioFile) {
-        playAudio(subStep.audioFile);
+    if(prevButton) prevButton.disabled = (index === 0);
+    nextButton.disabled = true; // Always disable initially
+
+    // Define callback to show text
+    const showTextCallback = () => {
+        if (instructionElement) {
+             instructionElement.innerHTML = instructionText; // Set the stored text
+             instructionElement.style.visibility = 'visible';
+             console.log("Instruction text made visible for step:", index);
+        }
+        // Call the step-specific setup logic AFTER text is visible
+        if (typeof stepData.setup === 'function') {
+             stepData.setup(p5Instance);
+        } else {
+             console.warn("No setup function defined for step:", index);
+             // If no setup, might need to enable next based on step type
+             // For Try It, setup usually handles this.
+        }
+    };
+
+    // Play audio for the step using getAudioFilename
+    const audioFile = getAudioFilename(index, 'instruction');
+    currentAudioFilename = audioFile; // Store for potential replay
+    if (audioFile) {
+        playAudio(audioFile, showTextCallback);
+    } else {
+        console.log("No instruction audio for step:", index);
+        // If no audio, run callback immediately to show text
+        setTimeout(showTextCallback, 0); 
     }
+    
+    // Update lesson counter & progress
+    updateLessonCounter();
+    updateProgressBar();
 }
 
 // Load next sub-step
 function loadNextSubStep() {
     console.log("Loading next sub-step");
-    
-    // First, ensure any existing p5 instance is properly removed
     if (p5Instance) {
-        p5Instance.remove();
+        try { p5Instance.remove(); } catch(e) { console.error("Error removing p5 for next step:", e); }
         p5Instance = null;
     }
-    
-    if (globalState.currentSubStep < subSteps.length - 1) {
-        loadSubStep(globalState.currentSubStep + 1);
+    if (currentSubStep < subSteps.length - 1) {
+        loadSubStep(currentSubStep + 1);
     } else {
-        // Navigate to next page when all steps are completed
         window.location.href = 'do-it.html';
     }
 }
@@ -1165,33 +1162,29 @@ function loadNextSubStep() {
 // Load previous sub-step
 function loadPreviousSubStep() {
     console.log("Loading previous sub-step");
-    
-    // First, ensure any existing p5 instance is properly removed
     if (p5Instance) {
-        p5Instance.remove();
+        try { p5Instance.remove(); } catch(e) { console.error("Error removing p5 for prev step:", e); }
         p5Instance = null;
     }
-    
-    if (globalState.currentSubStep > 0) {
-        loadSubStep(globalState.currentSubStep - 1);
+    if (currentSubStep > 0) {
+        loadSubStep(currentSubStep - 1);
     } else {
-        // Navigate to previous page
         window.location.href = 'learn-it.html';
     }
 }
 
 // Update navigation buttons based on current step
 function updateNavigationButtons() {
-    const nextButton = document.getElementById("next-step-button");
-    const skipButton = document.getElementById("skip-button");
+    // const nextButton = document.getElementById("next-step-button"); // Button references might be passed or global
+    // const skipButton = document.getElementById("skip-button");
+    // prevButton state is handled in loadSubStep
     
-    if (nextButton && skipButton) {
-        const isCompleted = globalState.completedSubSteps.includes(globalState.currentSubStep);
-        
-        // Enable/disable next button based on completion status
-        nextButton.disabled = !isCompleted;
-
-    }
+    // Removed logic that accessed deleted globalState
+    // if (nextButton && skipButton) {
+    //     const isCompleted = globalState.completedSubSteps.includes(currentSubStep);
+    //     nextButton.disabled = !isCompleted;
+    // }
+    // Button states (nextButton.disabled) are managed elsewhere (loadSubStep, handleInteractionResult)
 }
 
 // Display appropriate feedback
@@ -1210,37 +1203,37 @@ function initializeP5(subStep) {
     
     // Remove any existing p5 instance
     if (p5Instance) {
-        p5Instance.remove();
+        try { p5Instance.remove(); } catch(e) { console.error("Error removing old p5:", e); }
         p5Instance = null;
     }
     
     // Make sure to remove any existing canvas elements
     const existingCanvases = canvasContainer.querySelectorAll('canvas');
     existingCanvases.forEach(canvas => canvas.remove());
-    
-    // Clear the canvas container
     canvasContainer.innerHTML = '';
     
-    // Create a new p5 instance with this step's configuration
+    // Create a new p5 instance immediately
     try {
-        // Short delay to ensure DOM is ready
-        setTimeout(() => {
+        if (canvasContainer) { // Ensure container exists
+            console.log("Creating NEW p5 instance for step:", subStep.p5config.stepIndex);
             p5Instance = new p5(clockSketch(subStep.p5config), canvasContainer);
-            globalState.p5Instance = p5Instance;
-            
-            // Call the step's setup function once the p5 instance is ready
-            setTimeout(() => {
-                if (p5Instance && typeof subStep.setup === 'function') {
-                    subStep.setup(p5Instance);
-                }
-            }, 50);
-        }, 20);
+            // globalState.p5Instance = p5Instance; // Avoid using separate globalState for now
+
+            // Call the step's setup function immediately after instance creation
+            if (p5Instance && typeof subStep.setup === 'function') {
+                console.log("Calling setup function immediately after p5 creation.");
+                subStep.setup(p5Instance);
+            } else {
+                 console.warn("p5 instance created but setup function missing or invalid for step:", subStep.p5config.stepIndex);
+            }
+        } else {
+            console.error("Canvas container not found during p5 initialization!");
+        }
     } catch (error) {
         console.error("Error creating p5 instance:", error);
-        const feedbackArea = document.getElementById('feedback-area');
         if (feedbackArea) {
             feedbackArea.textContent = "Error loading interactive element.";
             feedbackArea.className = 'feedback feedback-incorrect';
         }
-    }
+    } 
 } 
