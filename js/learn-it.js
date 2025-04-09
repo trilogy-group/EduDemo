@@ -203,8 +203,8 @@ const subSteps = [
         check2: "Click on the Minute Hand (the long one).",
         checkType: 'hand',
         checks: [
-            { instruction: "Click on the <strong>Hour Hand</strong> (the short one).", targetValue: 'hour', feedbackCorrect: "You got it! That's the short hour hand.", feedbackIncorrect: "Oops! Remember, the hour hand is the *short* one. Click the short hand." },
-            { instruction: "Now, click on the <strong>Minute Hand</strong> (the long one).", targetValue: 'minute', feedbackCorrect: "Excellent! That's the long minute hand.", feedbackIncorrect: "Careful! The minute hand is the *long* one. Click the long hand." }
+            { instruction: "Click on the <strong>Hour Hand</strong> (the short one).", targetValue: 'hour', feedbackCorrect: "You got it! That's the short hour hand.", feedbackIncorrect: "Oops! Remember, the hour hand is the shorter one. Click the short hand." },
+            { instruction: "Now, click on the <strong>Minute Hand</strong> (the long one).", targetValue: 'minute', feedbackCorrect: "Excellent! That's the long minute hand.", feedbackIncorrect: "Careful! The minute hand is the longer one. Click the long hand." }
         ],
         currentCheckIndex: 0,
         p5config: {
